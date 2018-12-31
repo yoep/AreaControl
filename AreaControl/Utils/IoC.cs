@@ -2,25 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using RazerPoliceLights;
 
-namespace RazerPoliceLights
+// ReSharper disable UnusedMember.Global
+
+namespace AreaControl.Utils
 {
     /// <summary>
     /// Lightweight implementation of an IoC container for simplification of mod dependencies to not use a heavyweight DLL dependency.
     /// </summary>
     public class IoC
     {
+        private static readonly string PostConstructName = typeof(PostConstruct).FullName;
+
         private readonly Dictionary<Type, ImplementationType> _components = new Dictionary<Type, ImplementationType>();
         private readonly Dictionary<Type, object> _singletons = new Dictionary<Type, object>();
+
+        #region Constructors
 
         private IoC()
         {
         }
 
+        #endregion
+
+        #region Properties
+
         /// <summary>
         /// Get the IoC instance.
         /// </summary>
         public static IoC Instance { get; } = new IoC();
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Register a new component type.
@@ -101,6 +116,10 @@ namespace RazerPoliceLights
             return _singletons.ContainsKey(type);
         }
 
+        #endregion
+
+        #region Functions
+
         private void RegisterType<T>(Type implementation, bool isSingleton)
         {
             var type = typeof(T);
@@ -129,6 +148,8 @@ namespace RazerPoliceLights
 
             var instance = InitializeInstanceType(component.Type);
 
+            InvokePostConstruct(instance);
+
             if (component.IsSingleton)
                 _singletons.Add(type, instance);
 
@@ -150,11 +171,49 @@ namespace RazerPoliceLights
             throw new IoCException("Could not create instance for " + type);
         }
 
+        private static void InvokePostConstruct(object instance)
+        {
+            var postConstructMethod = instance.GetType()
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .SingleOrDefault(x => x.GetCustomAttribute<PostConstruct>() != null);
+
+            if (postConstructMethod == null)
+                return;
+
+            var methodParams = postConstructMethod.GetParameters();
+
+            if (methodParams.Length > 0)
+                throw new IoCException(PostConstructName + " doesn't allow parameterized methods");
+
+            try
+            {
+                postConstructMethod.Invoke(instance, new object[] { });
+            }
+            catch (Exception ex)
+            {
+                throw new IoCException(PostConstructName + " failed with error:" + Environment.NewLine + ex.Message, ex);
+            }
+        }
+
         private bool AreAllParametersRegistered(ConstructorInfo constructor)
         {
             return constructor.GetParameters().All(parameterInfo => _components.ContainsKey(parameterInfo.ParameterType));
         }
 
+        #endregion
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Indicates that the method must be executed after instantiation of the instance managed by this IoC.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Method)]
+        public class PostConstruct : Attribute
+        {
+        }
+
+        /// <summary>
+        /// Internal placeholder of the IoC implementation type info.
+        /// </summary>
         private class ImplementationType
         {
             public Type Type { get; set; }

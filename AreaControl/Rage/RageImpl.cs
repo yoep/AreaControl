@@ -10,17 +10,17 @@ namespace AreaControl.Rage
     {
         public void DisplayNotification(string message)
         {
-            Game.DisplayNotification(AreaControl.Name + " " + message.Trim());
+            Game.DisplayNotification("~b~" + AreaControl.Name + " ~s~" + message.Trim());
         }
 
         public void LogTrivial(string message)
         {
-            Game.LogTrivial(message);
+            Game.LogTrivial("[" + AreaControl.Name + "]: " + message.Trim());
         }
 
         public void LogTrivialDebug(string message)
         {
-            Game.LogTrivialDebug(message);
+            Game.LogTrivialDebug("[" + AreaControl.Name + "]: " + message.Trim());
         }
 
         public void FiberYield()
