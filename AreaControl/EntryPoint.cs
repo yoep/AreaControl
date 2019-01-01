@@ -50,7 +50,8 @@ namespace AreaControl
                 .RegisterSingleton<IMain>(typeof(MainImpl))
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
                 .RegisterSingleton<IRoadBlock>(typeof(RoadBlockImpl))
-                .RegisterSingleton<ICloseRoad>(typeof(CloseRoadImpl));
+                .RegisterSingleton<ICloseRoad>(typeof(CloseRoadImpl))
+                .RegisterSingleton<IRoadUtil>(typeof(RoadUtil));
         }
     }
 }
