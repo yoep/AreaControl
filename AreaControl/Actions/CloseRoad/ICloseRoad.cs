@@ -1,9 +1,8 @@
 using AreaControl.Menu;
 
-namespace AreaControl.CloseRoad
+namespace AreaControl.Actions.CloseRoad
 {
     public interface ICloseRoad : IMenuComponent
     {
-        
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace RazerPoliceLights
+namespace AreaControl
 {
     public class IoCException : Exception
     {

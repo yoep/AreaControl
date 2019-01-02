@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using RazerPoliceLights;
 
 // ReSharper disable UnusedMember.Global
 
-namespace AreaControl.Utils
+namespace AreaControl
 {
     /// <summary>
     /// Lightweight implementation of an IoC container for simplification of mod dependencies to not use a heavyweight DLL dependency.

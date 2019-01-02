@@ -1,6 +1,6 @@
 using AreaControl.Menu;
 
-namespace AreaControl.RoadBlock
+namespace AreaControl.Actions.RoadBlock
 {
     public interface IRoadBlock : IMenuComponent
     {

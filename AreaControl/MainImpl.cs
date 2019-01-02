@@ -1,7 +1,6 @@
-using AreaControl.CloseRoad;
+using AreaControl.Actions.CloseRoad;
+using AreaControl.Actions.RoadBlock;
 using AreaControl.Menu;
-using AreaControl.RoadBlock;
-using AreaControl.Utils;
 using RAGENativeUI.Elements;
 
 namespace AreaControl

@@ -3,3 +3,6 @@
 .git/
 **/bin/
 **/obj/
+packages/
+
+**.DotSettings.user

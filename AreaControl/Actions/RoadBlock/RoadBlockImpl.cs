@@ -1,4 +1,4 @@
-namespace AreaControl.RoadBlock
+namespace AreaControl.Actions.RoadBlock
 {
     public class RoadBlockImpl : IRoadBlock
     {

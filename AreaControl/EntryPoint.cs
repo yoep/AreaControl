@@ -1,15 +1,17 @@
 using System;
-using AreaControl.CloseRoad;
+using System.Diagnostics.CodeAnalysis;
+using AreaControl.Actions.CloseRoad;
+using AreaControl.Actions.RoadBlock;
 using AreaControl.Menu;
 using AreaControl.Rage;
-using AreaControl.RoadBlock;
 using AreaControl.Utils;
+using AreaControl.Utils.Query;
 using LSPD_First_Response.Mod.API;
 
 namespace AreaControl
 {
     /// <inheritdoc />
-    // ReSharper disable once UnusedMember.Global
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class EntryPoint : Plugin
     {
         /// <inheritdoc />
@@ -49,9 +51,11 @@ namespace AreaControl
                 .Register<IRage>(typeof(RageImpl))
                 .RegisterSingleton<IMain>(typeof(MainImpl))
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
-                .RegisterSingleton<IRoadBlock>(typeof(RoadBlockImpl))
-                .RegisterSingleton<ICloseRoad>(typeof(CloseRoadImpl))
-                .RegisterSingleton<IRoadUtil>(typeof(RoadUtil));
+                .RegisterSingleton<IRoadUtil>(typeof(RoadUtil))
+                .Register<IRoadBlock>(typeof(RoadBlockImpl))
+                .Register<ICloseRoad>(typeof(CloseRoadImpl))
+                .Register<IPedQuery>(typeof(PedQuery))
+                .Register<IVehicleQuery>(typeof(VehicleQuery));
         }
     }
 }

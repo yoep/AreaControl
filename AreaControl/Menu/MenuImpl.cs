@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using AreaControl.Rage;
-using AreaControl.Utils;
 using Rage;
 using RAGENativeUI;
 using RAGENativeUI.Elements;
