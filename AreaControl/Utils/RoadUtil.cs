@@ -4,12 +4,17 @@ using Rage.Native;
 
 namespace AreaControl.Utils
 {
-    public class RoadUtil : IRoadUtil
+    public static class RoadUtil
     {
         #region Methods
 
-        /// <inheritdoc />
-        public Road GetClosestRoad(Vector3 position, RoadType roadType)
+        /// <summary>
+        /// Get the location of the closest road in regards to the given position.
+        /// </summary>
+        /// <param name="position">Set the position to use as reference.</param>
+        /// <param name="roadType">Set the road type.</param>
+        /// <returns>Returns the position of the closest road.</returns>
+        public static Road GetClosestRoad(Vector3 position, RoadType roadType)
         {
             Assert.NotNull(position, "position cannot be null");
             Assert.NotNull(roadType, "roadType cannot be null");

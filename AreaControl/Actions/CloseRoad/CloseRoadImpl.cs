@@ -14,13 +14,11 @@ namespace AreaControl.Actions.CloseRoad
         private const float ScanRadius = 250f;
 
         private readonly IRage _rage;
-        private readonly IRoadUtil _roadUtil;
         private readonly IVehicleQuery _vehicleQuery;
 
-        public CloseRoadImpl(IRage rage, IRoadUtil roadUtil, IVehicleQuery vehicleQuery)
+        public CloseRoadImpl(IRage rage, IVehicleQuery vehicleQuery)
         {
             _rage = rage;
-            _roadUtil = roadUtil;
             _vehicleQuery = vehicleQuery;
         }
 
@@ -39,7 +37,7 @@ namespace AreaControl.Actions.CloseRoad
         {
             var player = Game.LocalPlayer.Character;
             var playerPosition = player.Position;
-            var closestRoad = _roadUtil.GetClosestRoad(playerPosition, RoadType.All);
+            var closestRoad = RoadUtil.GetClosestRoad(playerPosition, RoadType.All);
             var placementHeading = closestRoad.Heading + 90f;
             var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
             var placementPosition = closestRoad.RightSide + direction * 2f;
@@ -68,12 +66,6 @@ namespace AreaControl.Actions.CloseRoad
                 {
                     ClaimVehicleOccupants(vehicle);
                     MoveToSlot(vehicle, slot);
-
-                    //keep claiming the vehicle
-                    while (true)
-                    {
-                        GameFiber.Yield();
-                    }
                 });
 
                 GameFiber.Sleep(100);
@@ -87,7 +79,7 @@ namespace AreaControl.Actions.CloseRoad
             slot.CreatePreview();
             _rage.LogTrivialDebug("Vehicle driving to block slot...");
             vehicleDriver.Tasks
-                .DriveToPosition(slot.Position, 30f, VehicleDrivingFlags.Normal, 5f)
+                .DriveToPosition(slot.Position, 30f, VehicleDrivingFlags.Normal, 2f)
                 .WaitForCompletion();
             _rage.LogTrivialDebug("Vehicle arrived at block slot " + slot);
             vehicle.Position = slot.Position;

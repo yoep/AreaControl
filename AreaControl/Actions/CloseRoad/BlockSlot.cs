@@ -12,8 +12,14 @@ namespace AreaControl.Actions.CloseRoad
             Heading = heading;
         }
 
+        /// <summary>
+        /// Get the position of the block slot.
+        /// </summary>
         public Vector3 Position { get; }
 
+        /// <summary>
+        /// Get the heading of the block slot.
+        /// </summary>
         public float Heading { get; }
 
         /// <summary>

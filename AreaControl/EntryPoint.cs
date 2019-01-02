@@ -4,7 +4,6 @@ using AreaControl.Actions.CloseRoad;
 using AreaControl.Actions.RoadBlock;
 using AreaControl.Menu;
 using AreaControl.Rage;
-using AreaControl.Utils;
 using AreaControl.Utils.Query;
 using LSPD_First_Response.Mod.API;
 
@@ -24,9 +23,7 @@ namespace AreaControl
                 var ioC = IoC.Instance;
                 var rage = ioC.GetInstance<IRage>();
 
-                //IMain will automatically initialize all different components of this plugin through the IoC
-                ioC.GetInstance<IMain>();
-
+                Main.Initialize();
                 rage.LogTrivial("initialized");
                 rage.DisplayNotification("has been loaded");
             }
@@ -42,16 +39,14 @@ namespace AreaControl
         /// <inheritdoc />
         public override void Finally()
         {
-            IoC.Instance.GetInstance<IMain>().Unload();
+            Main.Unload();
         }
 
         private static void InitializeIoContainer()
         {
             IoC.Instance
                 .Register<IRage>(typeof(RageImpl))
-                .RegisterSingleton<IMain>(typeof(MainImpl))
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
-                .RegisterSingleton<IRoadUtil>(typeof(RoadUtil))
                 .Register<IRoadBlock>(typeof(RoadBlockImpl))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl))
                 .Register<IPedQuery>(typeof(PedQuery))
