@@ -3,11 +3,19 @@ using Rage;
 
 namespace AreaControl.Utils.Query
 {
-    public class VehicleQuery : IVehicleQuery
+    public static class VehicleQuery
     {
-        /// <inheritdoc />
-        public Vehicle FindWithin(Vector3 position, float radius)
+        /// <summary>
+        /// Find a vehicle within the given rage of the given position.
+        /// </summary>
+        /// <param name="position">Set the position to search around.</param>
+        /// <param name="radius">Set the radius to search in.</param>
+        /// <returns>Returns a police vehicle in the range of the position if found, else false.</returns>
+        public static Vehicle FindWithin(Vector3 position, float radius)
         {
+            Assert.NotNull(position, "position cannot be null");
+            Assert.IsPositive(radius, "radius cannot be a negative number");
+            
             return World
                 .GetEntities(position, radius, GetEntitiesFlags.ConsiderGroundVehicles)
                 .OfType<Vehicle>()

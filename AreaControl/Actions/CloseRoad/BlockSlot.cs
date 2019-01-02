@@ -1,6 +1,6 @@
 using System;
+using AreaControl.Utils;
 using Rage;
-using Rage.Native;
 
 namespace AreaControl.Actions.CloseRoad
 {
@@ -27,14 +27,7 @@ namespace AreaControl.Actions.CloseRoad
         /// </summary>
         public void CreatePreview()
         {
-            var previewVehicle = new Vehicle("POLICE", Position, Heading)
-            {
-                Opacity = 0.7f,
-                NeedsCollision = false,
-                IsPositionFrozen = true,
-                IsDriveable = false
-            };
-            NativeFunction.Natives.SET_ENTITY_COLLISION(previewVehicle, false, false);
+            PreviewUtil.TransformToPreview(new Vehicle("POLICE", Position, Heading));
         }
 
         public override string ToString()

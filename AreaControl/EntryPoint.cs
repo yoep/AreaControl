@@ -4,7 +4,6 @@ using AreaControl.Actions.CloseRoad;
 using AreaControl.Actions.RoadBlock;
 using AreaControl.Menu;
 using AreaControl.Rage;
-using AreaControl.Utils.Query;
 using LSPD_First_Response.Mod.API;
 
 namespace AreaControl
@@ -48,9 +47,7 @@ namespace AreaControl
                 .Register<IRage>(typeof(RageImpl))
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
                 .Register<IRoadBlock>(typeof(RoadBlockImpl))
-                .Register<ICloseRoad>(typeof(CloseRoadImpl))
-                .Register<IPedQuery>(typeof(PedQuery))
-                .Register<IVehicleQuery>(typeof(VehicleQuery));
+                .Register<ICloseRoad>(typeof(CloseRoadImpl));
         }
     }
 }

@@ -14,12 +14,10 @@ namespace AreaControl.Actions.CloseRoad
         private const float ScanRadius = 250f;
 
         private readonly IRage _rage;
-        private readonly IVehicleQuery _vehicleQuery;
 
-        public CloseRoadImpl(IRage rage, IVehicleQuery vehicleQuery)
+        public CloseRoadImpl(IRage rage)
         {
             _rage = rage;
-            _vehicleQuery = vehicleQuery;
         }
 
         /// <inheritdoc />
@@ -57,10 +55,10 @@ namespace AreaControl.Actions.CloseRoad
         {
             foreach (var slot in blockSlots)
             {
-                var vehicle = _vehicleQuery.FindWithin(slot.Position, ScanRadius);
+                var vehicle = VehicleQuery.FindWithin(slot.Position, ScanRadius);
 
                 if (vehicle == null)
-                    vehicle = Functions.RequestBackup(slot.Position, EBackupResponseType.Code2, EBackupUnitType.LocalUnit);
+                    vehicle = Functions.RequestBackup(slot.Position, EBackupResponseType.SuspectTransporter, EBackupUnitType.LocalUnit);
 
                 GameFiber.StartNew(() =>
                 {
@@ -75,7 +73,7 @@ namespace AreaControl.Actions.CloseRoad
         private void MoveToSlot(Vehicle vehicle, BlockSlot slot)
         {
             var vehicleDriver = vehicle.Driver;
-            
+
             slot.CreatePreview();
             _rage.LogTrivialDebug("Vehicle driving to block slot...");
             vehicleDriver.Tasks

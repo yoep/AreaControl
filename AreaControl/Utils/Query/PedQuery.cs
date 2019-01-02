@@ -1,13 +1,6 @@
-using System;
-using Rage;
-
 namespace AreaControl.Utils.Query
 {
-    public class PedQuery : IPedQuery
+    public static class PedQuery
     {
-        public Ped FindWithin(Vector3 position, float radius)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

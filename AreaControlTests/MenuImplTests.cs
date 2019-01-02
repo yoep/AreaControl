@@ -1,7 +1,6 @@
 using AreaControl;
 using AreaControl.Menu;
 using AreaControl.Rage;
-using AreaControl.Utils;
 using Xunit;
 using Assert = Xunit.Assert;
 using RageImpl = AreaControlTests.Rage.RageImpl;

@@ -68,11 +68,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rage\IRage.cs" />
     <Compile Include="Rage\RageImpl.cs" />
+    <Compile Include="Utils\PreviewUtil.cs" />
     <Compile Include="Utils\RoadType.cs" />
     <Compile Include="Utils\RoadUtil.cs" />
-    <Compile Include="Utils\Query\IPedQuery.cs" />
-    <Compile Include="Utils\Query\IQuery.cs" />
-    <Compile Include="Utils\Query\IVehicleQuery.cs" />
     <Compile Include="Utils\Query\PedQuery.cs" />
     <Compile Include="Utils\Query\VehicleQuery.cs" />
   </ItemGroup>
