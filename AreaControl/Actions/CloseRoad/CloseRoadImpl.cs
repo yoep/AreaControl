@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using AreaControl.Managers;
+using AreaControl.Model;
 using AreaControl.Rage;
 using AreaControl.Utils;
-using AreaControl.Utils.Query;
-using LSPD_First_Response;
 using LSPD_First_Response.Mod.API;
 using Rage;
 
@@ -14,10 +14,12 @@ namespace AreaControl.Actions.CloseRoad
         private const float ScanRadius = 250f;
 
         private readonly IRage _rage;
+        private readonly IEntityManager _entityManager;
 
-        public CloseRoadImpl(IRage rage)
+        public CloseRoadImpl(IRage rage, IEntityManager entityManager)
         {
             _rage = rage;
+            _entityManager = entityManager;
         }
 
         /// <inheritdoc />
@@ -55,43 +57,37 @@ namespace AreaControl.Actions.CloseRoad
         {
             foreach (var slot in blockSlots)
             {
-                var vehicle = VehicleQuery.FindWithin(slot.Position, ScanRadius);
-
-                if (vehicle == null)
-                    vehicle = Functions.RequestBackup(slot.Position, EBackupResponseType.SuspectTransporter, EBackupUnitType.LocalUnit);
-
                 GameFiber.StartNew(() =>
                 {
-                    ClaimVehicleOccupants(vehicle);
+                    var vehicle = _entityManager.FindVehicleWithinOrCreate(slot.Position, ScanRadius);
                     MoveToSlot(vehicle, slot);
-                });
 
-                GameFiber.Sleep(100);
+                    while (true)
+                    {
+                        GameFiber.Yield();
+                    }
+                });
             }
         }
 
-        private void MoveToSlot(Vehicle vehicle, BlockSlot slot)
+        private void MoveToSlot(ACVehicle vehicle, BlockSlot slot)
         {
             var vehicleDriver = vehicle.Driver;
 
             slot.CreatePreview();
             _rage.LogTrivialDebug("Vehicle driving to block slot...");
-            vehicleDriver.Tasks
-                .DriveToPosition(slot.Position, 30f, VehicleDrivingFlags.Normal, 2f)
+            vehicleDriver.Instance.Tasks
+                .DriveToPosition(slot.Position, 30f, VehicleDrivingFlags.Normal, 30f)
                 .WaitForCompletion();
-            _rage.LogTrivialDebug("Vehicle arrived at block slot " + slot);
-            vehicle.Position = slot.Position;
-            vehicle.Heading = slot.Heading;
-            vehicle.IsSirenOn = true;
-            vehicle.IsSirenSilent = true;
-        }
-
-        private void ClaimVehicleOccupants(Vehicle vehicle)
-        {
-            foreach (var vehicleOccupant in vehicle.Occupants)
-            {
-                Functions.SetCopAsBusy(vehicleOccupant, true);
-            }
+            _rage.LogTrivialDebug("Vehicle arrived in the area of block slot " + slot);
+            vehicle.Instance.IsSirenOn = true;
+            vehicle.Instance.IsSirenSilent = true;
+            vehicleDriver.Instance.Tasks
+                .DriveToPosition(slot.Position, 10f, VehicleDrivingFlags.Emergency, 3f)
+                .WaitForCompletion();
+            _rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
+            vehicle.Instance.Position = slot.Position;
+            vehicle.Instance.Heading = slot.Heading;
         }
     }
 }

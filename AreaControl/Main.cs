@@ -8,7 +8,8 @@ namespace AreaControl
     public static class Main
     {
         /// <summary>
-        /// Initialize the plugin.
+        /// Initialize the AreaControl plugin.
+        /// This will initialize the <see cref="IMenu"/> through the <see cref="IoC"/> instance.
         /// </summary>
         public static void Initialize()
         {

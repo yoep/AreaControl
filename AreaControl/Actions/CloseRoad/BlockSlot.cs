@@ -9,7 +9,7 @@ namespace AreaControl.Actions.CloseRoad
         public BlockSlot(Vector3 position, float heading)
         {
             Position = position;
-            Heading = heading;
+            Heading = heading / 1.4f;
         }
 
         /// <summary>

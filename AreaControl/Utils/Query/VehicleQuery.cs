@@ -6,7 +6,7 @@ namespace AreaControl.Utils.Query
     public static class VehicleQuery
     {
         /// <summary>
-        /// Find a vehicle within the given rage of the given position.
+        /// Find a vehicle within the given range of the given position.
         /// </summary>
         /// <param name="position">Set the position to search around.</param>
         /// <param name="radius">Set the radius to search in.</param>

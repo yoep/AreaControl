@@ -60,11 +60,16 @@
     <Compile Include="IoC.cs" />
     <Compile Include="IoCException.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Managers\EntityManager.cs" />
+    <Compile Include="Managers\IEntityManager.cs" />
     <Compile Include="Menu\IMenuComponent.cs" />
     <Compile Include="Menu\IMenu.cs" />
     <Compile Include="Menu\MenuException.cs" />
     <Compile Include="Menu\MenuImpl.cs" />
+    <Compile Include="Model\ACPed.cs" />
+    <Compile Include="Model\ACVehicle.cs" />
     <Compile Include="Model\Road.cs" />
+    <Compile Include="Model\VehicleSeat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rage\IRage.cs" />
     <Compile Include="Rage\RageImpl.cs" />
