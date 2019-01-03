@@ -31,7 +31,7 @@ namespace AreaControl.Model
         public void WarpIntoVehicle(ACVehicle vehicle, VehicleSeat seat)
         {
             Assert.NotNull(vehicle, "vehicle cannot be null");
-            
+
             Instance.WarpIntoVehicle(vehicle.Instance, (int) seat);
         }
     }

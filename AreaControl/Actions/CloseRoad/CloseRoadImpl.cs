@@ -5,6 +5,7 @@ using AreaControl.Rage;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
+using Rage.Native;
 
 namespace AreaControl.Actions.CloseRoad
 {
@@ -83,11 +84,13 @@ namespace AreaControl.Actions.CloseRoad
             vehicle.Instance.IsSirenOn = true;
             vehicle.Instance.IsSirenSilent = true;
             vehicleDriver.Instance.Tasks
-                .DriveToPosition(slot.Position, 10f, VehicleDrivingFlags.Emergency, 3f)
-                .WaitForCompletion();
+                .DriveToPosition(slot.Position, 10f, VehicleDrivingFlags.Emergency, 2f)
+                .WaitForCompletion(10000);
             _rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
             vehicle.Instance.Position = slot.Position;
             vehicle.Instance.Heading = slot.Heading;
+
+            NativeFunction.Natives.TASK_EVERYONE_LEAVE_VEHICLE(vehicle.Instance);
         }
     }
 }

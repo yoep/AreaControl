@@ -118,7 +118,8 @@ namespace AreaControl.Managers
             return new Ped(new global::Rage.Model("s_m_y_cop_01"), spawnPosition, 3f)
             {
                 IsPersistent = true,
-                BlockPermanentEvents = true
+                BlockPermanentEvents = true,
+                KeepTasks = true
             };
         }
 
