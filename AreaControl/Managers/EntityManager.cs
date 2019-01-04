@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using AreaControl.Model;
+using AreaControl.Instances;
 using AreaControl.Rage;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
@@ -47,7 +47,9 @@ namespace AreaControl.Managers
 
         private ACVehicle FindAvailableManagedVehicle(Vector3 position, float radius)
         {
+            _rage.LogTrivialDebug("Searching for managed vehicle at position " + position);
             return _managedVehicles
+                .Where(e => e.Instance.IsValid())
                 .Where(e => IsVehicleWithinRadius(position, radius, e))
                 .FirstOrDefault(e => !e.IsBusy);
         }
@@ -56,7 +58,8 @@ namespace AreaControl.Managers
         {
             var registeredVehicle = new ACVehicle(vehicle);
             var driver = vehicle.Driver;
-
+    
+            _rage.LogTrivialDebug("Registering a new vehicle in entity manager...");
             _managedVehicles.Add(registeredVehicle);
 
             foreach (var occupant in vehicle.Occupants)
@@ -81,8 +84,8 @@ namespace AreaControl.Managers
             var registeredPed = new ACPed(ped);
 
             _managedPeds.Add(registeredPed);
-            Functions.SetPedAsCop(ped);
-            Functions.SetCopAsBusy(ped, true);
+//            Functions.SetPedAsCop(ped);
+//            Functions.SetCopAsBusy(ped, true);
 
             return registeredPed;
         }

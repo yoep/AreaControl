@@ -1,7 +1,7 @@
 using System;
 using Rage;
 
-namespace AreaControl.Model
+namespace AreaControl.Instances
 {
     public class Road
     {

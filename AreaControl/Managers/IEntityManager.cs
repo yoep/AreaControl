@@ -1,4 +1,4 @@
-using AreaControl.Model;
+using AreaControl.Instances;
 using Rage;
 
 namespace AreaControl.Managers

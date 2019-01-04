@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
+using AreaControl.Duties;
+using AreaControl.Instances;
 using AreaControl.Managers;
-using AreaControl.Model;
 using AreaControl.Rage;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
-using Rage.Native;
 
 namespace AreaControl.Actions.CloseRoad
 {
@@ -62,6 +63,7 @@ namespace AreaControl.Actions.CloseRoad
                 {
                     var vehicle = _entityManager.FindVehicleWithinOrCreate(slot.Position, ScanRadius);
                     MoveToSlot(vehicle, slot);
+                    AssignRedirectTrafficDuty(vehicle.Passengers.First(), slot);
 
                     while (true)
                     {
@@ -75,10 +77,9 @@ namespace AreaControl.Actions.CloseRoad
         {
             var vehicleDriver = vehicle.Driver;
 
-            slot.CreatePreview();
             _rage.LogTrivialDebug("Vehicle driving to block slot...");
             vehicleDriver.Instance.Tasks
-                .DriveToPosition(slot.Position, 30f, VehicleDrivingFlags.Normal, 30f)
+                .DriveToPosition(slot.Position, 30f, VehicleDrivingFlags.Normal, 35f)
                 .WaitForCompletion();
             _rage.LogTrivialDebug("Vehicle arrived in the area of block slot " + slot);
             vehicle.Instance.IsSirenOn = true;
@@ -86,11 +87,15 @@ namespace AreaControl.Actions.CloseRoad
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(slot.Position, 10f, VehicleDrivingFlags.Emergency, 2f)
                 .WaitForCompletion(10000);
-            _rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
-            vehicle.Instance.Position = slot.Position;
             vehicle.Instance.Heading = slot.Heading;
+            _rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
 
-            NativeFunction.Natives.TASK_EVERYONE_LEAVE_VEHICLE(vehicle.Instance);
+            vehicle.Empty();
+        }
+
+        private void AssignRedirectTrafficDuty(ACPed ped, BlockSlot slot)
+        {
+            ped.ActivateDuty(new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading));
         }
     }
 }

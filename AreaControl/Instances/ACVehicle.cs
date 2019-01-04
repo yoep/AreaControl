@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using AreaControl.Utils;
 using Rage;
 
-namespace AreaControl.Model
+namespace AreaControl.Instances
 {
     /// <summary>
     /// Defines a <see cref="Vehicle"/> which is managed by the AreaControl plugin.
@@ -57,11 +58,20 @@ namespace AreaControl.Model
         /// </summary>
         public void CreateBlip()
         {
-           new Blip(Instance)
+            new Blip(Instance)
             {
                 IsRouteEnabled = false,
                 IsFriendly = true
             };
+        }
+
+        /// <summary>
+        /// Empty this vehicle.
+        /// Makes all occupants of this vehicle leave it.
+        /// </summary>
+        public void Empty()
+        {
+            TaskUtil.EmptyVehicle(Instance);
         }
     }
 }

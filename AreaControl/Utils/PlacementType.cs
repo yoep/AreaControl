@@ -3,12 +3,13 @@ using System.Diagnostics.CodeAnalysis;
 namespace AreaControl.Utils
 {
     /// <summary>
-    /// Defines the road types on which can be searched.
+    /// Attachment placement places.
+    /// https://pastebin.com/3pz17QGd
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public enum RoadType
+    public enum PlacementType
     {
-        All,
-        MajorRoadsOnly
+        RightHand = 0x6F06,
+        LeftHand = 0xEB95
     }
 }

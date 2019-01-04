@@ -1,4 +1,4 @@
-namespace AreaControl.Model
+namespace AreaControl.Instances
 {
     public enum VehicleSeat
     {
