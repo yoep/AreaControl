@@ -1,4 +1,5 @@
 using AreaControl.Instances;
+using AreaControl.Rage;
 using AreaControl.Utils;
 using Rage;
 
@@ -6,11 +7,13 @@ namespace AreaControl.Duties
 {
     public class RedirectTrafficDuty : IDuty
     {
+        private readonly IRage _rage;
         private readonly Vector3 _position;
         private readonly float _heading;
 
         public RedirectTrafficDuty(Vector3 position, float heading)
         {
+            _rage = IoC.Instance.GetInstance<IRage>();
             _position = position;
             _heading = heading;
         }
@@ -21,7 +24,7 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public void Execute(ACPed ped)
         {
-            GameFiber.StartNew(() =>
+            _rage.NewSafeFiber(() =>
             {
                 ped.Instance.Tasks
                     .GoStraightToPosition(_position, 1f, _heading, 0f, 20000)
@@ -30,7 +33,7 @@ namespace AreaControl.Duties
                 ped.Attach(PropUtil.CreateWand());
                 var animationDictionary = new AnimationDictionary("amb@world_human_car_park_attendant@male@base");
                 ped.Instance.Tasks.PlayAnimation(animationDictionary, "base", 8.0f, AnimationFlags.Loop);
-            });
+            }, "RedirectTrafficDuty");
         }
     }
 }

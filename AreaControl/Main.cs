@@ -1,6 +1,8 @@
+using System;
 using AreaControl.Actions.CloseRoad;
 using AreaControl.Actions.RoadBlock;
 using AreaControl.Menu;
+using AreaControl.Rage;
 using RAGENativeUI.Elements;
 
 namespace AreaControl
@@ -15,9 +17,19 @@ namespace AreaControl
         {
             var ioC = IoC.Instance;
             var menu = ioC.GetInstance<IMenu>();
+            var rage = ioC.GetInstance<IRage>();
 
-            menu.RegisterItem(new UIMenuItem("CloseRoad_Placeholder"), ioC.GetInstance<ICloseRoad>());
-            menu.RegisterItem(new UIMenuItem("RoadBlock_Placeholder"), ioC.GetInstance<IRoadBlock>());
+            try
+            {
+                menu.RegisterItem(new UIMenuItem("CloseRoad_Placeholder"), ioC.GetInstance<ICloseRoad>());
+                menu.RegisterItem(new UIMenuItem("RoadBlock_Placeholder"), ioC.GetInstance<IRoadBlock>());
+            }
+            catch (Exception ex)
+            {
+                rage.LogTrivial("*** An unexpected error occurred during initialization ***" +
+                                Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
+                rage.LogTrivial("failed to initialize");
+            }
         }
 
         /// <summary>

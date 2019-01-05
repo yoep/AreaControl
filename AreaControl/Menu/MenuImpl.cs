@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
 using AreaControl.Rage;
 using Rage;
@@ -45,18 +47,27 @@ namespace AreaControl.Menu
         #region Functions
 
         [IoC.PostConstruct]
-        // ReSharper disable once UnusedMember.Local
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private void Init()
         {
-            _rage.LogTrivialDebug("Adding AreaControlMenu to the MenuPool...");
-            MenuPool.Add(AreaControlMenu);
-            _rage.LogTrivialDebug("AreaControlMenu added to MenuPool");
-            _rage.LogTrivialDebug("Adding MenuImpl.Process to FrameRender handler...");
-            Game.FrameRender += Process;
-            _rage.LogTrivialDebug("MenuImpl.Process added to FrameRender handler");
-            AreaControlMenu.OnItemSelect += ItemSelectionHandler;
+            try
+            {
+                _rage.LogTrivialDebug("Adding AreaControlMenu to the MenuPool...");
+                MenuPool.Add(AreaControlMenu);
+                _rage.LogTrivialDebug("AreaControlMenu added to MenuPool");
+                _rage.LogTrivialDebug("Adding MenuImpl.Process to FrameRender handler...");
+                Game.FrameRender += Process;
+                _rage.LogTrivialDebug("MenuImpl.Process added to FrameRender handler");
+                AreaControlMenu.OnItemSelect += ItemSelectionHandler;
 
-            IsMenuInitialized = true;
+                IsMenuInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                _rage.LogTrivial("*** An unexpected error occurred while initializing the menu ***" +
+                                 Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
+                _rage.LogTrivial("an unexpected error occurred");
+            }
         }
 
         private static void Process(object sender, GraphicsEventArgs e)
@@ -67,12 +78,22 @@ namespace AreaControl.Menu
             MenuPool.ProcessMenus();
         }
 
-        private static void ItemSelectionHandler(UIMenu sender, UIMenuItem selectedItem, int index)
+        private void ItemSelectionHandler(UIMenu sender, UIMenuItem selectedItem, int index)
         {
             if (!MenuItems.ContainsKey(selectedItem))
                 throw new MenuException("No menu item action found for the selected menu item", selectedItem);
 
-            MenuItems[selectedItem].OnMenuActivation();
+            try
+            {
+                MenuItems[selectedItem].OnMenuActivation();
+            }
+            catch (Exception ex)
+            {
+                _rage.LogTrivial("*** An unexpected error occurred while activating the menu item ***" +
+                                 Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
+                _rage.LogTrivial("an unexpected error occurred while invoking the menu action");
+            }
+
             CloseMenu();
         }
 

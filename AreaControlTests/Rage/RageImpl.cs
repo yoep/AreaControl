@@ -20,8 +20,15 @@ namespace AreaControlTests.Rage
             Console.WriteLine("[LogTrivialDebug]: " + message);
         }
 
+        public void NewSafeFiber(Action action, string name)
+        {
+            //only invoke action without being thread safe for the unit tests
+            action.Invoke();
+        }
+
         public void FiberYield()
         {
+            //no-op
         }
     }
 }

@@ -27,7 +27,7 @@ namespace AreaControl.Actions.CloseRoad
         /// <inheritdoc />
         public void OnMenuActivation()
         {
-            GameFiber.StartNew(() =>
+            _rage.NewSafeFiber(() =>
             {
                 Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE UNITS_RESPOND_CODE_02");
                 var blockSlots = DetermineBlockSlots();
@@ -58,10 +58,15 @@ namespace AreaControl.Actions.CloseRoad
 
         private void SpawnBlockSlots(IEnumerable<BlockSlot> blockSlots)
         {
+            var i = 0;
+            
             foreach (var slot in blockSlots)
             {
-                GameFiber.StartNew(() =>
+                i++;
+                _rage.NewSafeFiber(() =>
                 {
+                    slot.CreatePreview();
+                    
                     var vehicle = _entityManager.FindVehicleWithinOrCreate(slot.Position, ScanRadius);
                     MoveToSlot(vehicle, slot);
                     AssignRedirectTrafficDuty(vehicle.Passengers.First(), slot);
@@ -70,7 +75,7 @@ namespace AreaControl.Actions.CloseRoad
                     {
                         GameFiber.Yield();
                     }
-                });
+                }, "BlockSlot#" + i);
             }
         }
 
