@@ -66,7 +66,7 @@ namespace AreaControl.Utils
             do
             {
                 lastPositionOnTheRoad = currentPosition;
-                currentPosition = currentPosition + direction * 0.5f;
+                currentPosition = currentPosition + direction * 0.25f;
                 isPointOnRoad = NativeFunction.Natives.IS_POINT_ON_ROAD<bool>(currentPosition.X, currentPosition.Y, currentPosition.Z);
             } while (isPointOnRoad);
 

@@ -1,10 +1,11 @@
 using System;
+using AreaControl.Instances;
 using AreaControl.Utils;
 using Rage;
 
 namespace AreaControl.Actions.CloseRoad
 {
-    public class BlockSlot
+    public class BlockSlot : IPreviewSupport
     {
         private Vehicle _vehiclePreview;
         private Ped _pedPreview;
@@ -35,25 +36,19 @@ namespace AreaControl.Actions.CloseRoad
         /// </summary>
         public float PedHeading => GetPedRedirectTrafficHeading();
 
-        /// <summary>
-        /// Get if a preview is being shown for this block slot.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsPreviewActive => _vehiclePreview != null;
 
-        /// <summary>
-        /// Creates a preview of the expected vehicle block position.
-        /// </summary>
+        /// <inheritdoc />
         public void CreatePreview()
         {
             _vehiclePreview = new Vehicle("POLICE", Position, Heading);
-            _pedPreview = new Ped(new global::Rage.Model("s_m_y_cop_01"), PedPosition, PedHeading);
+            _pedPreview = new Ped(new Model("s_m_y_cop_01"), PedPosition, PedHeading);
             PreviewUtil.TransformToPreview(_vehiclePreview);
             PreviewUtil.TransformToPreview(_pedPreview);
         }
 
-        /// <summary>
-        /// Deletes the preview for this slot.
-        /// </summary>
+        /// <inheritdoc />
         public void DeletePreview()
         {
             if (!IsPreviewActive)

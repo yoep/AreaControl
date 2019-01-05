@@ -1,10 +1,16 @@
 using System;
+using AreaControl.Utils;
 using Rage;
 
 namespace AreaControl.Instances
 {
-    public class Road
+    public class Road : IPreviewSupport
     {
+        private Entity _previewLeftSide;
+        private Entity _previewRightSide;
+
+        #region Constructors
+
         public Road(Vector3 position, float heading)
         {
             Position = position;
@@ -19,6 +25,10 @@ namespace AreaControl.Instances
             Heading = heading;
             Width = width;
         }
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Get the position of the road.
@@ -45,6 +55,35 @@ namespace AreaControl.Instances
         /// </summary>
         public float Width { get; set; }
 
+        /// <inheritdoc />
+        public bool IsPreviewActive => _previewLeftSide != null;
+
+        #endregion
+
+        /// <inheritdoc />
+        public void CreatePreview()
+        {
+            if (IsPreviewActive)
+                return;
+
+            _previewLeftSide = PropUtil.CreateCone(LeftSide);
+            _previewRightSide = PropUtil.CreateCone(RightSide);
+            PreviewUtil.TransformToPreview(_previewLeftSide);
+            PreviewUtil.TransformToPreview(_previewRightSide);
+        }
+
+        /// <inheritdoc />
+        public void DeletePreview()
+        {
+            if (!IsPreviewActive)
+                return;
+
+            _previewLeftSide.Delete();
+            _previewLeftSide = null;
+            _previewRightSide.Delete();
+            _previewRightSide = null;
+        }
+
         public override string ToString()
         {
             return
@@ -53,6 +92,14 @@ namespace AreaControl.Instances
                 Environment.NewLine + $"{nameof(LeftSide)}: {LeftSide}," +
                 Environment.NewLine + $" {nameof(Heading)}: {Heading}, " +
                 Environment.NewLine + $"{nameof(Width)}: {Width}";
+        }
+
+        /// <summary>
+        /// Defines the lane information within the road.
+        /// </summary>
+        public class Lane
+        {
+            
         }
     }
 }

@@ -15,6 +15,7 @@ namespace AreaControl.Utils
             entity.Opacity = 0.7f;
             entity.IsPositionFrozen = true;
             entity.NeedsCollision = false;
+            entity.IsCollisionEnabled = false;
             NativeFunction.Natives.SET_ENTITY_COLLISION(entity, false, false);
         }
     }

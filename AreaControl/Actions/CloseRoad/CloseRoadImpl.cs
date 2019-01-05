@@ -45,6 +45,7 @@ namespace AreaControl.Actions.CloseRoad
             var placementPosition = closestRoad.RightSide + direction * 2f;
             var blockSlots = new List<BlockSlot>();
             _rage.LogTrivialDebug("Found road to use " + closestRoad);
+            closestRoad.CreatePreview();
 
             for (var i = 0; i < closestRoad.Width / CarSize; i++)
             {

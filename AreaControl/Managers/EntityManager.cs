@@ -4,7 +4,6 @@ using AreaControl.Instances;
 using AreaControl.Rage;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
-using LSPD_First_Response.Mod.API;
 using Rage;
 
 namespace AreaControl.Managers
@@ -118,7 +117,7 @@ namespace AreaControl.Managers
 
         private static Ped CreatePed(Vector3 spawnPosition)
         {
-            return new Ped(new global::Rage.Model("s_m_y_cop_01"), spawnPosition, 3f)
+            return new Ped(new Model("s_m_y_cop_01"), spawnPosition, 3f)
             {
                 IsPersistent = true,
                 BlockPermanentEvents = true,
