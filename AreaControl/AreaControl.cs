@@ -5,6 +5,7 @@ namespace AreaControl
         public const string Name = "Area Control";
         
         public const string ActionCloseRoad = "Close road";
-        public const string ActionCloseRoadPreview = "Show close road preview";
+        public const string ActionCloseRoadPreview = "Close road preview";
+        public const string ActionOpenRoad = "Open road";
     }
 }

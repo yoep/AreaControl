@@ -19,7 +19,7 @@ namespace AreaControl.Utils.Query
             return World
                 .GetEntities(position, radius, GetEntitiesFlags.ConsiderGroundVehicles)
                 .OfType<Vehicle>()
-                .FirstOrDefault(e => e.IsPoliceVehicle && !e.IsEmpty && e.IsDriveable);
+                .FirstOrDefault(e => e.Driver != Game.LocalPlayer.Character && e.IsPoliceVehicle && !e.IsEmpty && e.IsDriveable);
         }
     }
 }

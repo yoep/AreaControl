@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
+using AreaControl.Instances;
 using AreaControl.Utils;
 using Rage;
 using RAGENativeUI.Elements;
@@ -38,17 +39,17 @@ namespace AreaControl.Actions.CloseRoad
 
         #endregion
 
+        /// <inheritdoc />
+        public bool IsActive { get; protected set; }
+
         protected IEnumerable<BlockSlot> DetermineBlockSlots()
         {
-            var player = Game.LocalPlayer.Character;
-            var playerPosition = player.Position;
-            var closestRoad = RoadUtil.GetClosestRoad(playerPosition, RoadType.All);
+            var closestRoad = DetermineClosestRoad();
             var placementHeading = closestRoad.Lanes.First().Heading + 90f;
             var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
             var placementPosition = closestRoad.Lanes.First().RightSide + direction * 2f;
             var blockSlots = new List<BlockSlot>();
             Rage.LogTrivialDebug("Found road to use " + closestRoad);
-//            closestRoad.CreatePreview();
 
             for (var i = 0; i < closestRoad.Width / CarSize; i++)
             {
@@ -57,6 +58,14 @@ namespace AreaControl.Actions.CloseRoad
             }
 
             return blockSlots;
+        }
+
+        protected Road DetermineClosestRoad()
+        {
+            var player = Game.LocalPlayer.Character;
+            var playerPosition = player.Position;
+            var closestRoad = RoadUtil.GetClosestRoad(playerPosition, RoadType.All);
+            return closestRoad;
         }
     }
 }

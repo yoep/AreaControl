@@ -21,7 +21,10 @@ namespace AreaControl.Actions.CloseRoad
         {
             Rage.NewSafeFiber(() =>
             {
+                var closestRoad = DetermineClosestRoad();
                 var blockSlots = DetermineBlockSlots();
+                closestRoad.CreatePreview();
+                
                 foreach (var slot in blockSlots)
                 {
                     slot.CreatePreview();

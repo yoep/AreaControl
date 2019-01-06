@@ -77,7 +77,7 @@ namespace AreaControl.Utils
                     .Heading(initialHeading)
                     .RightSide(rightSideEndPoint)
                     .LeftSide(leftSideEndPoint)
-                    .Width(GetWidth(rightSideEndPoint, roadPosition))
+                    .Width(GetWidth(rightSideEndPoint, leftSideEndPoint))
                     .Build(),
                 //TODO: fix multi lane support
                 /*LaneBuilder.Builder()

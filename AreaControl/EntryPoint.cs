@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
 using AreaControl.Actions.CloseRoad;
-using AreaControl.Actions.RoadBlock;
 using AreaControl.Managers;
 using AreaControl.Menu;
 using LSPD_First_Response.Mod.API;
@@ -31,7 +30,7 @@ namespace AreaControl
             {
                 rage.LogTrivial("*** An unknown error occurred and the plugin has stopped working ***");
                 rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
-                rage.DisplayNotification("an unknown error occurred and the plugin has stopped working");
+                rage.DisplayNotification("failed to initialize, check logs for more info");
             }
         }
 
@@ -48,7 +47,8 @@ namespace AreaControl
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
                 .RegisterSingleton<IEntityManager>(typeof(EntityManager))
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
-                .Register<ICloseRoad>(typeof(CloseRoadImpl));
+                .Register<ICloseRoad>(typeof(CloseRoadImpl))
+                .Register<IOpenRoad>(typeof(OpenRoad));
         }
 
         [Conditional("DEBUG")]

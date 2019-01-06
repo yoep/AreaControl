@@ -123,7 +123,7 @@ namespace AreaControl
                 var type = typeof(T);
 
                 return GetInstances(type)
-                    .Select(x => (T) x)
+                    .Select(x => (T) x.Value)
                     .ToList()
                     .AsReadOnly();
             }
@@ -173,6 +173,7 @@ namespace AreaControl
 
                 _components.Add(key);
                 key.AddDerivedTypes(GetDerivedTypes(key.Type));
+                key.IsPrimary = implementation.CustomAttributes.Any(x => x.AttributeType == typeof(Primary));
                 return key;
             }
         }
@@ -213,27 +214,40 @@ namespace AreaControl
         {
             var instances = GetInstances(type);
 
-            if (instances.Count > 1)
-                throw new IoCException("More than one instance has been found for " + type);
+            switch (instances.Count)
+            {
+                case 0:
+                    return null;
+                case 1:
+                    return instances.First().Value;
+                default:
+                    var instance = instances.Where(x => x.Key.IsPrimary)
+                        .Select(x => x.Value)
+                        .SingleOrDefault();
 
-            return instances.FirstOrDefault();
+                    if (instance == null)
+                        throw new IoCException("More than one instance has been found for " + type);
+
+                    return instance;
+            }
         }
 
-        private List<object> GetInstances(Type type)
+        private List<KeyValuePair<ComponentDefinition, object>> GetInstances(Type type)
         {
             lock (_lockState)
             {
                 var definitions = GetDefinitionsFor(type);
 
                 if (definitions.Count == 0)
-                    return new List<object>();
+                    return new List<KeyValuePair<ComponentDefinition, object>>();
 
                 var singletonDefinition = GetSingletonDefinitionFor(type);
 
                 if (singletonDefinition != null && _singletons.ContainsKey(singletonDefinition))
-                    return new List<object> {_singletons[singletonDefinition]};
+                    return new List<KeyValuePair<ComponentDefinition, object>>
+                        {new KeyValuePair<ComponentDefinition, object>(singletonDefinition, _singletons[singletonDefinition])};
 
-                var instances = new List<object>();
+                var instances = new List<KeyValuePair<ComponentDefinition, object>>();
 
                 foreach (var definition in definitions)
                 {
@@ -243,7 +257,7 @@ namespace AreaControl
                     if (definition.IsSingleton)
                         _singletons.Add(definition, instance);
 
-                    instances.Add(instance);
+                    instances.Add(new KeyValuePair<ComponentDefinition, object>(definition, instance));
                 }
 
                 return instances;
@@ -305,6 +319,15 @@ namespace AreaControl
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Indicates that the instance should be used in case of multiple found instance and only one instance is wanted.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class)]
+        public class Primary : Attribute
+        {
+        }
+
         /// <summary>
         /// Internal placeholder of the IoC definition type info.
         /// This is the type that is being used as interface registration of an implementation.
@@ -327,7 +350,7 @@ namespace AreaControl
             /// This is the key of the registration types.
             /// </summary>
             public Type Type { get; }
-            
+
             /// <summary>
             /// Get the implementation type for this definition.
             /// </summary>
@@ -337,6 +360,11 @@ namespace AreaControl
             /// Get if this definition is a singleton registration.
             /// </summary>
             public bool IsSingleton { get; }
+
+            /// <summary>
+            /// Get or set if this definition is been indicated as primary component in case of multi instance conflict.
+            /// </summary>
+            public bool IsPrimary { get; set; }
 
             /// <summary>
             /// Get all derived types defined by the key interface.

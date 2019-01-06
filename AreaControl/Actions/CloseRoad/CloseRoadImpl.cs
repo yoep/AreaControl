@@ -10,13 +10,13 @@ using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.CloseRoad
 {
+    [IoC.Primary]
     public class CloseRoadImpl : AbstractCloseRoad
     {
         private const float ScanRadius = 250f;
 
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
-        private bool _isActive;
 
         public CloseRoadImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager)
             : base(rage)
@@ -31,12 +31,12 @@ namespace AreaControl.Actions.CloseRoad
         public override UIMenuItem Item { get; } = new UIMenuItem(AreaControl.ActionCloseRoad);
 
         /// <inheritdoc />
-        public override bool IsVisible => !_isActive;
+        public override bool IsVisible => !IsActive;
 
         /// <inheritdoc />
         public override void OnMenuActivation()
         {
-            _isActive = true;
+            IsActive = true;
             Rage.NewSafeFiber(() =>
             {
                 Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);

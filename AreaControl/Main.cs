@@ -1,4 +1,3 @@
-using System;
 using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
 
@@ -15,24 +14,14 @@ namespace AreaControl
             var ioC = IoC.Instance;
             var menu = ioC.GetInstance<IMenu>();
             var rage = ioC.GetInstance<IRage>();
+            var menuComponents = ioC.GetInstances<IMenuComponent>();
 
-            try
+            foreach (var menuComponent in menuComponents)
             {
-                var menuComponents = ioC.GetInstances<IMenuComponent>();
-                
-                foreach (var menuComponent in menuComponents)
-                {
-                    menu.RegisterComponent(menuComponent);
-                }
-                
-                rage.LogTrivialDebug("Registered " + menuComponents.Count + " menu component(s)");
+                menu.RegisterComponent(menuComponent);
             }
-            catch (Exception ex)
-            {
-                rage.LogTrivial("*** An unexpected error occurred during initialization ***" +
-                                Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
-                rage.LogTrivial("failed to initialize");
-            }
+
+            rage.LogTrivialDebug("Registered " + menuComponents.Count + " menu component(s)");
         }
 
         /// <summary>

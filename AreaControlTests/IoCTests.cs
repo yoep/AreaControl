@@ -95,6 +95,24 @@ namespace AreaControlTests
             }
         }
 
+        public class GetInstance
+        {
+            [Fact]
+            public void ShouldReturnPrimaryInstanceWhenDefined()
+            {
+                var ioC = IoC.Instance
+                    .UnregisterAll()
+                    .Register<IRage>(typeof(RageImpl))
+                    .RegisterSingleton<ISingleton>(typeof(Singleton))
+                    .Register<IComponent>(typeof(Component))
+                    .Register<IComponent>(typeof(SameInterfaceComponent));
+
+                var result = ioC.GetInstance<IComponent>();
+
+                Assert.NotNull(result);
+            }
+        }
+
         public class GetInstances
         {
             [Fact]
