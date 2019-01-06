@@ -79,5 +79,23 @@ namespace AreaControl.Instances
         {
             Instance.Delete();
         }
+
+        /// <summary>
+        /// Enables the emergency lights with sound.
+        /// </summary>
+        public void EnableSirens()
+        {
+            Instance.IsSirenOn = true;
+            Instance.IsSirenSilent = false;
+        }
+        
+        /// <summary>
+        /// Enables the emergency lights without sound.
+        /// </summary>
+        public void EnableEmergencyLights()
+        {
+            Instance.IsSirenOn = true;
+            Instance.IsSirenSilent = true;
+        }
     }
 }

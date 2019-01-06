@@ -49,8 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\CloseRoad\AbstractCloseRoad.cs" />
     <Compile Include="Actions\CloseRoad\BlockSlot.cs" />
     <Compile Include="Actions\CloseRoad\CloseRoadImpl.cs" />
+    <Compile Include="Actions\CloseRoad\CloseRoadPreview.cs" />
     <Compile Include="Actions\CloseRoad\ICloseRoad.cs" />
     <Compile Include="Actions\RoadBlock\IRoadBlock.cs" />
     <Compile Include="Actions\RoadBlock\RoadBlockImpl.cs" />

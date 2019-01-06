@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
 using AreaControl.Actions.CloseRoad;
@@ -17,6 +18,7 @@ namespace AreaControl
         public override void Initialize()
         {
             InitializeIoContainer();
+            InitializeDebugComponents();
             var rage = IoC.Instance.GetInstance<IRage>();
 
             try
@@ -48,6 +50,13 @@ namespace AreaControl
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
                 .Register<IRoadBlock>(typeof(RoadBlockImpl))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl));
+        }
+
+        [Conditional("DEBUG")]
+        private static void InitializeDebugComponents()
+        {
+            IoC.Instance
+                .Register<ICloseRoad>(typeof(CloseRoadPreview));
         }
     }
 }
