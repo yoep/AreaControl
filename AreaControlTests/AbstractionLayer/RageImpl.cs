@@ -1,7 +1,7 @@
 using System;
-using AreaControl.Rage;
+using AreaControl.AbstractionLayer;
 
-namespace AreaControlTests.Rage
+namespace AreaControlTests.AbstractionLayer
 {
     public class RageImpl : IRage
     {

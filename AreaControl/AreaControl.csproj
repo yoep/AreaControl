@@ -66,6 +66,8 @@
     <Compile Include="Main.cs" />
     <Compile Include="Managers\EntityManager.cs" />
     <Compile Include="Managers\IEntityManager.cs" />
+    <Compile Include="Managers\IResponseManager.cs" />
+    <Compile Include="Managers\ResponseManager.cs" />
     <Compile Include="Menu\IMenuComponent.cs" />
     <Compile Include="Menu\IMenu.cs" />
     <Compile Include="Menu\MenuException.cs" />
@@ -75,8 +77,8 @@
     <Compile Include="Instances\Road.cs" />
     <Compile Include="Instances\VehicleSeat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rage\IRage.cs" />
-    <Compile Include="Rage\RageImpl.cs" />
+    <Compile Include="AbstractionLayer\IRage.cs" />
+    <Compile Include="AbstractionLayer\RageImpl.cs" />
     <Compile Include="Utils\EntityUtil.cs" />
     <Compile Include="Utils\PlacementType.cs" />
     <Compile Include="Utils\PreviewUtil.cs" />

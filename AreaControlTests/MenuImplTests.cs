@@ -1,9 +1,9 @@
 using AreaControl;
+using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
-using AreaControl.Rage;
 using Xunit;
 using Assert = Xunit.Assert;
-using RageImpl = AreaControlTests.Rage.RageImpl;
+using RageImpl = AreaControlTests.AbstractionLayer.RageImpl;
 
 namespace AreaControlTests
 {

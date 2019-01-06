@@ -1,7 +1,7 @@
 using System;
 using Rage;
 
-namespace AreaControl.Rage
+namespace AreaControl.AbstractionLayer
 {
     /// <inheritdoc />
     public class RageImpl : IRage

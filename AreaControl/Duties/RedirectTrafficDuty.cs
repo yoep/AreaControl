@@ -1,5 +1,5 @@
+using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
-using AreaControl.Rage;
 using AreaControl.Utils;
 using Rage;
 
@@ -33,7 +33,7 @@ namespace AreaControl.Duties
                 ped.Attach(PropUtil.CreateWand());
                 var animationDictionary = new AnimationDictionary("amb@world_human_car_park_attendant@male@base");
                 ped.Instance.Tasks.PlayAnimation(animationDictionary, "base", 8.0f, AnimationFlags.Loop);
-            }, "RedirectTrafficDuty");
+            }, typeof(RedirectTrafficDuty).Name);
         }
     }
 }

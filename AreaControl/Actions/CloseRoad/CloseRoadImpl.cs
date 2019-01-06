@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Managers;
-using AreaControl.Rage;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;

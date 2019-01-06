@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
-using AreaControl.Rage;
+using AreaControl.AbstractionLayer;
 using Rage;
 using RAGENativeUI;
 using RAGENativeUI.Elements;

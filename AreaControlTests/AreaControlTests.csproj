@@ -72,9 +72,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IoCTests.cs" />
     <Compile Include="MenuImplTests.cs" />
+    <Compile Include="Model\Component.cs" />
+    <Compile Include="Model\IComponent.cs" />
+    <Compile Include="Model\IPostConstructModel.cs" />
+    <Compile Include="Model\ISingleton.cs" />
+    <Compile Include="Model\PostConstructModel.cs" />
+    <Compile Include="Model\Singleton.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rage\RageImpl.cs" />
+    <Compile Include="AbstractionLayer\RageImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

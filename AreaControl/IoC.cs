@@ -1,21 +1,22 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-
-// ReSharper disable UnusedMember.Global
 
 namespace AreaControl
 {
     /// <summary>
     /// Lightweight implementation of an IoC container for simplification of mod dependencies to not use a heavyweight DLL dependency.
     /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class IoC
     {
         private static readonly string PostConstructName = typeof(PostConstruct).FullName;
 
         private readonly Dictionary<Type, ImplementationType> _components = new Dictionary<Type, ImplementationType>();
         private readonly Dictionary<Type, object> _singletons = new Dictionary<Type, object>();
+        private readonly object _lockState = new object();
 
         #region Constructors
 
@@ -44,8 +45,11 @@ namespace AreaControl
         /// <returns>Returns this IoC.</returns>
         public IoC Register<T>(Type implementation)
         {
-            RegisterType<T>(implementation, false);
-            return this;
+            lock (_lockState)
+            {
+                RegisterType<T>(implementation, false);
+                return this;
+            }
         }
 
         /// <summary>
@@ -56,8 +60,11 @@ namespace AreaControl
         /// <returns>Returns this IoC.</returns>
         public IoC RegisterSingleton<T>(Type implementation)
         {
-            RegisterType<T>(implementation, true);
-            return this;
+            lock (_lockState)
+            {
+                RegisterType<T>(implementation, true);
+                return this;
+            }
         }
 
         /// <summary>
@@ -69,9 +76,12 @@ namespace AreaControl
         /// <returns>Returns this IoC.</returns>
         public IoC RegisterInstance<T>(object instance)
         {
-            RegisterType<T>(instance.GetType(), true);
-            _singletons.Add(typeof(T), instance);
-            return this;
+            lock (_lockState)
+            {
+                RegisterType<T>(instance.GetType(), true);
+                _singletons.Add(typeof(T), instance);
+                return this;
+            }
         }
 
         /// <summary>
@@ -80,9 +90,12 @@ namespace AreaControl
         /// </summary>
         public IoC UnregisterAll()
         {
-            _components.Clear();
-            _singletons.Clear();
-            return this;
+            lock (_lockState)
+            {
+                _components.Clear();
+                _singletons.Clear();
+                return this;
+            }
         }
 
         /// <summary>
@@ -92,7 +105,20 @@ namespace AreaControl
         /// <returns>Returns the component instance.</returns>
         public T GetInstance<T>()
         {
-            return (T) GetInstance(typeof(T));
+            lock (_lockState)
+            {
+                return (T) GetInstance(typeof(T));
+            }
+        }
+
+        /// <summary>
+        /// Get one or more instance of the required type.
+        /// </summary>
+        /// <typeparam name="T">Set the instance type to return.</typeparam>
+        /// <returns>Returns one or more instance(s) of the required type of found, otherwise, it will return an empty list if none found.</returns>
+        public List<T> GetInstances<T>()
+        {
+            return null;
         }
 
         /// <summary>
@@ -104,15 +130,18 @@ namespace AreaControl
         /// <exception cref="IoCException">Is thrown when the given type is not registered or not a singleton.</exception>
         public bool InstanceExists<T>()
         {
-            var type = typeof(T);
+            lock (_lockState)
+            {
+                var type = typeof(T);
 
-            if (!_components.ContainsKey(type))
-                throw new IoCException(type + " has not been registered");
+                if (!_components.ContainsKey(type))
+                    throw new IoCException(type + " has not been registered");
 
-            if (!_components[type].IsSingleton)
-                throw new IoCException(type + " is not registered as a singleton");
+                if (!_components[type].IsSingleton)
+                    throw new IoCException(type + " is not registered as a singleton");
 
-            return _singletons.ContainsKey(type);
+                return _singletons.ContainsKey(type);
+            }
         }
 
         #endregion
@@ -121,38 +150,44 @@ namespace AreaControl
 
         private void RegisterType<T>(Type implementation, bool isSingleton)
         {
-            var type = typeof(T);
-
-            if (!type.IsAssignableFrom(implementation))
-                throw new IoCException(implementation + " does not implement given type " + type);
-            if (_components.ContainsKey(type))
-                throw new IoCException(type + " has already been registered");
-
-            _components.Add(type, new ImplementationType
+            lock (_lockState)
             {
-                Type = implementation,
-                IsSingleton = isSingleton
-            });
+                var type = typeof(T);
+
+                if (!type.IsAssignableFrom(implementation))
+                    throw new IoCException(implementation + " does not implement given type " + type);
+                if (_components.ContainsKey(type))
+                    throw new IoCException(type + " has already been registered");
+
+                _components.Add(type, new ImplementationType
+                {
+                    Type = implementation,
+                    IsSingleton = isSingleton
+                });
+            }
         }
 
         private object GetInstance(Type type)
         {
-            if (!_components.ContainsKey(type))
-                return null;
+            lock (_lockState)
+            {
+                if (!_components.ContainsKey(type))
+                    return null;
 
-            var component = _components[type];
+                var component = _components[type];
 
-            if (component.IsSingleton && _singletons.ContainsKey(type))
-                return _singletons[type];
+                if (component.IsSingleton && _singletons.ContainsKey(type))
+                    return _singletons[type];
 
-            var instance = InitializeInstanceType(component.Type);
+                var instance = InitializeInstanceType(component.Type);
 
-            InvokePostConstruct(instance);
+                InvokePostConstruct(instance);
 
-            if (component.IsSingleton)
-                _singletons.Add(type, instance);
+                if (component.IsSingleton)
+                    _singletons.Add(type, instance);
 
-            return instance;
+                return instance;
+            }
         }
 
         private object InitializeInstanceType(Type type)

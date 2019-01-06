@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace AreaControl.Rage
+namespace AreaControl.AbstractionLayer
 {
     /// <summary>
     /// Abstraction layer for calling RAGE api.

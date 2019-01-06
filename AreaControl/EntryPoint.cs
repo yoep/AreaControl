@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using AreaControl.AbstractionLayer;
 using AreaControl.Actions.CloseRoad;
 using AreaControl.Actions.RoadBlock;
 using AreaControl.Managers;
 using AreaControl.Menu;
-using AreaControl.Rage;
 using LSPD_First_Response.Mod.API;
 
 namespace AreaControl
@@ -45,6 +45,7 @@ namespace AreaControl
                 .Register<IRage>(typeof(RageImpl))
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
                 .RegisterSingleton<IEntityManager>(typeof(EntityManager))
+                .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
                 .Register<IRoadBlock>(typeof(RoadBlockImpl))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl));
         }
