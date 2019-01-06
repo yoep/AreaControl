@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -14,8 +15,8 @@ namespace AreaControl
     {
         private static readonly string PostConstructName = typeof(PostConstruct).FullName;
 
-        private readonly Dictionary<Type, ImplementationType> _components = new Dictionary<Type, ImplementationType>();
-        private readonly Dictionary<Type, object> _singletons = new Dictionary<Type, object>();
+        private readonly Dictionary<DefinitionType, ImplementationType> _components = new Dictionary<DefinitionType, ImplementationType>();
+        private readonly Dictionary<DefinitionType, object> _singletons = new Dictionary<DefinitionType, object>();
         private readonly object _lockState = new object();
 
         #region Constructors
@@ -79,7 +80,7 @@ namespace AreaControl
             lock (_lockState)
             {
                 RegisterType<T>(instance.GetType(), true);
-                _singletons.Add(typeof(T), instance);
+                _singletons.Add(new DefinitionType(typeof(T)), instance);
                 return this;
             }
         }
@@ -116,9 +117,18 @@ namespace AreaControl
         /// </summary>
         /// <typeparam name="T">Set the instance type to return.</typeparam>
         /// <returns>Returns one or more instance(s) of the required type of found, otherwise, it will return an empty list if none found.</returns>
-        public List<T> GetInstances<T>()
+        public ReadOnlyCollection<T> GetInstances<T>()
         {
-            return null;
+            lock (_lockState)
+            {
+                var type = typeof(T);
+
+                return _components
+                    .Where(x => x.Key.Defines(type))
+                    .Select(x => (T) GetInstance(x.Key.Type))
+                    .ToList()
+                    .AsReadOnly();
+            }
         }
 
         /// <summary>
@@ -133,14 +143,15 @@ namespace AreaControl
             lock (_lockState)
             {
                 var type = typeof(T);
+                var key = new DefinitionType(type);
 
-                if (!_components.ContainsKey(type))
+                if (!_components.ContainsKey(key))
                     throw new IoCException(type + " has not been registered");
 
-                if (!_components[type].IsSingleton)
+                if (!_components[key].IsSingleton)
                     throw new IoCException(type + " is not registered as a singleton");
 
-                return _singletons.ContainsKey(type);
+                return _singletons.ContainsKey(key);
             }
         }
 
@@ -153,17 +164,36 @@ namespace AreaControl
             lock (_lockState)
             {
                 var type = typeof(T);
+                var key = new DefinitionType(type);
 
                 if (!type.IsAssignableFrom(implementation))
                     throw new IoCException(implementation + " does not implement given type " + type);
-                if (_components.ContainsKey(type))
+                if (_components.ContainsKey(key))
                     throw new IoCException(type + " has already been registered");
 
-                _components.Add(type, new ImplementationType
+                _components.Add(key, new ImplementationType
                 {
                     Type = implementation,
                     IsSingleton = isSingleton
                 });
+
+                key.AddDerivedTypes(GetDerivedTypes(key.Type));
+            }
+        }
+
+        private IEnumerable<Type> GetDerivedTypes(Type type)
+        {
+            lock (_lockState)
+            {
+                var derivedTypes = new List<Type>();
+
+                foreach (var derivedInterface in type.GetInterfaces())
+                {
+                    derivedTypes.Add(derivedInterface);
+                    derivedTypes.AddRange(GetDerivedTypes(derivedInterface));
+                }
+
+                return derivedTypes;
             }
         }
 
@@ -171,20 +201,22 @@ namespace AreaControl
         {
             lock (_lockState)
             {
-                if (!_components.ContainsKey(type))
+                var key = new DefinitionType(type);
+
+                if (!_components.ContainsKey(key))
                     return null;
 
-                var component = _components[type];
+                var component = _components[key];
 
-                if (component.IsSingleton && _singletons.ContainsKey(type))
-                    return _singletons[type];
+                if (component.IsSingleton && _singletons.ContainsKey(key))
+                    return _singletons[key];
 
                 var instance = InitializeInstanceType(component.Type);
 
                 InvokePostConstruct(instance);
 
                 if (component.IsSingleton)
-                    _singletons.Add(type, instance);
+                    _singletons.Add(key, instance);
 
                 return instance;
             }
@@ -231,7 +263,7 @@ namespace AreaControl
 
         private bool AreAllParametersRegistered(ConstructorInfo constructor)
         {
-            return constructor.GetParameters().All(parameterInfo => _components.ContainsKey(parameterInfo.ParameterType));
+            return constructor.GetParameters().All(parameterInfo => _components.ContainsKey(new DefinitionType(parameterInfo.ParameterType)));
         }
 
         #endregion
@@ -253,6 +285,87 @@ namespace AreaControl
             public Type Type { get; set; }
 
             public bool IsSingleton { get; set; }
+        }
+
+        /// <summary>
+        /// Internal placeholder of the IoC definition type info.
+        /// This is the type that is being used as interface registration of an implementation.
+        /// </summary>
+        private class DefinitionType
+        {
+            private readonly List<Type> _derivedTypes = new List<Type>();
+
+            public DefinitionType(Type type)
+            {
+                Type = type;
+            }
+
+            #region Properties
+
+            /// <summary>
+            /// Get the definition type.
+            /// This is the key of the registration types.
+            /// </summary>
+            public Type Type { get; }
+
+            /// <summary>
+            /// Get all derived types defined by the key interface.
+            /// </summary>
+            public ReadOnlyCollection<Type> DerivedTypes => _derivedTypes.AsReadOnly();
+
+            #endregion
+
+            #region Methods
+
+            /// <summary>
+            /// Get if this key defines (implements) the given type.
+            /// This will check it's own type as well as derived types.
+            /// </summary>
+            /// <param name="type">Set the type to check for.</param>
+            /// <returns>Returns true if this definition defines the given type, else false.</returns>
+            public bool Defines(Type type)
+            {
+                return Type == type || DerivedTypes.Contains(type);
+            }
+
+            public void AddDerivedTypes(IEnumerable<Type> types)
+            {
+                foreach (var type in types)
+                {
+                    AddDerivedType(type);
+                }
+            }
+
+            public void AddDerivedType(Type type)
+            {
+                if (!_derivedTypes.Contains(type))
+                    _derivedTypes.Add(type);
+            }
+
+            #endregion
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != this.GetType()) return false;
+                return Equals((DefinitionType) obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return Type != null ? Type.GetHashCode() : 0;
+            }
+
+            public override string ToString()
+            {
+                return $"{nameof(Type)}: {Type}, {nameof(DerivedTypes)}: {DerivedTypes}";
+            }
+
+            private bool Equals(DefinitionType other)
+            {
+                return Type == other.Type;
+            }
         }
     }
 }

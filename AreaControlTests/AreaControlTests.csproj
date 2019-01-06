@@ -75,7 +75,10 @@
     <Compile Include="IoCTests.cs" />
     <Compile Include="MenuImplTests.cs" />
     <Compile Include="Model\Component.cs" />
+    <Compile Include="Model\Component2.cs" />
     <Compile Include="Model\IComponent.cs" />
+    <Compile Include="Model\IComponent2.cs" />
+    <Compile Include="Model\IDerivedComponent.cs" />
     <Compile Include="Model\IPostConstructModel.cs" />
     <Compile Include="Model\ISingleton.cs" />
     <Compile Include="Model\PostConstructModel.cs" />

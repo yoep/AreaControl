@@ -7,7 +7,7 @@ using RageImpl = AreaControlTests.AbstractionLayer.RageImpl;
 
 namespace AreaControlTests
 {
-    public class IoCTests
+    public static class IoCTests
     {
         public class Register
         {
@@ -77,6 +77,24 @@ namespace AreaControlTests
                 ioC.UnregisterAll();
 
                 Assert.Throws<IoCException>(() => ioC.InstanceExists<ISingleton>());
+            }
+        }
+
+        public class GetInstances
+        {
+            [Fact]
+            public void ShouldReturnAllInstancesThatContainTheDerivedInterfaceWhenInvoked()
+            {
+                var ioC = IoC.Instance
+                    .UnregisterAll()
+                    .Register<IRage>(typeof(RageImpl))
+                    .RegisterSingleton<ISingleton>(typeof(Singleton))
+                    .Register<IComponent>(typeof(Component))
+                    .Register<IComponent2>(typeof(Component2));
+
+                var result = ioC.GetInstances<IDerivedComponent>();
+
+                Assert.Equal(2, result.Count);
             }
         }
     }

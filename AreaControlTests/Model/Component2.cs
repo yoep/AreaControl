@@ -1,6 +1,6 @@
 namespace AreaControlTests.Model
 {
-    public interface IComponent : IDerivedComponent
+    public class Component2 : IComponent2
     {
         
     }
