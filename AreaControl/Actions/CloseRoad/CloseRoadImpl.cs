@@ -30,7 +30,7 @@ namespace AreaControl.Actions.CloseRoad
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public UIMenuItem Item => new UIMenuItem("CloseRoad_Placeholder");
+        public UIMenuItem Item { get; } = new UIMenuItem("CloseRoad_Placeholder");
         
         /// <inheritdoc />
         public bool IsAutoClosed => true;

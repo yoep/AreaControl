@@ -95,7 +95,7 @@ namespace AreaControl.Menu
             catch (MenuException ex)
             {
                 _rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
-                _rage.DisplayNotification("could not invoked menu item, see log files for more info");
+                _rage.DisplayNotification("could not invoke menu item, see log files for more info");
             }
             catch (Exception ex)
             {
