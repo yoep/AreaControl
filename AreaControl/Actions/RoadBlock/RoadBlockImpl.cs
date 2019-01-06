@@ -10,6 +10,8 @@ namespace AreaControl.Actions.RoadBlock
         /// <inheritdoc />
         public bool IsAutoClosed => true;
 
+        public bool IsVisible => true;
+
         /// <inheritdoc />
         public void OnMenuActivation()
         {

@@ -40,6 +40,9 @@ namespace AreaControl.Managers
         public bool IsAutoClosed => false;
 
         /// <inheritdoc />
+        public bool IsVisible => true;
+
+        /// <inheritdoc />
         public void OnMenuActivation()
         {
             UpdateResponseCode();

@@ -31,6 +31,9 @@ namespace AreaControl.Actions.CloseRoad
         public bool IsAutoClosed => true;
 
         /// <inheritdoc />
+        public abstract bool IsVisible { get; }
+
+        /// <inheritdoc />
         public abstract void OnMenuActivation();
 
         #endregion

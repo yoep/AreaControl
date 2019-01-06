@@ -73,9 +73,25 @@ namespace AreaControl.Menu
         private static void Process(object sender, GraphicsEventArgs e)
         {
             if (Game.IsKeyDown(Keys.T))
+            {
+                foreach (var component in MenuItems)
+                {
+                    if (component.IsVisible && !IsShownInMenu(component))
+                        AreaControlMenu.AddItem(component.Item);
+
+                    if (!component.IsVisible && IsShownInMenu(component))
+                        AreaControlMenu.RemoveItemAt(AreaControlMenu.MenuItems.IndexOf(component.Item));
+                }
+
                 AreaControlMenu.Visible = !AreaControlMenu.Visible;
+            }
 
             MenuPool.ProcessMenus();
+        }
+
+        private static bool IsShownInMenu(IMenuComponent component)
+        {
+            return AreaControlMenu.MenuItems.IndexOf(component.Item) != -1;
         }
 
         private void ItemSelectionHandler(UIMenu sender, UIMenuItem selectedItem, int index)
@@ -86,9 +102,9 @@ namespace AreaControl.Menu
             {
                 if (menuComponent == null)
                     throw new MenuException("No menu item action found for the selected menu item", selectedItem);
-                
+
                 menuComponent.OnMenuActivation();
-                
+
                 if (menuComponent.IsAutoClosed)
                     CloseMenu();
             }

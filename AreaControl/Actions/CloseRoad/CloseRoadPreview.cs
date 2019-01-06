@@ -14,6 +14,9 @@ namespace AreaControl.Actions.CloseRoad
         public override UIMenuItem Item { get; } = new UIMenuItem(AreaControl.ActionCloseRoadPreview);
 
         /// <inheritdoc />
+        public override bool IsVisible => true;
+
+        /// <inheritdoc />
         public override void OnMenuActivation()
         {
             Rage.NewSafeFiber(() =>
