@@ -73,7 +73,7 @@ namespace AreaControl.Actions.CloseRoad
 
         private float GetPedRedirectTrafficHeading()
         {
-            return Heading + 100f;
+            return Heading + 120f;
         }
     }
 }

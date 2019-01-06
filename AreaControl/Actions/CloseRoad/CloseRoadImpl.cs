@@ -27,7 +27,7 @@ namespace AreaControl.Actions.CloseRoad
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public override UIMenuItem Item { get; } = new UIMenuItem("CloseRoad_Placeholder");
+        public override UIMenuItem Item { get; } = new UIMenuItem(AreaControl.ActionCloseRoad);
 
         /// <inheritdoc />
         public override void OnMenuActivation()

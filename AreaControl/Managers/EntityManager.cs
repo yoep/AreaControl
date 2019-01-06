@@ -57,7 +57,7 @@ namespace AreaControl.Managers
         {
             var registeredVehicle = new ACVehicle(vehicle);
             var driver = vehicle.Driver;
-    
+
             _rage.LogTrivialDebug("Registering a new vehicle in entity manager...");
             _managedVehicles.Add(registeredVehicle);
 
@@ -102,7 +102,7 @@ namespace AreaControl.Managers
         private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition)
         {
             var closestRoad = RoadUtil.GetClosestRoad(spawnPosition, RoadType.All);
-            var vehicle = RegisterVehicle(new Vehicle("POLICE", closestRoad.Position, closestRoad.Heading));
+            var vehicle = RegisterVehicle(new Vehicle("POLICE", closestRoad.Position, closestRoad.Lanes.First().Heading));
             var driver = RegisterPed(CreatePed(spawnPosition));
             driver.WarpIntoVehicle(vehicle, VehicleSeat.Driver);
             var passenger = RegisterPed(CreatePed(spawnPosition));

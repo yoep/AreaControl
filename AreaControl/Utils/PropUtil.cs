@@ -10,9 +10,19 @@ namespace AreaControl.Utils
             return new Object(model, Vector3.Zero);
         }
 
-        public static Object CreateCone(Vector3 position)
+        public static Object CreateSmallBlankCone(Vector3 position)
         {
             return new Object(new Model("prop_mp_cone_03"), position);
+        }
+        
+        public static Object CreateSmallConeWithStripes(Vector3 position)
+        {
+            return new Object(new Model("prop_mp_cone_02"), position);
+        }
+        
+        public static Object CreateBigConeWithStripes(Vector3 position)
+        {
+            return new Object(new Model("prop_mp_cone_01"), position);
         }
     }
 }

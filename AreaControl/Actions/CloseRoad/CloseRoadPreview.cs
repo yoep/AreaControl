@@ -5,13 +5,13 @@ namespace AreaControl.Actions.CloseRoad
 {
     public class CloseRoadPreview : AbstractCloseRoad
     {
-        public CloseRoadPreview(IRage rage) 
+        public CloseRoadPreview(IRage rage)
             : base(rage)
         {
         }
 
         /// <inheritdoc />
-        public override UIMenuItem Item { get; } = new UIMenuItem("CloseRoad_PREVIEW_Placeholder");
+        public override UIMenuItem Item { get; } = new UIMenuItem(AreaControl.ActionCloseRoadPreview);
 
         /// <inheritdoc />
         public override void OnMenuActivation()

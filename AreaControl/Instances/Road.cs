@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using AreaControl.Utils;
 using Rage;
 
@@ -6,24 +8,13 @@ namespace AreaControl.Instances
 {
     public class Road : IPreviewSupport
     {
-        private Entity _previewLeftSide;
-        private Entity _previewRightSide;
-
         #region Constructors
 
-        public Road(Vector3 position, float heading)
+        internal Road(Vector3 position, IReadOnlyList<Lane> lanes, bool isAtJunction)
         {
             Position = position;
-            Heading = heading;
-        }
-
-        public Road(Vector3 position, Vector3 rightSide, Vector3 leftSide, float heading, float width)
-        {
-            Position = position;
-            RightSide = rightSide;
-            LeftSide = leftSide;
-            Heading = heading;
-            Width = width;
+            Lanes = lanes;
+            IsAtJunction = isAtJunction;
         }
 
         #endregion
@@ -36,70 +27,135 @@ namespace AreaControl.Instances
         public Vector3 Position { get; }
 
         /// <summary>
-        /// Get or set the right side start position.
+        /// Get the lanes of this road.
         /// </summary>
-        public Vector3 RightSide { get; set; }
-
-        /// <summary>
-        /// Get or set the left side start position.
-        /// </summary>
-        public Vector3 LeftSide { get; set; }
-
-        /// <summary>
-        /// Get the heading of the road.
-        /// </summary>
-        public float Heading { get; }
+        public IReadOnlyList<Lane> Lanes { get; }
 
         /// <summary>
         /// Get or set the width of the road.
         /// </summary>
-        public float Width { get; set; }
+        public float Width
+        {
+            get { return Lanes.Select(x => x.Width).Sum(); }
+        }
+        
+        /// <summary>
+        /// Check if the road position is at a junction.
+        /// </summary>
+        public bool IsAtJunction { get; }
 
         /// <inheritdoc />
-        public bool IsPreviewActive => _previewLeftSide != null;
+        public bool IsPreviewActive => Lanes.Select(x => x.IsPreviewActive).First();
 
         #endregion
+
+        #region IPreviewSupport implementation
 
         /// <inheritdoc />
         public void CreatePreview()
         {
-            if (IsPreviewActive)
-                return;
-
-            _previewLeftSide = PropUtil.CreateCone(LeftSide);
-            _previewRightSide = PropUtil.CreateCone(RightSide);
-            PreviewUtil.TransformToPreview(_previewLeftSide);
-            PreviewUtil.TransformToPreview(_previewRightSide);
+            foreach (var lane in Lanes)
+            {
+                lane.CreatePreview();
+            }
         }
 
         /// <inheritdoc />
         public void DeletePreview()
         {
-            if (!IsPreviewActive)
-                return;
-
-            _previewLeftSide.Delete();
-            _previewLeftSide = null;
-            _previewRightSide.Delete();
-            _previewRightSide = null;
+            foreach (var lane in Lanes)
+            {
+                lane.DeletePreview();
+            }
         }
+
+        #endregion
 
         public override string ToString()
         {
-            return
-                Environment.NewLine + $"{nameof(Position)}: {Position}, " +
-                Environment.NewLine + $"{nameof(RightSide)}: {RightSide}, " +
-                Environment.NewLine + $"{nameof(LeftSide)}: {LeftSide}," +
-                Environment.NewLine + $" {nameof(Heading)}: {Heading}, " +
-                Environment.NewLine + $"{nameof(Width)}: {Width}";
+            var message = Environment.NewLine + $"{nameof(Position)}: {Position}," +
+                          Environment.NewLine + $"{nameof(IsAtJunction)}: {IsAtJunction}," +
+                          Environment.NewLine + $"{nameof(Width)}: {Width}" +
+                          Environment.NewLine + "--- Lanes ---";
+            return Lanes.Aggregate(message, (current, lane) => current + (Environment.NewLine + lane));
         }
 
         /// <summary>
         /// Defines the lane information within the road.
         /// </summary>
-        public class Lane
+        public class Lane : IPreviewSupport
         {
-            
+            private Entity _previewLeftSide;
+            private Entity _previewRightSide;
+            private Entity _previewDirection;
+
+            public Lane(float heading, Vector3 rightSide, Vector3 leftSide, float width)
+            {
+                Heading = heading;
+                RightSide = rightSide;
+                LeftSide = leftSide;
+                Width = width;
+            }
+
+            /// <summary>
+            /// Get the heading of the lane.
+            /// </summary>
+            public float Heading { get; }
+
+            /// <summary>
+            /// Get the right side start position of the lane.
+            /// </summary>
+            public Vector3 RightSide { get; }
+
+            /// <summary>
+            /// Get the left side start position of the lane.
+            /// </summary>
+            public Vector3 LeftSide { get; }
+
+            /// <summary>
+            /// Get the width of the lane.
+            /// </summary>
+            public float Width { get; }
+
+            /// <inheritdoc />
+            public bool IsPreviewActive => _previewLeftSide != null;
+
+            /// <inheritdoc />
+            public void CreatePreview()
+            {
+                if (IsPreviewActive)
+                    return;
+
+                _previewLeftSide = PropUtil.CreateSmallBlankCone(LeftSide);
+                _previewRightSide = PropUtil.CreateSmallConeWithStripes(RightSide);
+                _previewDirection = PropUtil.CreateBigConeWithStripes(RightSide + MathHelper.ConvertHeadingToDirection(Heading) * 1f);
+                PreviewUtil.TransformToPreview(_previewLeftSide);
+                PreviewUtil.TransformToPreview(_previewRightSide);
+                PreviewUtil.TransformToPreview(_previewDirection);
+            }
+
+            /// <inheritdoc />
+            public void DeletePreview()
+            {
+                if (!IsPreviewActive)
+                    return;
+
+                _previewLeftSide.Delete();
+                _previewLeftSide = null;
+                _previewRightSide.Delete();
+                _previewRightSide = null;
+                _previewDirection.Delete();
+                _previewDirection = null;
+            }
+
+            public override string ToString()
+            {
+                return $"{nameof(Heading)}: {Heading}," +
+                       Environment.NewLine + $"{nameof(RightSide)}: {RightSide}," +
+                       Environment.NewLine + $"{nameof(LeftSide)}: {LeftSide}," +
+                       Environment.NewLine + $"{nameof(Width)}: {Width}," +
+                       Environment.NewLine + $"{nameof(IsPreviewActive)}: {IsPreviewActive}";
+            }
         }
     }
 }

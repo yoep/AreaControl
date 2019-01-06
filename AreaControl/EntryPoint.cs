@@ -48,7 +48,6 @@ namespace AreaControl
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
                 .RegisterSingleton<IEntityManager>(typeof(EntityManager))
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
-                .Register<IRoadBlock>(typeof(RoadBlockImpl))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl));
         }
 
