@@ -105,7 +105,7 @@ namespace AreaControl.Actions.CloseRoad
             vehicle.Instance.IsSirenSilent = true;
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(slot.Position, 10f, VehicleDrivingFlags.Emergency, 2f)
-                .WaitForCompletion(10000);
+                .WaitForCompletion(20000);
             vehicle.Instance.Heading = slot.Heading;
             _rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
 

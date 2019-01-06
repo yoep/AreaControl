@@ -7,7 +7,7 @@ namespace AreaControl.Instances
     /// <summary>
     /// Defines a <see cref="Vehicle"/> which is managed by the AreaControl plugin.
     /// </summary>
-    public class ACVehicle
+    public class ACVehicle : IACEntity
     {
         public ACVehicle(Vehicle instance)
         {
@@ -72,6 +72,12 @@ namespace AreaControl.Instances
         public void Empty()
         {
             TaskUtil.EmptyVehicle(Instance);
+        }
+
+        /// <inheritdoc />
+        public void Delete()
+        {
+            Instance.Delete();
         }
     }
 }

@@ -56,9 +56,12 @@
     <Compile Include="Actions\RoadBlock\RoadBlockImpl.cs" />
     <Compile Include="AreaControl.cs" />
     <Compile Include="Assert.cs" />
+    <Compile Include="Duties\CleanCorpsesDuty.cs" />
+    <Compile Include="Duties\CleanWrecksDuty.cs" />
     <Compile Include="Duties\IDuty.cs" />
     <Compile Include="Duties\RedirectTrafficDuty.cs" />
     <Compile Include="EntryPoint.cs" />
+    <Compile Include="Instances\IACEntity.cs" />
     <Compile Include="Instances\Exceptions\ActiveDutyException.cs" />
     <Compile Include="Instances\IPreviewSupport.cs" />
     <Compile Include="IoC.cs" />

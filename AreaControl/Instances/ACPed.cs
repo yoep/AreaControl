@@ -7,7 +7,7 @@ namespace AreaControl.Instances
     /// <summary>
     /// Defines a <see cref="Ped"/> which is managed by the AreaControl plugin.
     /// </summary>
-    public class ACPed : IDeletable
+    public class ACPed : IACEntity
     {
         private Entity _attachment;
         private IDuty _duty;

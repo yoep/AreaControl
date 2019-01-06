@@ -5,6 +5,10 @@ using Rage;
 
 namespace AreaControl.Duties
 {
+    /// <summary>
+    /// Duty for redirecting the traffic on the road.
+    /// This duty will let the given ped walk to the given position and play the parking assistant animation.
+    /// </summary>
     public class RedirectTrafficDuty : IDuty
     {
         private readonly IRage _rage;
@@ -24,6 +28,7 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public void Execute(ACPed ped)
         {
+            IsActive = true;
             _rage.NewSafeFiber(() =>
             {
                 ped.Instance.Tasks
