@@ -7,6 +7,7 @@ using AreaControl.Managers;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
+using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.CloseRoad
 {
@@ -17,23 +18,35 @@ namespace AreaControl.Actions.CloseRoad
 
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
+        private readonly IResponseManager _responseManager;
 
-        public CloseRoadImpl(IRage rage, IEntityManager entityManager)
+        public CloseRoadImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager)
         {
             _rage = rage;
             _entityManager = entityManager;
+            _responseManager = responseManager;
         }
+
+        #region IMenuComponent implementation
+
+        /// <inheritdoc />
+        public UIMenuItem Item => new UIMenuItem("CloseRoad_Placeholder");
+        
+        /// <inheritdoc />
+        public bool IsAutoClosed => true;
 
         /// <inheritdoc />
         public void OnMenuActivation()
         {
             _rage.NewSafeFiber(() =>
             {
-                Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE UNITS_RESPOND_CODE_02");
+                Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
                 var blockSlots = DetermineBlockSlots();
                 SpawnBlockSlots(blockSlots);
             }, "AreaControl.CloseRoad");
         }
+
+        #endregion
 
         private IEnumerable<BlockSlot> DetermineBlockSlots()
         {

@@ -15,8 +15,8 @@ namespace AreaControl
     {
         private static readonly string PostConstructName = typeof(PostConstruct).FullName;
 
-        private readonly Dictionary<DefinitionType, ImplementationType> _components = new Dictionary<DefinitionType, ImplementationType>();
-        private readonly Dictionary<DefinitionType, object> _singletons = new Dictionary<DefinitionType, object>();
+        private readonly List<ComponentDefinition> _components = new List<ComponentDefinition>();
+        private readonly Dictionary<ComponentDefinition, object> _singletons = new Dictionary<ComponentDefinition, object>();
         private readonly object _lockState = new object();
 
         #region Constructors
@@ -79,8 +79,7 @@ namespace AreaControl
         {
             lock (_lockState)
             {
-                RegisterType<T>(instance.GetType(), true);
-                _singletons.Add(new DefinitionType(typeof(T)), instance);
+                _singletons.Add(RegisterType<T>(instance.GetType(), true), instance);
                 return this;
             }
         }
@@ -123,9 +122,8 @@ namespace AreaControl
             {
                 var type = typeof(T);
 
-                return _components
-                    .Where(x => x.Key.Defines(type))
-                    .Select(x => (T) GetInstance(x.Key.Type))
+                return GetInstances(type)
+                    .Select(x => (T) x)
                     .ToList()
                     .AsReadOnly();
             }
@@ -143,15 +141,16 @@ namespace AreaControl
             lock (_lockState)
             {
                 var type = typeof(T);
-                var key = new DefinitionType(type);
 
-                if (!_components.ContainsKey(key))
+                if (GetDefinitionsFor(type).Count == 0)
                     throw new IoCException(type + " has not been registered");
 
-                if (!_components[key].IsSingleton)
+                var definition = GetSingletonDefinitionFor(type);
+
+                if (definition == null)
                     throw new IoCException(type + " is not registered as a singleton");
 
-                return _singletons.ContainsKey(key);
+                return _singletons.ContainsKey(definition);
             }
         }
 
@@ -159,25 +158,22 @@ namespace AreaControl
 
         #region Functions
 
-        private void RegisterType<T>(Type implementation, bool isSingleton)
+        private ComponentDefinition RegisterType<T>(Type implementation, bool isSingleton)
         {
             lock (_lockState)
             {
                 var type = typeof(T);
-                var key = new DefinitionType(type);
+                var key = new ComponentDefinition(type, implementation, isSingleton);
 
                 if (!type.IsAssignableFrom(implementation))
                     throw new IoCException(implementation + " does not implement given type " + type);
-                if (_components.ContainsKey(key))
-                    throw new IoCException(type + " has already been registered");
 
-                _components.Add(key, new ImplementationType
-                {
-                    Type = implementation,
-                    IsSingleton = isSingleton
-                });
+                if (isSingleton && GetDefinitionsFor(type).Count > 0)
+                    throw new IoCException(type + " has already been registered as a singleton or component");
 
+                _components.Add(key);
                 key.AddDerivedTypes(GetDerivedTypes(key.Type));
+                return key;
             }
         }
 
@@ -197,28 +193,60 @@ namespace AreaControl
             }
         }
 
-        private object GetInstance(Type type)
+        private IList<ComponentDefinition> GetDefinitionsFor(Type type)
         {
             lock (_lockState)
             {
-                var key = new DefinitionType(type);
+                return _components.FindAll(x => x.Defines(type));
+            }
+        }
 
-                if (!_components.ContainsKey(key))
-                    return null;
+        private ComponentDefinition GetSingletonDefinitionFor(Type type)
+        {
+            lock (_lockState)
+            {
+                return _components.FirstOrDefault(x => x.Type == type && x.IsSingleton);
+            }
+        }
 
-                var component = _components[key];
+        private object GetInstance(Type type)
+        {
+            var instances = GetInstances(type);
 
-                if (component.IsSingleton && _singletons.ContainsKey(key))
-                    return _singletons[key];
+            if (instances.Count > 1)
+                throw new IoCException("More than one instance has been found for " + type);
 
-                var instance = InitializeInstanceType(component.Type);
+            return instances.FirstOrDefault();
+        }
 
-                InvokePostConstruct(instance);
+        private List<object> GetInstances(Type type)
+        {
+            lock (_lockState)
+            {
+                var definitions = GetDefinitionsFor(type);
 
-                if (component.IsSingleton)
-                    _singletons.Add(key, instance);
+                if (definitions.Count == 0)
+                    return new List<object>();
 
-                return instance;
+                var singletonDefinition = GetSingletonDefinitionFor(type);
+
+                if (singletonDefinition != null && _singletons.ContainsKey(singletonDefinition))
+                    return new List<object> {_singletons[singletonDefinition]};
+
+                var instances = new List<object>();
+
+                foreach (var definition in definitions)
+                {
+                    var instance = InitializeInstanceType(definition.ImplementationType);
+                    InvokePostConstruct(instance);
+
+                    if (definition.IsSingleton)
+                        _singletons.Add(definition, instance);
+
+                    instances.Add(instance);
+                }
+
+                return instances;
             }
         }
 
@@ -263,7 +291,7 @@ namespace AreaControl
 
         private bool AreAllParametersRegistered(ConstructorInfo constructor)
         {
-            return constructor.GetParameters().All(parameterInfo => _components.ContainsKey(new DefinitionType(parameterInfo.ParameterType)));
+            return constructor.GetParameters().All(parameterInfo => _components.FirstOrDefault(x => x.Type == parameterInfo.ParameterType) != null);
         }
 
         #endregion
@@ -278,26 +306,18 @@ namespace AreaControl
         }
 
         /// <summary>
-        /// Internal placeholder of the IoC implementation type info.
-        /// </summary>
-        private class ImplementationType
-        {
-            public Type Type { get; set; }
-
-            public bool IsSingleton { get; set; }
-        }
-
-        /// <summary>
         /// Internal placeholder of the IoC definition type info.
         /// This is the type that is being used as interface registration of an implementation.
         /// </summary>
-        private class DefinitionType
+        private class ComponentDefinition
         {
             private readonly List<Type> _derivedTypes = new List<Type>();
 
-            public DefinitionType(Type type)
+            public ComponentDefinition(Type type, Type implementationType, bool isSingleton)
             {
                 Type = type;
+                ImplementationType = implementationType;
+                IsSingleton = isSingleton;
             }
 
             #region Properties
@@ -307,6 +327,16 @@ namespace AreaControl
             /// This is the key of the registration types.
             /// </summary>
             public Type Type { get; }
+            
+            /// <summary>
+            /// Get the implementation type for this definition.
+            /// </summary>
+            public Type ImplementationType { get; }
+
+            /// <summary>
+            /// Get if this definition is a singleton registration.
+            /// </summary>
+            public bool IsSingleton { get; }
 
             /// <summary>
             /// Get all derived types defined by the key interface.
@@ -349,7 +379,7 @@ namespace AreaControl
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
                 if (obj.GetType() != this.GetType()) return false;
-                return Equals((DefinitionType) obj);
+                return Equals((ComponentDefinition) obj);
             }
 
             public override int GetHashCode()
@@ -359,10 +389,11 @@ namespace AreaControl
 
             public override string ToString()
             {
-                return $"{nameof(Type)}: {Type}, {nameof(DerivedTypes)}: {DerivedTypes}";
+                return $"{nameof(Type)}: {Type}, {nameof(ImplementationType)}: {ImplementationType}, {nameof(IsSingleton)}: {IsSingleton}, " +
+                       $"{nameof(_derivedTypes)}: {_derivedTypes.Count}";
             }
 
-            private bool Equals(DefinitionType other)
+            private bool Equals(ComponentDefinition other)
             {
                 return Type == other.Type;
             }

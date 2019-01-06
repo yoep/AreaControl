@@ -25,6 +25,21 @@ namespace AreaControlTests
 
                 Assert.NotEqual(expectedResult, result);
             }
+
+            [Fact]
+            public void ShouldAllowMultipleImplementationRegistrationOfTheSameInterface()
+            {
+                var ioC = IoC.Instance
+                    .UnregisterAll()
+                    .Register<IRage>(typeof(RageImpl))
+                    .RegisterSingleton<ISingleton>(typeof(Singleton))
+                    .Register<IComponent>(typeof(Component))
+                    .Register<IComponent>(typeof(SameInterfaceComponent));
+
+                var result = ioC.GetInstances<IComponent>();
+
+                Assert.Equal(2, result.Count);
+            }
         }
 
         public class RegisterSingleton
@@ -95,6 +110,7 @@ namespace AreaControlTests
                 var result = ioC.GetInstances<IDerivedComponent>();
 
                 Assert.Equal(2, result.Count);
+                Assert.NotEqual(result[0], result[1]);
             }
         }
     }

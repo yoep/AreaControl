@@ -1,9 +1,6 @@
 using System;
 using AreaControl.AbstractionLayer;
-using AreaControl.Actions.CloseRoad;
-using AreaControl.Actions.RoadBlock;
 using AreaControl.Menu;
-using RAGENativeUI.Elements;
 
 namespace AreaControl
 {
@@ -21,8 +18,14 @@ namespace AreaControl
 
             try
             {
-                menu.RegisterItem(new UIMenuItem("CloseRoad_Placeholder"), ioC.GetInstance<ICloseRoad>());
-                menu.RegisterItem(new UIMenuItem("RoadBlock_Placeholder"), ioC.GetInstance<IRoadBlock>());
+                var menuComponents = ioC.GetInstances<IMenuComponent>();
+                
+                foreach (var menuComponent in menuComponents)
+                {
+                    menu.RegisterComponent(menuComponent);
+                }
+                
+                rage.LogTrivialDebug("Registered " + menuComponents.Count + " menu component(s)");
             }
             catch (Exception ex)
             {

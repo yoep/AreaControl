@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Windows.Forms;
 using AreaControl.AbstractionLayer;
 using Rage;
@@ -13,7 +14,7 @@ namespace AreaControl.Menu
     {
         private static readonly MenuPool MenuPool = new MenuPool();
         private static readonly UIMenu AreaControlMenu = new UIMenu("Area Control", "~b~CONTROL YOUR SURROUNDING");
-        private static readonly Dictionary<UIMenuItem, IMenuComponent> MenuItems = new Dictionary<UIMenuItem, IMenuComponent>();
+        private static readonly List<IMenuComponent> MenuItems = new List<IMenuComponent>();
         private readonly IRage _rage;
 
         #region Constructors
@@ -33,13 +34,12 @@ namespace AreaControl.Menu
 
         #region Methods
 
-        public void RegisterItem(UIMenuItem item, IMenuComponent component)
+        public void RegisterComponent(IMenuComponent component)
         {
-            Assert.NotNull(item, "item cannot be null");
             Assert.NotNull(component, "component cannot be null");
 
-            MenuItems.Add(item, component);
-            AreaControlMenu.AddItem(item);
+            MenuItems.Add(component);
+            AreaControlMenu.AddItem(component.Item);
         }
 
         #endregion
@@ -80,21 +80,29 @@ namespace AreaControl.Menu
 
         private void ItemSelectionHandler(UIMenu sender, UIMenuItem selectedItem, int index)
         {
-            if (!MenuItems.ContainsKey(selectedItem))
-                throw new MenuException("No menu item action found for the selected menu item", selectedItem);
+            var menuComponent = MenuItems.FirstOrDefault(x => x.Item == selectedItem);
 
             try
             {
-                MenuItems[selectedItem].OnMenuActivation();
+                if (menuComponent == null)
+                    throw new MenuException("No menu item action found for the selected menu item", selectedItem);
+                
+                menuComponent.OnMenuActivation();
+                
+                if (menuComponent.IsAutoClosed)
+                    CloseMenu();
+            }
+            catch (MenuException ex)
+            {
+                _rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
+                _rage.DisplayNotification("could not invoked menu item, see log files for more info");
             }
             catch (Exception ex)
             {
                 _rage.LogTrivial("*** An unexpected error occurred while activating the menu item ***" +
                                  Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
-                _rage.LogTrivial("an unexpected error occurred while invoking the menu action");
+                _rage.DisplayNotification("an unexpected error occurred while invoking the menu action");
             }
-
-            CloseMenu();
         }
 
         private static void CloseMenu()

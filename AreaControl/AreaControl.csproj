@@ -67,6 +67,7 @@
     <Compile Include="Managers\EntityManager.cs" />
     <Compile Include="Managers\IEntityManager.cs" />
     <Compile Include="Managers\IResponseManager.cs" />
+    <Compile Include="Managers\ResponseCode.cs" />
     <Compile Include="Managers\ResponseManager.cs" />
     <Compile Include="Menu\IMenuComponent.cs" />
     <Compile Include="Menu\IMenu.cs" />
