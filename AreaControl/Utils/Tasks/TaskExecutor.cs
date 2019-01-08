@@ -42,6 +42,11 @@ namespace AreaControl.Utils.Tasks
         /// Check if this task has been completed.
         /// </summary>
         public bool IsCompleted { get; private set; }
+        
+        /// <summary>
+        /// Check if the <see cref="WaitForCompletion"/> was aborted and the task execution timed out.
+        /// </summary>
+        public bool IsAborted { get; private set; }
 
         /// <summary>
         /// Wait for the task to be completed.
@@ -54,6 +59,9 @@ namespace AreaControl.Utils.Tasks
                 GameFiber.WaitUntil(() => IsCompleted);
             else
                 GameFiber.WaitUntil(() => IsCompleted, duration);
+
+            IsAborted = !IsCompleted;
+            
             return this;
         }
 
@@ -63,6 +71,7 @@ namespace AreaControl.Utils.Tasks
                     $"{nameof(TaskId)}: {TaskId}," + Environment.NewLine +
                     $"{nameof(TaskHash)}: {TaskHash}," + Environment.NewLine +
                     $"{nameof(IsCompleted)}: {IsCompleted}" + Environment.NewLine +
+                    $"{nameof(IsAborted)}: {IsAborted}" + Environment.NewLine +
                     $"---{nameof(ExecutorEntities)}:---";
             return ExecutorEntities.Aggregate(message, (current, entity) => current + Environment.NewLine + entity);
         }
