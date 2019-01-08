@@ -1,5 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using AreaControl.Duties;
 using AreaControl.Utils;
+using AreaControl.Utils.Tasks;
 using Rage;
 
 namespace AreaControl.Instances
@@ -7,6 +9,7 @@ namespace AreaControl.Instances
     /// <summary>
     /// Defines a <see cref="Ped"/> which is managed by the AreaControl plugin.
     /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class ACPed : IACEntity
     {
         private Entity _attachment;
@@ -55,6 +58,15 @@ namespace AreaControl.Instances
             _attachment = entity;
 
             EntityUtil.AttachEntity(entity, Instance, PlacementType.RightHand);
+        }
+
+        /// <summary>
+        /// Walk to the given target entity (can be a ped or a vehicle).
+        /// </summary>
+        /// <param name="target">Set the target to walk to.</param>
+        public void WalkTo(Entity target)
+        {
+            TaskUtil.GoToEntity(Instance, target, 1f);
         }
 
         /// <summary>

@@ -23,6 +23,9 @@ namespace AreaControl.Duties
         }
 
         /// <inheritdoc />
+        public bool IsAvailable => true;
+
+        /// <inheritdoc />
         public bool IsActive { get; private set; }
 
         /// <inheritdoc />

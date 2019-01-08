@@ -32,6 +32,9 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Arrest Manager, Version=7.9.2.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Libs\Arrest Manager.dll</HintPath>
+    </Reference>
     <Reference Include="LSPD First Response, Version=0.3.38.5436, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\LSPD First Response.dll</HintPath>
     </Reference>
@@ -71,7 +74,9 @@
     <Compile Include="IoC.cs" />
     <Compile Include="IoCException.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Managers\DutyManager.cs" />
     <Compile Include="Managers\EntityManager.cs" />
+    <Compile Include="Managers\IDutyManager.cs" />
     <Compile Include="Managers\IEntityManager.cs" />
     <Compile Include="Managers\IResponseManager.cs" />
     <Compile Include="Managers\ResponseCode.cs" />
@@ -95,7 +100,12 @@
     <Compile Include="Utils\RoadUtil.cs" />
     <Compile Include="Utils\Query\PedQuery.cs" />
     <Compile Include="Utils\Query\VehicleQuery.cs" />
-    <Compile Include="Utils\TaskUtil.cs" />
+    <Compile Include="Utils\Tasks\ExecutorEntity.cs" />
+    <Compile Include="Utils\Tasks\TaskExecutor.cs" />
+    <Compile Include="Utils\Tasks\TaskHash.cs" />
+    <Compile Include="Utils\Tasks\TaskId.cs" />
+    <Compile Include="Utils\Tasks\TaskIdentificationType.cs" />
+    <Compile Include="Utils\Tasks\TaskUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Actions" />

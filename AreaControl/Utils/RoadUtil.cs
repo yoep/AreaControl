@@ -68,16 +68,16 @@ namespace AreaControl.Utils
         {
             var currentPosition = roadPosition;
             var initialHeading = GetHeading(currentPosition);
-            var rightSideEndPoint = GetLastPointOnTheLane(currentPosition, initialHeading - 90f);
-            var leftSideEndPoint = GetLastPointOnTheLane(currentPosition, initialHeading + 90f);
+            var leftSide = GetLastPointOnTheLane(currentPosition, initialHeading - 90f);
+            var rightSide = GetLastPointOnTheLane(currentPosition, initialHeading + 90f);
 
             return new List<Road.Lane>
             {
                 LaneBuilder.Builder()
                     .Heading(initialHeading)
-                    .RightSide(rightSideEndPoint)
-                    .LeftSide(leftSideEndPoint)
-                    .Width(GetWidth(rightSideEndPoint, leftSideEndPoint))
+                    .RightSide(rightSide)
+                    .LeftSide(leftSide)
+                    .Width(GetWidth(leftSide, rightSide))
                     .Build(),
                 //TODO: fix multi lane support
                 /*LaneBuilder.Builder()

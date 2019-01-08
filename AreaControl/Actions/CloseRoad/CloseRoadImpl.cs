@@ -89,7 +89,9 @@ namespace AreaControl.Actions.CloseRoad
             vehicle.Instance.Heading = slot.Heading;
             Rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
 
-            vehicle.Empty();
+            var emptyVehicleTask = vehicle.Empty()
+                .WaitForCompletion(10000);
+            Rage.LogTrivialDebug("Empty vehicle task ended with " + emptyVehicleTask);
         }
 
         private void AssignRedirectTrafficDuty(ACPed ped, BlockSlot slot)

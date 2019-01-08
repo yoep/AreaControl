@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using AreaControl.Utils;
+using AreaControl.Utils.Tasks;
 using Rage;
 
 namespace AreaControl.Instances
@@ -7,6 +9,7 @@ namespace AreaControl.Instances
     /// <summary>
     /// Defines a <see cref="Vehicle"/> which is managed by the AreaControl plugin.
     /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class ACVehicle : IACEntity
     {
         public ACVehicle(Vehicle instance)
@@ -69,9 +72,9 @@ namespace AreaControl.Instances
         /// Empty this vehicle.
         /// Makes all occupants of this vehicle leave it.
         /// </summary>
-        public void Empty()
+        public TaskExecutor Empty()
         {
-            TaskUtil.EmptyVehicle(Instance);
+            return TaskUtil.EmptyVehicle(Instance);
         }
 
         /// <inheritdoc />
