@@ -5,6 +5,7 @@ namespace AreaControl.Utils.Tasks
     /// </summary>
     public enum TaskHash : uint
     {
+        Unknown = 0x00000000,
         TASK_ACHIEVE_HEADING = 0x7276d3df,
         TASK_AIM_GUN_AT_COORD = 0x49bef36e,
         TASK_AIM_GUN_AT_ENTITY = 0x6134071b,

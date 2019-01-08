@@ -118,8 +118,8 @@ namespace AreaControl.Utils.Tasks
     internal class TaskExecutorBuilder
     {
         private TaskIdentificationType _identificationType;
-        private TaskId _taskId;
-        private TaskHash _taskHash;
+        private TaskId _taskId = Tasks.TaskId.Unknown;
+        private TaskHash _taskHash = Tasks.TaskHash.Unknown;
         private IEnumerable<Ped> _executorEntities;
 
         private TaskExecutorBuilder()

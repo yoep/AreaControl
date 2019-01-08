@@ -5,6 +5,7 @@ namespace AreaControl.Utils.Tasks
     /// </summary>
     public enum TaskId
     {
+        Unknown = -99,
         CTaskHandsUp = 0,
         CTaskClimbLadder = 1,
         CTaskExitVehicle = 2,
