@@ -1,7 +1,6 @@
-using AreaControl.Instances;
 using Rage;
 
-namespace AreaControl.Managers
+namespace AreaControl.Instances
 {
     public interface IEntityManager
     {

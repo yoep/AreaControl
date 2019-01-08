@@ -64,9 +64,9 @@ namespace AreaControl.Instances
         /// Walk to the given target entity (can be a ped or a vehicle).
         /// </summary>
         /// <param name="target">Set the target to walk to.</param>
-        public void WalkTo(Entity target)
+        public TaskExecutor WalkTo(Entity target)
         {
-            TaskUtil.GoToEntity(Instance, target, 1f);
+            return TaskUtil.GoToEntity(Instance, target, 1f);
         }
 
         /// <summary>

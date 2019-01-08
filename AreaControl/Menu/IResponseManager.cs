@@ -1,6 +1,4 @@
-using AreaControl.Menu;
-
-namespace AreaControl.Managers
+namespace AreaControl.Menu
 {
     public interface IResponseManager : IMenuComponent
     {

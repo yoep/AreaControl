@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
-using AreaControl.Instances;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
 using Rage;
 
-namespace AreaControl.Managers
+namespace AreaControl.Instances
 {
     public class EntityManager : IEntityManager
     {

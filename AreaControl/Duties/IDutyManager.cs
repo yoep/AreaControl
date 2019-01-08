@@ -1,7 +1,6 @@
-using AreaControl.Duties;
 using Rage;
 
-namespace AreaControl.Managers
+namespace AreaControl.Duties
 {
     public interface IDutyManager
     {

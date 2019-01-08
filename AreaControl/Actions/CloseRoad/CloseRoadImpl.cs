@@ -3,7 +3,7 @@ using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
-using AreaControl.Managers;
+using AreaControl.Menu;
 using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
@@ -17,12 +17,14 @@ namespace AreaControl.Actions.CloseRoad
 
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
+        private readonly IDutyManager _dutyManager;
 
-        public CloseRoadImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager)
+        public CloseRoadImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager, IDutyManager dutyManager)
             : base(rage)
         {
             _entityManager = entityManager;
             _responseManager = responseManager;
+            _dutyManager = dutyManager;
         }
 
         #region IMenuComponent implementation
@@ -59,6 +61,13 @@ namespace AreaControl.Actions.CloseRoad
                         var vehicle = _entityManager.FindVehicleWithinOrCreate(slot.Position, ScanRadius);
                         MoveToSlot(vehicle, slot);
                         AssignRedirectTrafficDuty(vehicle.Passengers.First(), slot);
+
+                        var nextAvailableDuty = _dutyManager.GetNextAvailableDuty(Game.LocalPlayer.Character.Position);
+
+                        if (nextAvailableDuty != null)
+                        {
+                            vehicle.Driver.ActivateDuty();
+                        }
 
                         while (true)
                         {

@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
-using AreaControl.Duties;
 using Rage;
 
-namespace AreaControl.Managers
+namespace AreaControl.Duties
 {
     public class DutyManager : IDutyManager
     {
@@ -24,7 +23,12 @@ namespace AreaControl.Managers
         public IDuty GetNextAvailableDuty(Vector3 position)
         {
             var nextAvailableDuty = GetDuties(position).FirstOrDefault(x => x.IsAvailable);
-            _rage.LogTrivialDebug("Found next available duty " + nextAvailableDuty);
+
+            if (nextAvailableDuty != null)
+                _rage.LogTrivialDebug("Found next available duty " + nextAvailableDuty);
+            else
+                _rage.LogTrivialDebug("Their are no available duties in the area of " + position);
+
             return nextAvailableDuty;
         }
 

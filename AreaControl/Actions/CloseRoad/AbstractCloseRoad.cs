@@ -57,6 +57,7 @@ namespace AreaControl.Actions.CloseRoad
                 placementPosition = placementPosition + direction * CarSize;
             }
 
+            Rage.LogTrivialDebug("Created " + blockSlots.Count + " block slot(s)");
             return blockSlots;
         }
 

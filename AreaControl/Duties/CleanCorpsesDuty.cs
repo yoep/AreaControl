@@ -2,6 +2,7 @@ using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Utils.Query;
+using Arrest_Manager.API;
 using Rage;
 
 namespace AreaControl.Duties
@@ -37,7 +38,15 @@ namespace AreaControl.Duties
             {
                 var deathPed = GetFirstAvailableDeathPed();
 
-                ped.WalkTo(deathPed);
+                ped.WalkTo(deathPed)
+                    .WaitForAndExecute(() => Functions.CallCoroner(false));
+
+                while (deathPed.IsValid())
+                {
+                    GameFiber.Yield();
+                }
+
+                IsActive = false;
             }, "CleanCorpsesDuty");
         }
 

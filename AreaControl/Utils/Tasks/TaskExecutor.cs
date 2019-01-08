@@ -47,6 +47,11 @@ namespace AreaControl.Utils.Tasks
         /// Check if the <see cref="WaitForCompletion"/> was aborted and the task execution timed out.
         /// </summary>
         public bool IsAborted { get; private set; }
+        
+        /// <summary>
+        /// Get the parent executor that invoked this task executor.
+        /// </summary>
+        public TaskExecutor Parent { get; private set; }
 
         /// <summary>
         /// Wait for the task to be completed.
@@ -62,6 +67,33 @@ namespace AreaControl.Utils.Tasks
 
             IsAborted = !IsCompleted;
             
+            return this;
+        }
+
+        /// <summary>
+        /// Wait for task completion and execute a new task.
+        /// </summary>
+        /// <param name="task">Set the next task to execute</param>
+        /// <param name="duration">Set the max. duration of the task before aborted (-1 = no duration).</param>
+        /// <returns>Returns the task executor of the new task.</returns>
+        public TaskExecutor WaitForAndExecute(Func<TaskExecutor> task, int duration = -1)
+        {
+            WaitForCompletion(duration);
+            var taskExecutor = task.Invoke();
+            taskExecutor.Parent = this;
+            return taskExecutor;
+        }
+
+        /// <summary>
+        /// Wait for task completion and execute the given action.
+        /// </summary>
+        /// <param name="action">Set the action to execute</param>
+        /// <param name="duration">Set the max. duration of the task before aborted (-1 = no duration).</param>
+        /// <returns>Returns the task executor of the new task.</returns>
+        public TaskExecutor WaitForAndExecute(Action action, int duration = -1)
+        {
+            WaitForCompletion(duration);
+            action.Invoke();
             return this;
         }
 

@@ -3,7 +3,7 @@ using AreaControl.AbstractionLayer;
 using Rage;
 using RAGENativeUI.Elements;
 
-namespace AreaControl.Managers
+namespace AreaControl.Menu
 {
     public class ResponseManager : IResponseManager
     {
