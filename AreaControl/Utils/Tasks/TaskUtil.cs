@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Rage;
 using Rage.Native;
@@ -25,34 +26,42 @@ namespace AreaControl.Utils.Tasks
 
         /// <summary>
         /// Go to the given entity.
-        /// </summary>
-        /// <param name="entity">Set the entity that executes the task.</param>
-        /// <param name="target">Set the target entity to go to.</param>
-        /// <param name="speed">Set the speed of the action (this can be the walk or drive speed).</param>
-        public static TaskExecutor GoToEntity(Entity entity, Entity target, float speed)
-        {
-            Assert.NotNull(entity, "entity cannot be null");
-            Assert.NotNull(target, "target cannot be null");
-            return GoToEntity(entity, target, speed, -1);
-        }
-
-        /// <summary>
-        /// Go to the given entity.
         /// The entity will stop when the duration has been exceeded.
         /// </summary>
-        /// <param name="entity">Set the entity that executes the task.</param>
+        /// <param name="ped">Set the ped that needs to executed the task.</param>
         /// <param name="target">Set the target entity to go to.</param>
         /// <param name="speed">Set the speed of the action (this can be the walk or drive speed).</param>
         /// <param name="duration">Set the max. duration of the task.</param>
-        public static TaskExecutor GoToEntity(Entity entity, Entity target, float speed, int duration)
+        public static TaskExecutor GoToEntity(Ped ped, Entity target, float speed, int duration = -1)
         {
-            Assert.NotNull(entity, "entity cannot be null");
+            Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(target, "target cannot be null");
-            NativeFunction.Natives.TASK_GO_TO_ENTITY(entity, target, duration, 0, speed, 1073741824, 0);
+            NativeFunction.Natives.TASK_GO_TO_ENTITY(ped, target, duration, 2f, speed, 1073741824, 0);
 
             return TaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Hash)
                 .TaskHash(TaskHash.TASK_GOTO_ENTITY)
+                .ExecutorEntities(new List<Ped> {ped})
+                .Build();
+        }
+
+        /// <summary>
+        /// Look at the target entity.
+        /// </summary>
+        /// <param name="ped">Set the ped that needs to executed the task.</param>
+        /// <param name="target">Set the target entity to look at.</param>
+        /// <param name="duration">Set the task max. duration (default -1 = no duration).</param>
+        /// <returns>Returns the task executor for this task.</returns>
+        public static TaskExecutor LookAtEntity(Ped ped, Entity target, int duration = -1)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.NotNull(target, "target cannot be null");
+            NativeFunction.Natives.TASK_LOOK_AT_ENTITY(ped, target, duration, 2048, 3);
+
+            return TaskExecutorBuilder.Builder()
+                .IdentificationType(TaskIdentificationType.Id)
+                .TaskId(TaskId.CTaskTriggerLookAt)
+                .ExecutorEntities(new List<Ped> {ped})
                 .Build();
         }
 

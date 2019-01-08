@@ -70,6 +70,17 @@ namespace AreaControl.Instances
         }
 
         /// <summary>
+        /// Look at the target entity.
+        /// </summary>
+        /// <param name="target">Set the target to look at.</param>
+        /// <param name="duration">Set the duration to look at the ped.</param>
+        /// <returns></returns>
+        public TaskExecutor LookAt(Entity target, int duration = -1)
+        {
+            return TaskUtil.LookAtEntity(Instance, target, duration);
+        }
+
+        /// <summary>
         /// Activates the given duty for the ped.
         /// </summary>
         /// <param name="duty">Set the duty to activate</param>

@@ -1,8 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace AreaControl.Utils.Tasks
 {
     /// <summary>
     /// For more info, see https://pastebin.com/R9iK6M9W
     /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum TaskHash : uint
     {
         Unknown = 0x00000000,

@@ -13,7 +13,9 @@ namespace AreaControl.Actions.CloseRoad
         public BlockSlot(Vector3 position, float heading)
         {
             Position = position;
-            Heading = heading / 1.4f;
+            Heading = heading - 55f;
+            PedHeading = heading + 90f;
+            PedPosition = position + MathHelper.ConvertHeadingToDirection(PedHeading) * 4f;
         }
 
         /// <summary>
@@ -24,7 +26,7 @@ namespace AreaControl.Actions.CloseRoad
         /// <summary>
         /// Get the position of the traffic ped.
         /// </summary>
-        public Vector3 PedPosition => GetPedRedirectTrafficPosition();
+        public Vector3 PedPosition { get; }
 
         /// <summary>
         /// Get the heading of the block slot.
@@ -34,7 +36,7 @@ namespace AreaControl.Actions.CloseRoad
         /// <summary>
         /// Get the heading of the traffic ped.
         /// </summary>
-        public float PedHeading => GetPedRedirectTrafficHeading();
+        public float PedHeading { get; }
 
         /// <inheritdoc />
         public bool IsPreviewActive => _vehiclePreview != null;
@@ -53,7 +55,7 @@ namespace AreaControl.Actions.CloseRoad
         {
             if (!IsPreviewActive)
                 return;
-            
+
             _vehiclePreview.Delete();
             _vehiclePreview = null;
             _pedPreview.Delete();
@@ -63,17 +65,9 @@ namespace AreaControl.Actions.CloseRoad
         public override string ToString()
         {
             return $"{nameof(Position)}: {Position}," + Environment.NewLine +
-                   $"{nameof(Heading)}: {Heading}";
-        }
-
-        private Vector3 GetPedRedirectTrafficPosition()
-        {
-            return Position + MathHelper.ConvertHeadingToDirection(PedHeading) * 4f;
-        }
-
-        private float GetPedRedirectTrafficHeading()
-        {
-            return Heading + 120f;
+                   $"{nameof(Heading)}: {Heading}, " + Environment.NewLine +
+                   $"{nameof(PedPosition)}: {PedPosition}, " + Environment.NewLine +
+                   $"{nameof(PedHeading)}: {PedHeading}";
         }
     }
 }

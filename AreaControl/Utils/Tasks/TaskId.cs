@@ -1,8 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace AreaControl.Utils.Tasks
 {
     /// <summary>
     /// For more info, see https://pastebin.com/2gFqJ3Px
     /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum TaskId
     {
         Unknown = -99,

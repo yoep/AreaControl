@@ -83,6 +83,21 @@ namespace AreaControl.Utils.Tasks
             taskExecutor.Parent = this;
             return taskExecutor;
         }
+        
+        /// <summary>
+        /// Wait for task completion and execute a new task.
+        /// Gives this task executor as argument in the function (for logging purposes).
+        /// </summary>
+        /// <param name="task">Set the next task to execute</param>
+        /// <param name="duration">Set the max. duration of the task before aborted (-1 = no duration).</param>
+        /// <returns>Returns the task executor of the new task.</returns>
+        public TaskExecutor WaitForAndExecute(Func<TaskExecutor, TaskExecutor> task, int duration = -1)
+        {
+            WaitForCompletion(duration);
+            var taskExecutor = task.Invoke(this);
+            taskExecutor.Parent = this;
+            return taskExecutor;
+        }
 
         /// <summary>
         /// Wait for task completion and execute the given action.
@@ -94,6 +109,20 @@ namespace AreaControl.Utils.Tasks
         {
             WaitForCompletion(duration);
             action.Invoke();
+            return this;
+        }
+        
+        /// <summary>
+        /// Wait for task completion and execute the given action.
+        /// Gives this task executor as argument in the function (for logging purposes).
+        /// </summary>
+        /// <param name="action">Set the action to execute</param>
+        /// <param name="duration">Set the max. duration of the task before aborted (-1 = no duration).</param>
+        /// <returns>Returns the task executor of the new task.</returns>
+        public TaskExecutor WaitForAndExecute(Action<TaskExecutor> action, int duration = -1)
+        {
+            WaitForCompletion(duration);
+            action.Invoke(this);
             return this;
         }
 

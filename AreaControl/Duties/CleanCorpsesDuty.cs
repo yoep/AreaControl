@@ -39,7 +39,17 @@ namespace AreaControl.Duties
                 var deathPed = GetFirstAvailableDeathPed();
 
                 ped.WalkTo(deathPed)
-                    .WaitForAndExecute(() => Functions.CallCoroner(false));
+                    .WaitForAndExecute(taskExecutor =>
+                    {
+                        _rage.LogTrivialDebug("Completed task executor for walking to death ped " + taskExecutor);
+                        return ped.LookAt(deathPed);
+                    })
+                    .WaitForAndExecute(taskExecutor =>
+                    {
+                        _rage.LogTrivialDebug("Completed task executor for looking at ped " + taskExecutor);
+                        Functions.CallCoroner(deathPed.Position, false);
+                        _rage.LogTrivialDebug("Called coroner");
+                    }, 3000);
 
                 while (deathPed.IsValid())
                 {

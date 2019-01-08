@@ -68,8 +68,8 @@ namespace AreaControl.Utils
         {
             var currentPosition = roadPosition;
             var initialHeading = GetHeading(currentPosition);
-            var leftSide = GetLastPointOnTheLane(currentPosition, initialHeading - 90f);
-            var rightSide = GetLastPointOnTheLane(currentPosition, initialHeading + 90f);
+            var rightSide = GetLastPointOnTheLane(currentPosition, initialHeading - 90f);
+            var leftSide = GetLastPointOnTheLane(currentPosition, initialHeading + 90f);
 
             return new List<Road.Lane>
             {
