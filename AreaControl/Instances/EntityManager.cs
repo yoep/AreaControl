@@ -25,7 +25,7 @@ namespace AreaControl.Instances
         #region Methods
 
         /// <inheritdoc />
-        public ACVehicle FindVehicleWithinOrCreate(Vector3 position, float radius)
+        public ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, float radius)
         {
             Assert.NotNull(position, "position cannot be null");
             Assert.IsPositive(radius, "radius must be a positive number");
@@ -36,7 +36,7 @@ namespace AreaControl.Instances
 
             var vehicle = VehicleQuery.FindWithin(position, radius);
 
-            return vehicle != null ? RegisterVehicle(vehicle) : CreateVehicleWithOccupants(GetStreetWithinRadius(position, radius));
+            return vehicle != null ? RegisterVehicle(vehicle) : CreateVehicleWithOccupants(GetStreetAt(spawnPosition));
         }
 
         #endregion
@@ -96,6 +96,11 @@ namespace AreaControl.Instances
         private static Vector3 GetStreetWithinRadius(Vector3 position, float radius)
         {
             return World.GetNextPositionOnStreet(position.Around(radius));
+        }
+
+        private static Vector3 GetStreetAt(Vector3 position)
+        {
+            return World.GetNextPositionOnStreet(position);
         }
 
         private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition)
