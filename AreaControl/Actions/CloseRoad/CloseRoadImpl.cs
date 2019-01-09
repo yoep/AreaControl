@@ -135,7 +135,7 @@ namespace AreaControl.Actions.CloseRoad
 
         private static Road GetPositionBehindSlot(BlockSlot slot)
         {
-            return RoadUtil.GetClosestRoad(slot.Position + MathHelper.ConvertHeadingToDirection(slot.PedHeading) * 10f, RoadType.All);
+            return RoadUtil.GetClosestRoad(slot.Position + MathHelper.ConvertHeadingToDirection(slot.PedHeading) * 60f, RoadType.All);
         }
     }
 }
