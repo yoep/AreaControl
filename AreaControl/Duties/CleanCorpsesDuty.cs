@@ -7,6 +7,10 @@ using Rage;
 
 namespace AreaControl.Duties
 {
+    /// <summary>
+    /// Duty for cleaning dead bodies.
+    /// This duty consist out of calling the EMS first. If one or more bodies couldn't be revived, they will call the coroner service.
+    /// </summary>
     public class CleanCorpsesDuty : IDuty
     {
         private const float SearchRange = 35f;
@@ -56,8 +60,15 @@ namespace AreaControl.Duties
                     GameFiber.Yield();
                 }
 
+                _rage.LogTrivialDebug("CleanCorpsesDuty has been completed");
                 IsActive = false;
             }, "CleanCorpsesDuty");
+        }
+
+        /// <inheritdoc />
+        public void Abort()
+        {
+            
         }
 
         private bool CheckAvailability()

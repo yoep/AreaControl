@@ -43,7 +43,7 @@ namespace AreaControl.Menu
         public bool IsVisible => true;
 
         /// <inheritdoc />
-        public void OnMenuActivation()
+        public void OnMenuActivation(IMenu sender)
         {
             UpdateResponseCode();
         }

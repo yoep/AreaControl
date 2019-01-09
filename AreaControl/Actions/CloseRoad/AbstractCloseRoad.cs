@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
+using AreaControl.Menu;
 using AreaControl.Utils;
 using Rage;
 using RAGENativeUI.Elements;
@@ -11,6 +12,7 @@ namespace AreaControl.Actions.CloseRoad
     public abstract class AbstractCloseRoad : ICloseRoad
     {
         private const float CarSize = 5.5f;
+        private const float DistanceFromPlayer = 8f;
 
         protected readonly IRage Rage;
 
@@ -35,12 +37,19 @@ namespace AreaControl.Actions.CloseRoad
         public abstract bool IsVisible { get; }
 
         /// <inheritdoc />
-        public abstract void OnMenuActivation();
+        public abstract void OnMenuActivation(IMenu sender);
 
         #endregion
 
+        #region ICloseRoad implementation
+
         /// <inheritdoc />
         public bool IsActive { get; protected set; }
+
+        /// <inheritdoc />
+        public abstract void OpenRoad();
+
+        #endregion
 
         protected IEnumerable<BlockSlot> DetermineBlockSlots()
         {
@@ -63,9 +72,9 @@ namespace AreaControl.Actions.CloseRoad
 
         protected Road DetermineClosestRoad()
         {
-            var player = Game.LocalPlayer.Character;
-            var playerPosition = player.Position;
-            var closestRoad = RoadUtil.GetClosestRoad(playerPosition, RoadType.All);
+            var closestRoad = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
+            Rage.LogTrivialDebug("Found road to use " + closestRoad);
+            
             return closestRoad;
         }
     }

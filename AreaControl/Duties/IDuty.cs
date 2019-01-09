@@ -22,5 +22,10 @@ namespace AreaControl.Duties
         /// </summary>
         /// <param name="ped">Set the ped instance.</param>
         void Execute(ACPed ped);
+
+        /// <summary>
+        /// End forcefully the duty if it's still active.
+        /// </summary>
+        void Abort();
     }
 }

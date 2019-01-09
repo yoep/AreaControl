@@ -22,6 +22,7 @@ namespace AreaControl.Menu
         /// <summary>
         /// Is triggered when the component menu item has been selected.
         /// </summary>
-        void OnMenuActivation();
+        /// <param name="sender">The menu that activated the menu item.</param>
+        void OnMenuActivation(IMenu sender);
     }
 }

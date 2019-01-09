@@ -57,7 +57,7 @@ namespace AreaControl
         private static void InitializeDebugComponents()
         {
             IoC.Instance
-                .Register<ICloseRoad>(typeof(CloseRoadPreview));
+                .Register<ICloseRoadPreview>(typeof(CloseRoadPreview));
         }
     }
 }

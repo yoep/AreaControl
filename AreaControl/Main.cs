@@ -18,10 +18,12 @@ namespace AreaControl
 
             foreach (var menuComponent in menuComponents)
             {
-                menu.RegisterComponent(menuComponent);
+                //only register by default visible components
+                if (menuComponent.IsVisible)
+                    menu.RegisterComponent(menuComponent);
             }
 
-            rage.LogTrivialDebug("Registered " + menuComponents.Count + " menu component(s)");
+            rage.LogTrivialDebug("Registered " + menu.TotalItems + " menu component(s)");
         }
 
         /// <summary>

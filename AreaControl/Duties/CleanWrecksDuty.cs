@@ -15,5 +15,11 @@ namespace AreaControl.Duties
         {
             IsActive = true;
         }
+        
+        /// <inheritdoc />
+        public void Abort()
+        {
+            
+        }
     }
 }

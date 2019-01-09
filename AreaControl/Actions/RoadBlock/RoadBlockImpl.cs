@@ -1,3 +1,4 @@
+using AreaControl.Menu;
 using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.RoadBlock
@@ -13,7 +14,7 @@ namespace AreaControl.Actions.RoadBlock
         public bool IsVisible => true;
 
         /// <inheritdoc />
-        public void OnMenuActivation()
+        public void OnMenuActivation(IMenu sender)
         {
             //TODO: implement
         }

@@ -34,6 +34,7 @@ namespace AreaControl.Duties
             IsActive = true;
             _rage.NewSafeFiber(() =>
             {
+                ped.IsBusy = true;
                 ped.Instance.Tasks
                     .GoStraightToPosition(_position, 1f, _heading, 0f, 20000)
                     .WaitForCompletion();
@@ -42,6 +43,12 @@ namespace AreaControl.Duties
                 var animationDictionary = new AnimationDictionary("amb@world_human_car_park_attendant@male@base");
                 ped.Instance.Tasks.PlayAnimation(animationDictionary, "base", 8.0f, AnimationFlags.Loop);
             }, typeof(RedirectTrafficDuty).Name);
+        }
+
+        /// <inheritdoc />
+        public void Abort()
+        {
+            
         }
     }
 }

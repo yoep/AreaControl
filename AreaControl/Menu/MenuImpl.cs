@@ -28,18 +28,37 @@ namespace AreaControl.Menu
 
         #region Properties
 
+        /// <inheritdoc />
         public bool IsMenuInitialized { get; private set; }
+
+        /// <inheritdoc />
+        public int TotalItems => MenuItems.Count;
 
         #endregion
 
         #region Methods
 
+        /// <inheritdoc />
         public void RegisterComponent(IMenuComponent component)
         {
             Assert.NotNull(component, "component cannot be null");
 
             MenuItems.Add(component);
             AreaControlMenu.AddItem(component.Item);
+        }
+
+        /// <inheritdoc />
+        public void ReplaceComponent(IMenuComponent originalComponent, IMenuComponent newComponent)
+        {
+            if (!MenuItems.Contains(originalComponent))
+                return;
+
+            var index = AreaControlMenu.MenuItems.IndexOf(originalComponent.Item);
+
+            AreaControlMenu.MenuItems.Insert(index, newComponent.Item);
+            MenuItems.Remove(originalComponent);
+            RemoveItemFromMenu(originalComponent);
+            RegisterComponent(newComponent);
         }
 
         #endregion
@@ -70,7 +89,7 @@ namespace AreaControl.Menu
             }
         }
 
-        private static void Process(object sender, GraphicsEventArgs e)
+        private void Process(object sender, GraphicsEventArgs e)
         {
             if (Game.IsKeyDown(Keys.T))
             {
@@ -78,9 +97,8 @@ namespace AreaControl.Menu
                 {
                     if (component.IsVisible && !IsShownInMenu(component))
                         AreaControlMenu.AddItem(component.Item);
-
                     if (!component.IsVisible && IsShownInMenu(component))
-                        AreaControlMenu.RemoveItemAt(AreaControlMenu.MenuItems.IndexOf(component.Item));
+                        RemoveItemFromMenu(component);
                 }
 
                 AreaControlMenu.Visible = !AreaControlMenu.Visible;
@@ -91,7 +109,7 @@ namespace AreaControl.Menu
 
         private static bool IsShownInMenu(IMenuComponent component)
         {
-            return AreaControlMenu.MenuItems.IndexOf(component.Item) != -1;
+            return AreaControlMenu.MenuItems.Contains(component.Item);
         }
 
         private void ItemSelectionHandler(UIMenu sender, UIMenuItem selectedItem, int index)
@@ -103,7 +121,7 @@ namespace AreaControl.Menu
                 if (menuComponent == null)
                     throw new MenuException("No menu item action found for the selected menu item", selectedItem);
 
-                menuComponent.OnMenuActivation();
+                menuComponent.OnMenuActivation(this);
 
                 if (menuComponent.IsAutoClosed)
                     CloseMenu();
@@ -119,6 +137,12 @@ namespace AreaControl.Menu
                                  Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
                 _rage.DisplayNotification("an unexpected error occurred while invoking the menu action");
             }
+        }
+
+        private static void RemoveItemFromMenu(IMenuComponent component)
+        {
+            if (IsShownInMenu(component))
+                AreaControlMenu.RemoveItemAt(AreaControlMenu.MenuItems.IndexOf(component.Item));
         }
 
         private static void CloseMenu()

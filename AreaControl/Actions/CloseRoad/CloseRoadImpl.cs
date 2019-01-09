@@ -15,6 +15,7 @@ namespace AreaControl.Actions.CloseRoad
     {
         private const float ScanRadius = 250f;
 
+        private readonly IList<IDuty> _duties = new List<IDuty>();
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
         private readonly IDutyManager _dutyManager;
@@ -36,16 +37,31 @@ namespace AreaControl.Actions.CloseRoad
         public override bool IsVisible => !IsActive;
 
         /// <inheritdoc />
-        public override void OnMenuActivation()
+        public override void OnMenuActivation(IMenu sender)
         {
             IsActive = true;
+            sender.ReplaceComponent(this, IoC.Instance.GetInstance<IOpenRoad>());
             Rage.NewSafeFiber(() =>
             {
                 Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
                 var blockSlots = DetermineBlockSlots();
                 SpawnBlockSlots(blockSlots);
-                IsActive = false;
             }, "AreaControl.CloseRoad");
+        }
+
+        #endregion
+
+        #region ICloseRoad implementation
+
+        /// <inheritdoc />
+        public override void OpenRoad()
+        {
+            foreach (var duty in _duties)
+            {
+                duty.Abort();
+            }
+
+            IsActive = false;
         }
 
         #endregion
@@ -62,16 +78,11 @@ namespace AreaControl.Actions.CloseRoad
                         var vehicle = _entityManager.FindVehicleWithinOrCreate(slot.Position, ScanRadius);
                         MoveToSlot(vehicle, slot);
 
-                        vehicle.Driver.ActivateDuty(new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading));
+                        AssignRedirectTrafficDuty(vehicle, slot);
                         var nextAvailableDuty = _dutyManager.GetNextAvailableDuty(Game.LocalPlayer.Character.Position);
 
                         if (nextAvailableDuty != null)
                             vehicle.Passengers.First().ActivateDuty(nextAvailableDuty);
-
-                        while (true)
-                        {
-                            GameFiber.Yield();
-                        }
                     }, "BlockSlot#" + i);
             }
         }
@@ -101,6 +112,13 @@ namespace AreaControl.Actions.CloseRoad
                 .WaitForCompletion(10000);
             Rage.LogTrivialDebug("Empty vehicle task ended with " + emptyVehicleTask);
             return true;
+        }
+
+        private void AssignRedirectTrafficDuty(ACVehicle vehicle, BlockSlot slot)
+        {
+            var trafficDuty = new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading);
+            _duties.Add(trafficDuty);
+            vehicle.Driver.ActivateDuty(trafficDuty);
         }
     }
 }
