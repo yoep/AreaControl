@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AreaControl.Utils;
 using Rage;
+using Object = Rage.Object;
 
 namespace AreaControl.Instances
 {
@@ -38,7 +39,7 @@ namespace AreaControl.Instances
         {
             get { return Lanes.Select(x => x.Width).Sum(); }
         }
-        
+
         /// <summary>
         /// Check if the road position is at a junction.
         /// </summary>
@@ -85,9 +86,9 @@ namespace AreaControl.Instances
         /// </summary>
         public class Lane : IPreviewSupport
         {
-            private Entity _previewLeftSide;
-            private Entity _previewRightSide;
-            private Entity _previewDirection;
+            private Object _previewLeftSide;
+            private Object _previewRightSide;
+            private Object _previewDirection;
 
             public Lane(float heading, Vector3 rightSide, Vector3 leftSide, float width)
             {
@@ -140,11 +141,11 @@ namespace AreaControl.Instances
                 if (!IsPreviewActive)
                     return;
 
-                _previewLeftSide.Delete();
+                _previewLeftSide.Dismiss();
                 _previewLeftSide = null;
-                _previewRightSide.Delete();
+                _previewRightSide.Dismiss();
                 _previewRightSide = null;
-                _previewDirection.Delete();
+                _previewDirection.Dismiss();
                 _previewDirection = null;
             }
 
