@@ -25,6 +25,28 @@ namespace AreaControl.Utils.Tasks
         }
 
         /// <summary>
+        /// Go straight to the given position.
+        /// </summary>
+        /// <param name="ped">Set the ped that needs to executed the task.</param>
+        /// <param name="position">Set the position to go to.</param>
+        /// <param name="heading">Set the heading to take when arriving.</param>
+        /// <param name="speed">Set the speed of the ped.</param>
+        /// <param name="timeout">Set the max. time the ped can take</param>
+        /// <returns>Returns the task executor.</returns>
+        public static TaskExecutor GoTo(Ped ped, Vector3 position, float heading, float speed = 1f, int timeout = 30000)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.NotNull(position, "position cannot be null");
+            NativeFunction.Natives.TASK_GO_STRAIGHT_TO_COORD(ped, position.X, position.Y, position.Z, speed, timeout, heading, 0f);
+            
+            return TaskExecutorBuilder.Builder()
+                .IdentificationType(TaskIdentificationType.Hash)
+                .TaskHash(TaskHash.TASK_GO_STRAIGHT_TO_COORD)
+                .ExecutorEntities(new List<Ped> {ped})
+                .Build();
+        }
+
+        /// <summary>
         /// Go to the given entity.
         /// The entity will stop when the duration has been exceeded.
         /// </summary>

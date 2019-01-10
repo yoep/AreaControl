@@ -2,6 +2,7 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
+using LSPD_First_Response.Mod.API;
 using Rage;
 
 namespace AreaControl.Duties
@@ -15,6 +16,7 @@ namespace AreaControl.Duties
         private readonly IRage _rage;
         private readonly Vector3 _position;
         private readonly float _heading;
+        private ACPed _ped;
         private AnimationTaskExecutor _animationTaskExecutor;
 
         public RedirectTrafficDuty(Vector3 position, float heading)
@@ -34,14 +36,17 @@ namespace AreaControl.Duties
         public void Execute(ACPed ped)
         {
             IsActive = true;
+            _ped = ped;
             _rage.NewSafeFiber(() =>
             {
-                ped.IsBusy = true;
-                ped.Instance.Tasks
-                    .GoStraightToPosition(_position, 1f, _heading, 0f, 20000)
-                    .WaitForCompletion();
-
+                var taskExecutor = ped.WalkTo(_position, _heading)
+                    .WaitForCompletion(10000);
+                //TODO: fix this completion
+                _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
+                
+                _rage.LogTrivialDebug("Attaching wand to ped...");
                 ped.Attach(PropUtil.CreateWand());
+                _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
                 _animationTaskExecutor = ped.PlayAnimation("amb@world_human_car_park_attendant@male@base", "base", AnimationFlags.Loop);
             }, typeof(RedirectTrafficDuty).Name);
         }
@@ -50,6 +55,9 @@ namespace AreaControl.Duties
         public void Abort()
         {
             _animationTaskExecutor?.Abort();
+            _ped.Instance.Tasks.EnterVehicle(_ped.Instance.LastVehicle, (int) VehicleSeat.Driver)
+                .WaitForCompletion();
+            Functions.SetPedAsCop(_ped.Instance);
         }
     }
 }

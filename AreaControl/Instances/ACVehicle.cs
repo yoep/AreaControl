@@ -53,7 +53,7 @@ namespace AreaControl.Instances
         /// Get or set if this vehicle is busy.
         /// If not busy, this vehicle can be used for a task by the plugin.
         /// </summary>
-        public bool IsBusy { get; set; }
+        public bool IsBusy => Driver.IsBusy;
 
         /// <summary>
         /// Create a blip in the map for this vehicle.
@@ -73,7 +73,10 @@ namespace AreaControl.Instances
         /// </summary>
         public TaskExecutor Empty()
         {
-            return TaskUtil.EmptyVehicle(Instance);
+            Occupants.ForEach(x => x.IsBusy = true);
+            var executor = TaskUtil.EmptyVehicle(Instance);
+            executor.OnCompletion += (sender, args) => Occupants.ForEach(x => x.IsBusy = false);
+            return executor;
         }
 
         /// <inheritdoc />

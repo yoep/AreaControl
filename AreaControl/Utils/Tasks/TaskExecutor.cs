@@ -37,6 +37,12 @@ namespace AreaControl.Utils.Tasks
         /// Get one or more peds which are executing this task.
         /// </summary>
         public IEnumerable<ExecutorEntity> ExecutorEntities { get; }
+        
+        /// <summary>
+        /// Get the event handler for when this task executor is completed.
+        /// You can register a new event here that will be triggered when the state changes to COMPLETED.
+        /// </summary>
+        public EventHandler OnCompletion { get; set; }
 
         /// <summary>
         /// Check if this task has been completed.
@@ -61,9 +67,9 @@ namespace AreaControl.Utils.Tasks
         public TaskExecutor WaitForCompletion(int duration = -1)
         {
             if (duration == -1)
-                GameFiber.WaitUntil(() => IsCompleted);
+                GameFiber.WaitUntil(() => IsCompleted | IsAborted);
             else
-                GameFiber.WaitUntil(() => IsCompleted, duration);
+                GameFiber.WaitUntil(() => IsCompleted | IsAborted, duration);
 
             IsAborted = !IsCompleted;
 
@@ -153,7 +159,7 @@ namespace AreaControl.Utils.Tasks
         {
             GameFiber.StartNew(() =>
             {
-                while (!IsCompleted)
+                while (!IsCompleted | !IsAborted)
                 {
                     switch (IdentificationType)
                     {
@@ -171,7 +177,10 @@ namespace AreaControl.Utils.Tasks
                     }
 
                     if (ExecutorEntities.All(x => x.CompletedTask))
+                    {
                         IsCompleted = true;
+                        OnCompletion?.Invoke(this, EventArgs.Empty);
+                    }
 
                     GameFiber.Sleep(250);
                 }
@@ -194,7 +203,7 @@ namespace AreaControl.Utils.Tasks
                 executorEntity.CompletionStatus = status;
 
                 //assume that if the status is 0 or 1, the task has been completed
-                if (status == 0 || status == 1)
+                if (status == 0)
                     executorEntity.CompletedTask = true;
             }
         }

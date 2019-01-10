@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.Duties;
 using AreaControl.Utils;
@@ -34,7 +35,7 @@ namespace AreaControl.Instances
         /// Get or set if this vehicle is busy.
         /// If not busy, this vehicle can be used for a task by the plugin.
         /// </summary>
-        public bool IsBusy { get; set; }
+        public bool IsBusy { get; internal set; }
 
         /// <summary>
         /// Warp this ped into a vehicle.
@@ -61,12 +62,43 @@ namespace AreaControl.Instances
         }
 
         /// <summary>
+        /// Walk to the given position.
+        /// </summary>
+        /// <param name="position">Set the position to go to.</param>
+        /// <param name="heading">Set the heading when arriving.</param>
+        /// <returns>Returns the task executor.</returns>
+        public TaskExecutor WalkTo(Vector3 position, float heading)
+        {
+            IsBusy = true;
+            var taskExecutor = TaskUtil.GoTo(Instance, position, heading);
+            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            return taskExecutor;
+        }
+
+        /// <summary>
+        /// Run to the given position.
+        /// </summary>
+        /// <param name="position">Set the position to go to.</param>
+        /// <param name="heading">Set the heading when arriving.</param>
+        /// <returns>Returns the task executor.</returns>
+        public TaskExecutor RunTo(Vector3 position, float heading)
+        {
+            IsBusy = true;
+            var taskExecutor = TaskUtil.GoTo(Instance, position, heading, 3f);
+            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            return taskExecutor;
+        }
+
+        /// <summary>
         /// Walk to the given target entity (can be a ped or a vehicle).
         /// </summary>
         /// <param name="target">Set the target to walk to.</param>
         public TaskExecutor WalkTo(Entity target)
         {
-            return TaskUtil.GoToEntity(Instance, target, 1f);
+            IsBusy = true;
+            var taskExecutor = TaskUtil.GoToEntity(Instance, target, 1f);
+            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            return taskExecutor;
         }
 
         /// <summary>
@@ -77,7 +109,10 @@ namespace AreaControl.Instances
         /// <returns></returns>
         public TaskExecutor LookAt(Entity target, int duration = -1)
         {
-            return TaskUtil.LookAtEntity(Instance, target, duration);
+            IsBusy = true;
+            var taskExecutor = TaskUtil.LookAtEntity(Instance, target, duration);
+            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            return taskExecutor;
         }
 
         /// <summary>
@@ -89,7 +124,10 @@ namespace AreaControl.Instances
         /// <returns>Returns the animation task executor.</returns>
         public AnimationTaskExecutor PlayAnimation(string animationDictionary, string animationName, AnimationFlags animationFlags)
         {
-            return TaskUtil.PlayAnimation(Instance, animationDictionary, animationName, animationFlags);
+            IsBusy = true;
+            var taskExecutor = TaskUtil.PlayAnimation(Instance, animationDictionary, animationName, animationFlags);
+            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            return taskExecutor;
         }
 
         /// <summary>
@@ -112,6 +150,11 @@ namespace AreaControl.Instances
                 _attachment.Delete();
 
             Instance.Delete();
+        }
+
+        private EventHandler TaskExecutorOnCompletion()
+        {
+            return (sender, args) => IsBusy = false;
         }
     }
 }
