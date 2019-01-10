@@ -6,11 +6,12 @@ namespace AreaControl.Utils.Tasks
     public class AnimationTaskExecutor : TaskExecutor
     {
         internal AnimationTaskExecutor(TaskIdentificationType identificationType, TaskId taskId, TaskHash taskHash,
-            IEnumerable<ExecutorEntity> executorEntities, AnimationDictionary animationDictionary, string animationName)
+            IEnumerable<ExecutorEntity> executorEntities, AnimationDictionary animationDictionary, string animationName, AnimationTask rageTask)
             : base(identificationType, taskId, taskHash, executorEntities)
         {
             AnimationDictionary = animationDictionary;
             AnimationName = animationName;
+            RageTask = rageTask;
         }
 
         /// <summary>
@@ -22,11 +23,29 @@ namespace AreaControl.Utils.Tasks
         /// Get the animation name that is being played in this task.
         /// </summary>
         public string AnimationName { get; }
+
+        /// <summary>
+        /// Get the Rage animation task.
+        /// </summary>
+        public AnimationTask RageTask { get; }
+
+        /// <inheritdoc />
+        public override bool IsCompleted => !RageTask.IsPlaying;
+
+        /// <inheritdoc />
+        public override void Abort()
+        {
+            foreach (var entity in ExecutorEntities)
+            {
+                TaskUtil.StopAnimation(entity.Ped, AnimationDictionary.Name, AnimationName);
+            }
+        }
     }
 
     internal class AnimationTaskExecutorBuilder : AbstractTaskBuilder<AnimationTaskExecutorBuilder>
     {
         private AnimationDictionary _animationDictionary;
+        private AnimationTask _rageAnimationTask;
         private string _animationName;
 
         private AnimationTaskExecutorBuilder()
@@ -50,14 +69,22 @@ namespace AreaControl.Utils.Tasks
             return this;
         }
 
+        public AnimationTaskExecutorBuilder RageTask(AnimationTask rageAnimationTask)
+        {
+            _rageAnimationTask = rageAnimationTask;
+            return this;
+        }
+
         public AnimationTaskExecutor Build()
         {
             Assert.NotNull(_identificationType, "identification type has not been set");
             Assert.NotNull(_executorEntities, "executor entities have not been set");
             Assert.NotNull(_animationDictionary, "animationDictionary type has not been set");
             Assert.NotNull(_animationName, "animationName has not been set");
+            Assert.NotNull(_rageAnimationTask, "rageAnimationTask has not been set");
 
-            return new AnimationTaskExecutor(_identificationType, _taskId, _taskHash, ConvertExecutorEntities(), _animationDictionary, _animationName);
+            return new AnimationTaskExecutor(_identificationType, _taskId, _taskHash, ConvertExecutorEntities(), _animationDictionary, _animationName,
+                _rageAnimationTask);
         }
     }
 }

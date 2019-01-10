@@ -66,6 +66,45 @@ namespace AreaControl.Utils.Tasks
         }
 
         /// <summary>
+        /// Play the given animation through Rage, but manage it in the custom task executor for more options.
+        /// </summary>
+        /// <param name="ped">Set the ped to execute the animation on.</param>
+        /// <param name="animationDictionary">Set the animation dictionary to load.</param>
+        /// <param name="animationName">Set the animation name to play from the dictionary.</param>
+        /// <param name="animationFlags">Set the animation flags to use on the animation playback.</param>
+        /// <returns>Returns the animation task executor.</returns>
+        public static AnimationTaskExecutor PlayAnimation(Ped ped, string animationDictionary, string animationName, AnimationFlags animationFlags)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.HasText(animationDictionary, "animationDictionary cannot be empty");
+            Assert.HasText(animationName, "animationName cannot be empty");
+            var dictionary = new AnimationDictionary(animationDictionary);
+            var rageAnimationTask = ped.Tasks.PlayAnimation(dictionary, animationName, 8f, animationFlags);
+
+            return AnimationTaskExecutorBuilder.Builder()
+                .IdentificationType(TaskIdentificationType.Animation)
+                .ExecutorEntities(new List<Ped> {ped})
+                .AnimationDictionary(dictionary)
+                .AnimationName(animationName)
+                .RageTask(rageAnimationTask)
+                .Build();
+        }
+
+        /// <summary>
+        /// Stop the given animation task on the ped.
+        /// </summary>
+        /// <param name="ped">Set the ped to stop the animation on.</param>
+        /// <param name="animationDictionary">Set the animation dictionary.</param>
+        /// <param name="animationName">Set the animation name to stop.</param>
+        public static void StopAnimation(Ped ped, string animationDictionary, string animationName)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.HasText(animationDictionary, "animationDictionary cannot be empty");
+            Assert.HasText(animationName, "animationName cannot be empty");
+            NativeFunction.Natives.STOP_ANIM_TASK(ped, animationDictionary, animationName, 1f);
+        }
+
+        /// <summary>
         /// Get if the given task ID is active.
         /// </summary>
         /// <param name="ped">Set the ped to check the task status on.</param>

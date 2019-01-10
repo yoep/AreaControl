@@ -41,7 +41,7 @@ namespace AreaControl.Utils.Tasks
         /// <summary>
         /// Check if this task has been completed.
         /// </summary>
-        public bool IsCompleted { get; private set; }
+        public virtual bool IsCompleted { get; private set; }
 
         /// <summary>
         /// Check if the <see cref="WaitForCompletion"/> was aborted and the task execution timed out.
@@ -126,6 +126,17 @@ namespace AreaControl.Utils.Tasks
             return this;
         }
 
+        /// <summary>
+        /// Checks if the task has already been completed, if not, will abort the task execution.
+        /// </summary>
+        public virtual void Abort()
+        {
+            if (IsCompleted)
+                return;
+            
+            //TODO: implement
+        }
+
         public override string ToString()
         {
             var message = $"{nameof(IdentificationType)}: {IdentificationType}," + Environment.NewLine +
@@ -150,6 +161,9 @@ namespace AreaControl.Utils.Tasks
                             break;
                         case TaskIdentificationType.Hash:
                             TaskStatusCompletedForAllExecutorEntities();
+                            break;
+                        case TaskIdentificationType.Animation:
+                            //ignore this one as Rage will determine the state
                             break;
                         default:
                             throw new NotImplementedException("The TaskIdentificationType has not bee implemented yet");

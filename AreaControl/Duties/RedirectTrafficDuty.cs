@@ -1,6 +1,7 @@
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Utils;
+using AreaControl.Utils.Tasks;
 using Rage;
 
 namespace AreaControl.Duties
@@ -14,6 +15,7 @@ namespace AreaControl.Duties
         private readonly IRage _rage;
         private readonly Vector3 _position;
         private readonly float _heading;
+        private AnimationTaskExecutor _animationTaskExecutor;
 
         public RedirectTrafficDuty(Vector3 position, float heading)
         {
@@ -38,17 +40,16 @@ namespace AreaControl.Duties
                 ped.Instance.Tasks
                     .GoStraightToPosition(_position, 1f, _heading, 0f, 20000)
                     .WaitForCompletion();
-                
+
                 ped.Attach(PropUtil.CreateWand());
-                var animationDictionary = new AnimationDictionary("amb@world_human_car_park_attendant@male@base");
-                ped.Instance.Tasks.PlayAnimation(animationDictionary, "base", 8.0f, AnimationFlags.Loop);
+                _animationTaskExecutor = ped.PlayAnimation("amb@world_human_car_park_attendant@male@base", "base", AnimationFlags.Loop);
             }, typeof(RedirectTrafficDuty).Name);
         }
 
         /// <inheritdoc />
         public void Abort()
         {
-            
+            _animationTaskExecutor?.Abort();
         }
     }
 }

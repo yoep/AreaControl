@@ -80,9 +80,16 @@ namespace AreaControl.Instances
             return TaskUtil.LookAtEntity(Instance, target, duration);
         }
 
-        public TaskExecutor PlayAnimation()
+        /// <summary>
+        /// Play the given animation on this ped.
+        /// </summary>
+        /// <param name="animationDictionary">Set the animation dictionary.</param>
+        /// <param name="animationName">Set the animation name from within the dictionary to play.</param>
+        /// <param name="animationFlags">Set the animation flags.</param>
+        /// <returns>Returns the animation task executor.</returns>
+        public AnimationTaskExecutor PlayAnimation(string animationDictionary, string animationName, AnimationFlags animationFlags)
         {
-            
+            return TaskUtil.PlayAnimation(Instance, animationDictionary, animationName, animationFlags);
         }
 
         /// <summary>
