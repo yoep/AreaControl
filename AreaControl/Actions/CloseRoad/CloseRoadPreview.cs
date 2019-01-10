@@ -10,7 +10,7 @@ namespace AreaControl.Actions.CloseRoad
     {
         private Road _road;
         private IEnumerable<BlockSlot> _blockSlots;
-        
+
         public CloseRoadPreview(IRage rage)
             : base(rage)
         {
@@ -19,20 +19,22 @@ namespace AreaControl.Actions.CloseRoad
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public override UIMenuItem Item { get; } = new UIMenuItem(AreaControl.ActionCloseRoadPreview);
+        public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ActionCloseRoadPreview);
 
         /// <inheritdoc />
-        public override bool IsVisible => true;
+        public override bool IsVisible => !IsActive;
 
         /// <inheritdoc />
         public override void OnMenuActivation(IMenu sender)
         {
+            IsActive = true;
+            sender.ReplaceComponent(this, new RemoveCloseRoadPreview(this));
             Rage.NewSafeFiber(() =>
             {
                 _road = DetermineClosestRoad();
                 _blockSlots = DetermineBlockSlots();
                 _road.CreatePreview();
-                
+
                 foreach (var slot in _blockSlots)
                 {
                     slot.CreatePreview();
@@ -41,18 +43,20 @@ namespace AreaControl.Actions.CloseRoad
         }
 
         #endregion
-        
+
         #region ICloseRoad implementation
 
         /// <inheritdoc />
         public override void OpenRoad()
         {
             _road.DeletePreview();
-            
+
             foreach (var blockSlot in _blockSlots)
             {
                 blockSlot.DeletePreview();
             }
+
+            IsActive = false;
         }
 
         #endregion

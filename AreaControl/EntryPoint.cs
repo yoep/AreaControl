@@ -49,8 +49,7 @@ namespace AreaControl
                 .RegisterSingleton<IEntityManager>(typeof(EntityManager))
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
                 .RegisterSingleton<IDutyManager>(typeof(DutyManager))
-                .Register<ICloseRoad>(typeof(CloseRoadImpl))
-                .Register<IOpenRoad>(typeof(OpenRoad));
+                .Register<ICloseRoad>(typeof(CloseRoadImpl));
         }
 
         [Conditional("DEBUG")]

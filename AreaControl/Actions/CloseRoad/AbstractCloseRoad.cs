@@ -28,7 +28,7 @@ namespace AreaControl.Actions.CloseRoad
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public abstract UIMenuItem Item { get; }
+        public abstract UIMenuItem MenuItem { get; }
 
         /// <inheritdoc />
         public bool IsAutoClosed => true;

@@ -7,7 +7,7 @@ namespace AreaControl.Menu
         /// <summary>
         /// Get the menu item to register at nativeUI.
         /// </summary>
-        UIMenuItem Item { get; }
+        UIMenuItem MenuItem { get; }
         
         /// <summary>
         /// Get if the menu component is automatically closed when selected in the menu.

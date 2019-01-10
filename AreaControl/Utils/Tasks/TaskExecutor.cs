@@ -46,7 +46,7 @@ namespace AreaControl.Utils.Tasks
         /// <summary>
         /// Check if the <see cref="WaitForCompletion"/> was aborted and the task execution timed out.
         /// </summary>
-        public bool IsAborted { get; private set; }
+        public bool IsAborted { get; protected set; }
 
         /// <summary>
         /// Get the parent executor that invoked this task executor.
@@ -135,6 +135,7 @@ namespace AreaControl.Utils.Tasks
                 return;
             
             //TODO: implement
+            IsAborted = true;
         }
 
         public override string ToString()

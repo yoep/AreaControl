@@ -58,8 +58,8 @@
     <Compile Include="Actions\CloseRoad\CloseRoadPreview.cs" />
     <Compile Include="Actions\CloseRoad\ICloseRoad.cs" />
     <Compile Include="Actions\CloseRoad\ICloseRoadPreview.cs" />
-    <Compile Include="Actions\CloseRoad\IOpenRoad.cs" />
     <Compile Include="Actions\CloseRoad\OpenRoad.cs" />
+    <Compile Include="Actions\CloseRoad\RemoveCloseRoadPreview.cs" />
     <Compile Include="Actions\RoadBlock\IRoadBlock.cs" />
     <Compile Include="Actions\RoadBlock\RoadBlockImpl.cs" />
     <Compile Include="AreaControl.cs" />

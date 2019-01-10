@@ -7,5 +7,6 @@ namespace AreaControl
         public const string ActionCloseRoad = "Close road";
         public const string ActionCloseRoadPreview = "Close road preview";
         public const string ActionOpenRoad = "Open road";
+        public const string ActionRemoveCloseRoadPreview = "Remove road preview";
     }
 }

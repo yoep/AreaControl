@@ -16,6 +16,8 @@ namespace AreaControl.Actions.CloseRoad
     public class CloseRoadImpl : AbstractCloseRoad
     {
         private const float ScanRadius = 250f;
+        private const float BlockHeadingTolerance = 25f;
+        private const float BlockPositionTolerance = 5f;
 
         private readonly IList<IDuty> _duties = new List<IDuty>();
         private readonly IEntityManager _entityManager;
@@ -33,7 +35,7 @@ namespace AreaControl.Actions.CloseRoad
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public override UIMenuItem Item { get; } = new UIMenuItem(AreaControl.ActionCloseRoad);
+        public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ActionCloseRoad);
 
         /// <inheritdoc />
         public override bool IsVisible => !IsActive;
@@ -42,7 +44,7 @@ namespace AreaControl.Actions.CloseRoad
         public override void OnMenuActivation(IMenu sender)
         {
             IsActive = true;
-            sender.ReplaceComponent(this, IoC.Instance.GetInstance<IOpenRoad>());
+            sender.ReplaceComponent(this, new OpenRoad(this));
             Rage.NewSafeFiber(() =>
             {
                 Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
@@ -109,6 +111,7 @@ namespace AreaControl.Actions.CloseRoad
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(slot.Position, 10f, VehicleDrivingFlags.Emergency, 2f)
                 .WaitForCompletion(20000);
+            WarpVehicleInPosition(vehicle, slot);
             WarpVehicleInHeading(vehicle, slot);
             Rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
 
@@ -117,13 +120,28 @@ namespace AreaControl.Actions.CloseRoad
             Rage.LogTrivialDebug("Empty vehicle task ended with " + emptyVehicleTask);
         }
 
-        private static void WarpVehicleInHeading(ACVehicle vehicle, BlockSlot slot)
+        private void WarpVehicleInHeading(ACVehicle vehicle, BlockSlot slot)
         {
             var vehicleHeading = vehicle.Instance.Heading;
             var expectedHeading = slot.Heading;
+            var headingDifference = Math.Abs(vehicleHeading - expectedHeading);
 
-            if (Math.Abs(vehicleHeading - expectedHeading) > 20f)
+            Rage.LogTrivialDebug("Checking heading tolerance, expected: " + expectedHeading + ", actual: " + vehicleHeading + ", difference: " +
+                                 headingDifference);
+            if (headingDifference > BlockHeadingTolerance)
                 vehicle.Instance.Heading = expectedHeading;
+        }
+
+        private void WarpVehicleInPosition(ACVehicle vehicle, BlockSlot slot)
+        {
+            var vehiclePosition = vehicle.Instance.Position;
+            var expectedPosition = slot.Position;
+            var positionDifference = Vector3.Distance(vehiclePosition, expectedPosition);
+
+            Rage.LogTrivialDebug("Checking position tolerance, expected: " + expectedPosition + ", actual: " + vehiclePosition + ", difference: " +
+                                 positionDifference);
+            if (positionDifference > BlockPositionTolerance)
+                vehicle.Instance.Position = expectedPosition;
         }
 
         private void AssignRedirectTrafficDuty(ACVehicle vehicle, BlockSlot slot)

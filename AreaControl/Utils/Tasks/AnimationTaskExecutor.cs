@@ -35,10 +35,15 @@ namespace AreaControl.Utils.Tasks
         /// <inheritdoc />
         public override void Abort()
         {
+            if (IsCompleted)
+                return;
+            
             foreach (var entity in ExecutorEntities)
             {
                 TaskUtil.StopAnimation(entity.Ped, AnimationDictionary.Name, AnimationName);
             }
+
+            IsAborted = true;
         }
     }
 

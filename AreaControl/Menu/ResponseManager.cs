@@ -11,6 +11,7 @@ namespace AreaControl.Menu
         private const string RespondCodeAudio = "UNITS_RESPOND_CODE_0";
 
         private readonly IRage _rage;
+        private bool _isActive = true;
 
         #region Constructors
 
@@ -33,7 +34,7 @@ namespace AreaControl.Menu
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public UIMenuItem Item { get; } =
+        public UIMenuItem MenuItem { get; } =
             new UIMenuListItem("Response code", "", GetResponseCodeValue(ResponseCode.Code2), GetResponseCodeValue(ResponseCode.Code3));
 
         /// <inheritdoc />
@@ -50,6 +51,15 @@ namespace AreaControl.Menu
 
         #endregion
 
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            _isActive = false;
+        }
+
+        #endregion
+        
         #region Functions
 
         [IoC.PostConstruct]
@@ -58,7 +68,7 @@ namespace AreaControl.Menu
         {
             _rage.NewSafeFiber(() =>
             {
-                while (true)
+                while (_isActive)
                 {
                     UpdateResponseCode();
                     GameFiber.Sleep(500);
@@ -68,7 +78,7 @@ namespace AreaControl.Menu
 
         private void UpdateResponseCode()
         {
-            var selectedValue = (string) ((UIMenuListItem) Item).SelectedValue;
+            var selectedValue = (string) ((UIMenuListItem) MenuItem).SelectedValue;
             var code = int.Parse(selectedValue.Substring(selectedValue.Length - 2));
 
             ResponseCode = code == (int) ResponseCode.Code2 ? ResponseCode.Code2 : ResponseCode.Code3;

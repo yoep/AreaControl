@@ -1,6 +1,8 @@
+using System;
+
 namespace AreaControl.Menu
 {
-    public interface IResponseManager : IMenuComponent
+    public interface IResponseManager : IMenuComponent, IDisposable
     {
         /// <summary>
         /// Get the current response code.

@@ -1,3 +1,4 @@
+using System;
 using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
 
@@ -18,9 +19,7 @@ namespace AreaControl
 
             foreach (var menuComponent in menuComponents)
             {
-                //only register by default visible components
-                if (menuComponent.IsVisible)
-                    menu.RegisterComponent(menuComponent);
+                menu.RegisterComponent(menuComponent);
             }
 
             rage.LogTrivialDebug("Registered " + menu.TotalItems + " menu component(s)");
@@ -31,7 +30,23 @@ namespace AreaControl
         /// </summary>
         public static void Unload()
         {
-            //TODO: implement unloading of components
+            var ioC = IoC.Instance;
+            var rage = ioC.GetInstance<IRage>();
+
+            try
+            {
+                var disposables = ioC.GetInstances<IDisposable>();
+
+                rage.LogTrivialDebug("Starting disposal of " + disposables.Count + " instances");
+                foreach (var instance in disposables)
+                {
+                    instance.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                rage.LogTrivial("Failed to unload plugin correctly with: " + ex.Message + Environment.NewLine + ex.StackTrace);
+            }
         }
     }
 }

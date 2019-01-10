@@ -44,7 +44,7 @@ namespace AreaControl.Menu
             Assert.NotNull(component, "component cannot be null");
 
             MenuItems.Add(component);
-            AreaControlMenu.AddItem(component.Item);
+            AreaControlMenu.AddItem(component.MenuItem);
         }
 
         /// <inheritdoc />
@@ -53,13 +53,13 @@ namespace AreaControl.Menu
             if (!MenuItems.Contains(originalComponent))
                 return;
 
-            var index = AreaControlMenu.MenuItems.IndexOf(originalComponent.Item);
+            var index = AreaControlMenu.MenuItems.IndexOf(originalComponent.MenuItem);
             _rage.LogTrivialDebug("Replacing menu item at index " + index);
 
-            AreaControlMenu.MenuItems.Insert(index, newComponent.Item);
+            AreaControlMenu.AddItem(newComponent.MenuItem, index);
+            RemoveItemFromMenu(originalComponent);
             MenuItems.Remove(originalComponent);
             MenuItems.Add(newComponent);
-            RemoveItemFromMenu(originalComponent);
         }
 
         #endregion
@@ -97,7 +97,7 @@ namespace AreaControl.Menu
                 foreach (var component in MenuItems)
                 {
                     if (component.IsVisible && !IsShownInMenu(component))
-                        AreaControlMenu.AddItem(component.Item);
+                        AreaControlMenu.AddItem(component.MenuItem);
                     if (!component.IsVisible && IsShownInMenu(component))
                         RemoveItemFromMenu(component);
                 }
@@ -110,12 +110,12 @@ namespace AreaControl.Menu
 
         private static bool IsShownInMenu(IMenuComponent component)
         {
-            return AreaControlMenu.MenuItems.Contains(component.Item);
+            return AreaControlMenu.MenuItems.Contains(component.MenuItem);
         }
 
         private void ItemSelectionHandler(UIMenu sender, UIMenuItem selectedItem, int index)
         {
-            var menuComponent = MenuItems.FirstOrDefault(x => x.Item == selectedItem);
+            var menuComponent = MenuItems.FirstOrDefault(x => x.MenuItem == selectedItem);
 
             try
             {
@@ -143,7 +143,7 @@ namespace AreaControl.Menu
         private static void RemoveItemFromMenu(IMenuComponent component)
         {
             if (IsShownInMenu(component))
-                AreaControlMenu.RemoveItemAt(AreaControlMenu.MenuItems.IndexOf(component.Item));
+                AreaControlMenu.RemoveItemAt(AreaControlMenu.MenuItems.IndexOf(component.MenuItem));
             
             AreaControlMenu.RefreshIndex();
         }
