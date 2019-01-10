@@ -80,6 +80,11 @@ namespace AreaControl.Instances
             return TaskUtil.LookAtEntity(Instance, target, duration);
         }
 
+        public TaskExecutor PlayAnimation()
+        {
+            
+        }
+
         /// <summary>
         /// Activates the given duty for the ped.
         /// </summary>

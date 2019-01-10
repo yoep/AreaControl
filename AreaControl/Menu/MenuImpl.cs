@@ -54,11 +54,12 @@ namespace AreaControl.Menu
                 return;
 
             var index = AreaControlMenu.MenuItems.IndexOf(originalComponent.Item);
+            _rage.LogTrivialDebug("Replacing menu item at index " + index);
 
             AreaControlMenu.MenuItems.Insert(index, newComponent.Item);
             MenuItems.Remove(originalComponent);
+            MenuItems.Add(newComponent);
             RemoveItemFromMenu(originalComponent);
-            RegisterComponent(newComponent);
         }
 
         #endregion
@@ -143,6 +144,8 @@ namespace AreaControl.Menu
         {
             if (IsShownInMenu(component))
                 AreaControlMenu.RemoveItemAt(AreaControlMenu.MenuItems.IndexOf(component.Item));
+            
+            AreaControlMenu.RefreshIndex();
         }
 
         private static void CloseMenu()

@@ -101,6 +101,8 @@
     <Compile Include="Utils\RoadUtil.cs" />
     <Compile Include="Utils\Query\PedQuery.cs" />
     <Compile Include="Utils\Query\VehicleQuery.cs" />
+    <Compile Include="Utils\Tasks\AbstractTaskBuilder.cs" />
+    <Compile Include="Utils\Tasks\AnimationTaskExecutor.cs" />
     <Compile Include="Utils\Tasks\ExecutorEntity.cs" />
     <Compile Include="Utils\Tasks\TaskExecutor.cs" />
     <Compile Include="Utils\Tasks\TaskHash.cs" />
