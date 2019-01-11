@@ -69,16 +69,12 @@ namespace AreaControl.Instances
             {
                 while (_isActive)
                 {
-                    foreach (var vehicle in _managedVehicles.Where(x => !x.Instance.IsValid()))
-                    {
-                        _managedVehicles.Remove(vehicle);
-                    }
-
-                    foreach (var ped in _managedPeds.Where(x => !x.Instance.IsValid()))
-                    {
-                        _managedPeds.Remove(ped);
-                    }
-
+                    var vehiclesToBeRemoved = _managedVehicles.Where(x => !x.Instance.IsValid()).ToList();
+                    var pedsToBeRemoved = _managedPeds.Where(x => !x.Instance.IsValid()).ToList();
+                    
+                    vehiclesToBeRemoved.ForEach(x => _managedVehicles.Remove(x));
+                    pedsToBeRemoved.ForEach(x => _managedPeds.Remove(x));
+                    
                     GameFiber.Sleep(30000);
                 }
             }, "EntityManager");

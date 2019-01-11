@@ -1,3 +1,4 @@
+using System;
 using AreaControl.Instances;
 
 namespace AreaControl.Duties
@@ -16,6 +17,11 @@ namespace AreaControl.Duties
         /// Some duties can be completed and will become inactive when completed.
         /// </summary>
         bool IsActive { get; }
+        
+        /// <summary>
+        /// Add an event handler to the on completion event.
+        /// </summary>
+        EventHandler OnCompletion { get; set; }
 
         /// <summary>
         /// Execute this duty on the given ped.

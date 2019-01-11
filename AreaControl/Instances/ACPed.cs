@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using AreaControl.Duties;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
@@ -14,9 +16,8 @@ namespace AreaControl.Instances
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class ACPed : IACEntity
     {
-        private Entity _attachment;
+        private readonly List<Entity> _attachments = new List<Entity>();
         private IDuty _duty;
-        private ACVehicle _lastVehicle;
         private VehicleSeat _lastSeat;
 
         public ACPed(Ped instance)
@@ -41,6 +42,11 @@ namespace AreaControl.Instances
         public bool IsBusy { get; internal set; }
 
         /// <summary>
+        /// Get the last vehicle of this ped.
+        /// </summary>
+        public ACVehicle LastVehicle { get; private set; }
+
+        /// <summary>
         /// Warp this ped into a vehicle.
         /// </summary>
         /// <param name="vehicle">Set the vehicle to warp the ped into.</param>
@@ -49,7 +55,7 @@ namespace AreaControl.Instances
         {
             Assert.NotNull(vehicle, "vehicle cannot be null");
 
-            _lastVehicle = vehicle;
+            LastVehicle = vehicle;
             _lastSeat = seat;
             Instance.WarpIntoVehicle(vehicle.Instance, (int) seat);
         }
@@ -57,13 +63,14 @@ namespace AreaControl.Instances
         /// <summary>
         /// Attach the given entity to this ped.
         /// </summary>
-        /// <param name="entity">Set the entity to attach.</param>
-        public void Attach(Entity entity)
+        /// <param name="attachment">Set the entity to attach.</param>
+        /// <param name="placement">Set the attachment placement on the ped.</param>
+        public void Attach(Entity attachment, PlacementType placement)
         {
-            Assert.NotNull(entity, "entity cannot be null");
-            _attachment = entity;
+            Assert.NotNull(attachment, "entity cannot be null");
+            _attachments.Add(attachment);
 
-            EntityUtil.AttachEntity(entity, Instance, PlacementType.RightHand);
+            EntityUtil.AttachEntity(attachment, Instance, placement);
         }
 
         /// <summary>
@@ -128,7 +135,7 @@ namespace AreaControl.Instances
         public TaskExecutor EnterLastVehicle(MovementSpeed speed)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.EnterVehicle(Instance, _lastVehicle.Instance, _lastSeat, speed);
+            var taskExecutor = TaskUtil.EnterVehicle(Instance, LastVehicle.Instance, _lastSeat, speed);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -170,6 +177,7 @@ namespace AreaControl.Instances
             DeleteAttachments();
             Functions.SetPedAsCop(Instance);
             Functions.SetCopAsBusy(Instance, false);
+            Instance.Dismiss();
         }
 
         /// <inheritdoc />
@@ -184,11 +192,14 @@ namespace AreaControl.Instances
         /// </summary>
         public void DeleteAttachments()
         {
-            if (_attachment == null)
-                return;
-
-            EntityUtil.DetachEntity(_attachment);
-            _attachment.Delete();
+            foreach (var attachment in _attachments.Where(x => x.IsValid()))
+            {
+                EntityUtil.DetachEntity(attachment);
+                attachment.Dismiss();
+                attachment.Delete();
+            }
+            
+            _attachments.Clear();
         }
 
         private EventHandler TaskExecutorOnCompletion()

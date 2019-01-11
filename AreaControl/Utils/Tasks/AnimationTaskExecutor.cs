@@ -30,9 +30,6 @@ namespace AreaControl.Utils.Tasks
         public AnimationTask RageTask { get; }
 
         /// <inheritdoc />
-        public override bool IsCompleted => !RageTask.IsPlaying;
-
-        /// <inheritdoc />
         public override void Abort()
         {
             if (IsCompleted)
@@ -44,6 +41,15 @@ namespace AreaControl.Utils.Tasks
             }
 
             IsAborted = true;
+        }
+
+        protected override void Init()
+        {
+            GameFiber.StartNew(() =>
+            {
+                RageTask.WaitForCompletion();
+                IsCompleted = true;
+            });
         }
     }
 

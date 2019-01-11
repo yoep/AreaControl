@@ -49,7 +49,7 @@ namespace AreaControl.Utils.Tasks
         /// <summary>
         /// Check if this task has been completed.
         /// </summary>
-        public virtual bool IsCompleted { get; private set; }
+        public bool IsCompleted { get; protected set; }
 
         /// <summary>
         /// Check if the <see cref="WaitForCompletion"/> was aborted and the task execution timed out.
@@ -157,7 +157,7 @@ namespace AreaControl.Utils.Tasks
             return ExecutorEntities.Aggregate(message, (current, entity) => current + Environment.NewLine + entity);
         }
 
-        private void Init()
+        protected virtual void Init()
         {
             GameFiber.StartNew(() =>
             {
@@ -184,7 +184,8 @@ namespace AreaControl.Utils.Tasks
                         OnCompletion?.Invoke(this, EventArgs.Empty);
                     }
 
-                    GameFiber.Sleep(50);
+                    if (!IsCompleted | !IsAborted)
+                        GameFiber.Sleep(50);
                 }
             });
         }

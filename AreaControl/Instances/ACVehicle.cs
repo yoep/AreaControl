@@ -11,6 +11,8 @@ namespace AreaControl.Instances
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class ACVehicle : IACEntity
     {
+        private Blip _blip;
+
         public ACVehicle(Vehicle instance)
         {
             Instance = instance;
@@ -60,11 +62,20 @@ namespace AreaControl.Instances
         /// </summary>
         public void CreateBlip()
         {
-            new Blip(Instance)
+            _blip = new Blip(Instance)
             {
                 IsRouteEnabled = false,
                 IsFriendly = true
             };
+        }
+
+        /// <summary>
+        /// Delete the blip from this vehicle.
+        /// </summary>
+        public void DeleteBlip()
+        {
+            if (_blip != null)
+                _blip.Delete();
         }
 
         /// <summary>
@@ -93,7 +104,7 @@ namespace AreaControl.Instances
             Instance.IsSirenOn = true;
             Instance.IsSirenSilent = false;
         }
-        
+
         /// <summary>
         /// Disables the emergency lights with sound.
         /// </summary>
@@ -101,7 +112,7 @@ namespace AreaControl.Instances
         {
             Instance.IsSirenOn = false;
         }
-        
+
         /// <summary>
         /// Enables the emergency lights without sound.
         /// </summary>

@@ -16,8 +16,8 @@ namespace AreaControl.Actions.CloseRoad
     public class CloseRoadImpl : AbstractCloseRoad
     {
         private const float ScanRadius = 250f;
-        private const float BlockHeadingTolerance = 25f;
-        private const float BlockPositionTolerance = 5f;
+        private const float BlockHeadingTolerance = 40f;
+        private const float BlockPositionTolerance = 8f;
 
         private readonly IList<IDuty> _duties = new List<IDuty>();
         private readonly IEntityManager _entityManager;

@@ -1,3 +1,4 @@
+using System;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Utils;
@@ -32,6 +33,9 @@ namespace AreaControl.Duties
         public bool IsActive { get; private set; }
 
         /// <inheritdoc />
+        public EventHandler OnCompletion { get; set; }
+
+        /// <inheritdoc />
         public void Execute(ACPed ped)
         {
             IsActive = true;
@@ -43,7 +47,7 @@ namespace AreaControl.Duties
                 _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
 
                 _rage.LogTrivialDebug("Attaching wand to ped...");
-                ped.Attach(PropUtil.CreateWand());
+                ped.Attach(PropUtil.CreateWand(), PlacementType.RightHand);
                 _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
                 _animationTaskExecutor = ped.PlayAnimation("amb@world_human_car_park_attendant@male@base", "base", AnimationFlags.Loop);
             }, typeof(RedirectTrafficDuty).Name);
@@ -52,10 +56,17 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public void Abort()
         {
+            _rage.LogTrivialDebug("Aborting redirect animation...");
             _animationTaskExecutor?.Abort();
+            _rage.LogTrivialDebug("Deleting attachments from redirect officer ped...");
             _ped.DeleteAttachments();
+            _rage.LogTrivialDebug("Entering last vehicle of the redirect officer...");
             _ped.EnterLastVehicle(MovementSpeed.Walk)
                 .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
+            _ped.LastVehicle.DisableSirens();
+            _ped.LastVehicle.DeleteBlip();
+            _rage.LogTrivialDebug("Cruising with vehicle and leaving scene");
+            _ped.Instance.Tasks.CruiseWithVehicle(30f);
         }
     }
 }

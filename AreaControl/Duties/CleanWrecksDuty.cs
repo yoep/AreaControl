@@ -1,3 +1,4 @@
+using System;
 using AreaControl.Instances;
 
 namespace AreaControl.Duties
@@ -9,6 +10,9 @@ namespace AreaControl.Duties
         
         /// <inheritdoc />
         public bool IsActive { get; private set; }
+        
+        /// <inheritdoc />
+        public EventHandler OnCompletion { get; set; }
         
         /// <inheritdoc />
         public void Execute(ACPed ped)
