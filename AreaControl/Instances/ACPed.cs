@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using AreaControl.Duties;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
+using LSPD_First_Response.Mod.API;
 using Rage;
 
 namespace AreaControl.Instances
@@ -15,6 +16,8 @@ namespace AreaControl.Instances
     {
         private Entity _attachment;
         private IDuty _duty;
+        private ACVehicle _lastVehicle;
+        private VehicleSeat _lastSeat;
 
         public ACPed(Ped instance)
         {
@@ -46,6 +49,8 @@ namespace AreaControl.Instances
         {
             Assert.NotNull(vehicle, "vehicle cannot be null");
 
+            _lastVehicle = vehicle;
+            _lastSeat = seat;
             Instance.WarpIntoVehicle(vehicle.Instance, (int) seat);
         }
 
@@ -70,7 +75,7 @@ namespace AreaControl.Instances
         public TaskExecutor WalkTo(Vector3 position, float heading)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.GoTo(Instance, position, heading);
+            var taskExecutor = TaskUtil.GoTo(Instance, position, heading, MovementSpeed.Walk);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -84,7 +89,7 @@ namespace AreaControl.Instances
         public TaskExecutor RunTo(Vector3 position, float heading)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.GoTo(Instance, position, heading, 3f);
+            var taskExecutor = TaskUtil.GoTo(Instance, position, heading, MovementSpeed.Run);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -96,7 +101,7 @@ namespace AreaControl.Instances
         public TaskExecutor WalkTo(Entity target)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.GoToEntity(Instance, target, 1f);
+            var taskExecutor = TaskUtil.GoToEntity(Instance, target, MovementSpeed.Walk);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -111,6 +116,19 @@ namespace AreaControl.Instances
         {
             IsBusy = true;
             var taskExecutor = TaskUtil.LookAtEntity(Instance, target, duration);
+            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            return taskExecutor;
+        }
+
+        /// <summary>
+        /// Enter the last vehicle in the last seat.
+        /// </summary>
+        /// <param name="speed">Set the speed when going to the vehicle.</param>
+        /// <returns>Returns the task executor for this task.</returns>
+        public TaskExecutor EnterLastVehicle(MovementSpeed speed)
+        {
+            IsBusy = true;
+            var taskExecutor = TaskUtil.EnterVehicle(Instance, _lastVehicle.Instance, _lastSeat, speed);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -143,13 +161,34 @@ namespace AreaControl.Instances
             _duty.Execute(this);
         }
 
+        /// <summary>
+        /// Free this ped and return the instance handle back to LSPDFR.
+        /// </summary>
+        public void ReturnToLspdfrDuty()
+        {
+            IsBusy = false;
+            DeleteAttachments();
+            Functions.SetPedAsCop(Instance);
+            Functions.SetCopAsBusy(Instance, false);
+        }
+
         /// <inheritdoc />
         public void Delete()
         {
-            if (_attachment != null)
-                _attachment.Delete();
-
+            DeleteAttachments();
             Instance.Delete();
+        }
+
+        /// <summary>
+        /// Delete the attachments of this ped.
+        /// </summary>
+        public void DeleteAttachments()
+        {
+            if (_attachment == null)
+                return;
+
+            EntityUtil.DetachEntity(_attachment);
+            _attachment.Delete();
         }
 
         private EventHandler TaskExecutorOnCompletion()

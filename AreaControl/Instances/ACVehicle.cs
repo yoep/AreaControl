@@ -95,6 +95,14 @@ namespace AreaControl.Instances
         }
         
         /// <summary>
+        /// Disables the emergency lights with sound.
+        /// </summary>
+        public void DisableSirens()
+        {
+            Instance.IsSirenOn = false;
+        }
+        
+        /// <summary>
         /// Enables the emergency lights without sound.
         /// </summary>
         public void EnableEmergencyLights()

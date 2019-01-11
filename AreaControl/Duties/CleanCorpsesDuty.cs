@@ -2,6 +2,7 @@ using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Utils.Query;
+using AreaControl.Utils.Tasks;
 using Arrest_Manager.API;
 using Rage;
 
@@ -17,6 +18,8 @@ namespace AreaControl.Duties
 
         private readonly Vector3 _position;
         private readonly IRage _rage;
+        private ACPed _ped;
+        private AnimationTaskExecutor _animationTaskExecutor;
 
         public CleanCorpsesDuty(Vector3 position)
         {
@@ -38,6 +41,7 @@ namespace AreaControl.Duties
                 return;
 
             IsActive = true;
+            _ped = ped;
             _rage.NewSafeFiber(() =>
             {
                 var deathPed = GetFirstAvailableDeathPed();
@@ -47,13 +51,14 @@ namespace AreaControl.Duties
                     {
                         _rage.LogTrivialDebug("Completed task executor for walking to death ped " + taskExecutor);
                         return ped.LookAt(deathPed);
-                    })
+                    }, 20000)
                     .WaitForAndExecute(taskExecutor =>
                     {
                         _rage.LogTrivialDebug("Completed task executor for looking at ped " + taskExecutor);
                         Functions.CallCoroner(deathPed.Position, false);
                         _rage.LogTrivialDebug("Called coroner");
                     }, 3000);
+                _animationTaskExecutor = ped.PlayAnimation("veh@busted_low", "issue_ticket_cop", AnimationFlags.Loop);
 
                 while (deathPed.IsValid())
                 {
@@ -62,13 +67,24 @@ namespace AreaControl.Duties
 
                 _rage.LogTrivialDebug("CleanCorpsesDuty has been completed");
                 IsActive = false;
+                OnCompletion();
             }, "CleanCorpsesDuty");
         }
 
         /// <inheritdoc />
         public void Abort()
         {
-            
+            OnCompletion();
+        }
+
+        private void OnCompletion()
+        {
+            _rage.LogTrivialDebug("Aborting animation for CleanCorpsesDuty");
+            _animationTaskExecutor.Abort();
+            _rage.LogTrivialDebug("Ped is entering last vehicle for CleanCorpsesDuty");
+            _ped.EnterLastVehicle(MovementSpeed.Walk)
+                .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
+            _rage.LogTrivialDebug("Ped should have been returned to LSPDFR duty for CleanCorpsesDuty");
         }
 
         private bool CheckAvailability()

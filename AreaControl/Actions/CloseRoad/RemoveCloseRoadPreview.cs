@@ -25,6 +25,8 @@ namespace AreaControl.Actions.CloseRoad
         public void OnMenuActivation(IMenu sender)
         {
             _roadPreview.OpenRoad();
+            //register a new close road
+            sender.ReplaceComponent(this, IoC.Instance.GetInstance<ICloseRoadPreview>());
         }
     }
 }

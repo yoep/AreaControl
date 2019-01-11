@@ -33,6 +33,8 @@ namespace AreaControl.Actions.CloseRoad
         {
             Functions.PlayScannerAudio("WE_ARE_CODE_4");
             _closeRoad.OpenRoad();
+            //register a new close road
+            sender.ReplaceComponent(this, IoC.Instance.GetInstance<ICloseRoad>());
         }
 
         #endregion

@@ -4,6 +4,8 @@ namespace AreaControl.Utils.Tasks
 {
     public class ExecutorEntity
     {
+        public const int TaskNotAssignedStatus = 7;
+
         public ExecutorEntity(Ped ped)
         {
             Ped = ped;
@@ -26,9 +28,16 @@ namespace AreaControl.Utils.Tasks
         /// </summary>
         public int CompletionStatus { get; internal set; }
 
+        /// <summary>
+        /// Check if the task Hash was invalid for checking the completion state.
+        /// (If status = 7, then the given Hash was invalid)
+        /// </summary>
+        public bool IsIncorrectTaskHash => CompletionStatus == TaskNotAssignedStatus;
+
         public override string ToString()
         {
-            return $"{nameof(Ped)}: {Ped}, {nameof(CompletedTask)}: {CompletedTask}, {nameof(CompletionStatus)}: {CompletionStatus}";
+            return
+                $"{nameof(Ped)}: {Ped}, {nameof(CompletedTask)}: {CompletedTask}, {nameof(CompletionStatus)}: {CompletionStatus}, {nameof(IsIncorrectTaskHash)}: {IsIncorrectTaskHash}";
         }
     }
 }

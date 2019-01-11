@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AreaControl.Instances;
 using Rage;
 using Rage.Native;
 
@@ -15,6 +16,7 @@ namespace AreaControl.Utils.Tasks
         {
             Assert.NotNull(vehicle, "vehicle cannot be null");
             var occupants = vehicle.Occupants.ToList();
+            occupants.ForEach(KeepTaskForStatusChecks);
             NativeFunction.Natives.TASK_EVERYONE_LEAVE_VEHICLE(vehicle);
 
             return TaskExecutorBuilder.Builder()
@@ -33,12 +35,13 @@ namespace AreaControl.Utils.Tasks
         /// <param name="speed">Set the speed of the ped.</param>
         /// <param name="timeout">Set the max. time the ped can take</param>
         /// <returns>Returns the task executor.</returns>
-        public static TaskExecutor GoTo(Ped ped, Vector3 position, float heading, float speed = 1f, int timeout = 30000)
+        public static TaskExecutor GoTo(Ped ped, Vector3 position, float heading, MovementSpeed speed, int timeout = 30000)
         {
             Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(position, "position cannot be null");
-            NativeFunction.Natives.TASK_GO_STRAIGHT_TO_COORD(ped, position.X, position.Y, position.Z, speed, timeout, heading, 0f);
-            
+            KeepTaskForStatusChecks(ped);
+            NativeFunction.Natives.TASK_GO_STRAIGHT_TO_COORD(ped, position.X, position.Y, position.Z, speed.Value, timeout, heading, 0f);
+
             return TaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Hash)
                 .TaskHash(TaskHash.TASK_GO_STRAIGHT_TO_COORD)
@@ -52,13 +55,14 @@ namespace AreaControl.Utils.Tasks
         /// </summary>
         /// <param name="ped">Set the ped that needs to executed the task.</param>
         /// <param name="target">Set the target entity to go to.</param>
-        /// <param name="speed">Set the speed of the action (this can be the walk or drive speed).</param>
+        /// <param name="speed">Set the speed.</param>
         /// <param name="duration">Set the max. duration of the task.</param>
-        public static TaskExecutor GoToEntity(Ped ped, Entity target, float speed, int duration = -1)
+        public static TaskExecutor GoToEntity(Ped ped, Entity target, MovementSpeed speed, int duration = -1)
         {
             Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(target, "target cannot be null");
-            NativeFunction.Natives.TASK_GO_TO_ENTITY(ped, target, duration, 2f, speed, 1073741824, 0);
+            KeepTaskForStatusChecks(ped);
+            NativeFunction.Natives.TASK_GO_TO_ENTITY(ped, target, duration, 2f, speed.Value, 1073741824, 0);
 
             return TaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Hash)
@@ -83,6 +87,27 @@ namespace AreaControl.Utils.Tasks
             return TaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Id)
                 .TaskId(TaskId.CTaskTriggerLookAt)
+                .ExecutorEntities(new List<Ped> {ped})
+                .Build();
+        }
+
+        /// <summary>
+        /// Enter a vehicle.
+        /// </summary>
+        /// <param name="ped">Set the ped to execute the given action.</param>
+        /// <param name="vehicle">Set the vehicle to enter.</param>
+        /// <param name="seat">Set the seat to enter.</param>
+        /// <param name="speed">Set the speed.</param>
+        /// <returns>Returns the task executor for this task.</returns>
+        public static TaskExecutor EnterVehicle(Ped ped, Vehicle vehicle, VehicleSeat seat, MovementSpeed speed)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.NotNull(vehicle, "vehicle cannot be null");
+            NativeFunction.Natives.TASK_ENTER_VEHICLE(ped, vehicle, -1, (int) seat, speed.Value, 1, 0);
+            
+            return TaskExecutorBuilder.Builder()
+                .IdentificationType(TaskIdentificationType.Id)
+                .TaskId(TaskId.CTaskEnterVehicleSeat)
                 .ExecutorEntities(new List<Ped> {ped})
                 .Build();
         }
@@ -148,6 +173,11 @@ namespace AreaControl.Utils.Tasks
         {
             Assert.NotNull(ped, "ped cannot be null");
             return NativeFunction.Natives.GET_SCRIPT_TASK_STATUS<int>(ped, taskHash);
+        }
+
+        private static void KeepTaskForStatusChecks(Ped ped)
+        {
+            NativeFunction.Natives.SET_PED_KEEP_TASK(ped, true);
         }
     }
 }

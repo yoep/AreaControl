@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Utils;
@@ -7,11 +9,12 @@ using Rage;
 
 namespace AreaControl.Instances
 {
-    public class EntityManager : IEntityManager
+    public class EntityManager : IEntityManager, IDisposable
     {
         private readonly IRage _rage;
         private readonly List<ACVehicle> _managedVehicles = new List<ACVehicle>();
         private readonly List<ACPed> _managedPeds = new List<ACPed>();
+        private bool _isActive = true;
 
         #region Constructors
 
@@ -39,9 +42,47 @@ namespace AreaControl.Instances
             return vehicle != null ? RegisterVehicle(vehicle) : CreateVehicleWithOccupants(GetStreetAt(spawnPosition));
         }
 
+        /// <inheritdoc />
+        public ACVehicle FindManagedVehicle(Vehicle instance)
+        {
+            return _managedVehicles.FirstOrDefault(x => x.Instance == instance);
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _managedVehicles.ForEach(x => x.Delete());
+            _managedPeds.ForEach(x => x.Delete());
+            _isActive = false;
+        }
+
         #endregion
 
         #region Functions
+
+        [IoC.PostConstruct]
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        private void Init()
+        {
+            //start a cleanup thread
+            _rage.NewSafeFiber(() =>
+            {
+                while (_isActive)
+                {
+                    foreach (var vehicle in _managedVehicles.Where(x => !x.Instance.IsValid()))
+                    {
+                        _managedVehicles.Remove(vehicle);
+                    }
+
+                    foreach (var ped in _managedPeds.Where(x => !x.Instance.IsValid()))
+                    {
+                        _managedPeds.Remove(ped);
+                    }
+
+                    GameFiber.Sleep(30000);
+                }
+            }, "EntityManager");
+        }
 
         private ACVehicle FindAvailableManagedVehicle(Vector3 position, float radius)
         {

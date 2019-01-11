@@ -13,5 +13,12 @@ namespace AreaControl.Instances
         /// <param name="radius">Set the range around the position to search within.</param>
         /// <returns>Returns a Area Controlled vehicle within the given range of the position.</returns>
         ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, float radius);
+
+        /// <summary>
+        /// Get the managed vehicle for the given game vehicle if found.
+        /// </summary>
+        /// <param name="instance">Set the game vehicle instance.</param>
+        /// <returns>Returns the managed vehicle if found, else null.</returns>
+        ACVehicle FindManagedVehicle(Vehicle instance);
     }
 }

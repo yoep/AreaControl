@@ -19,5 +19,15 @@ namespace AreaControl.Utils
             
             NativeFunction.Natives.ATTACH_ENTITY_TO_ENTITY(attachment, target, boneId, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, true, false, false, false, 2, 1);
         }
+
+        /// <summary>
+        /// Detach the given attachment from it's entity.
+        /// </summary>
+        /// <param name="attachment">Set the attachment.</param>
+        public static void DetachEntity(Entity attachment)
+        {
+            Assert.NotNull(attachment, "attachment cannot be null");
+            NativeFunction.Natives.DETACH_ENTITY(attachment, false, false);
+        }
     }
 }

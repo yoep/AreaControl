@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using AreaControl.AbstractionLayer;
 using Rage;
 
 namespace AreaControl.Utils.Tasks
@@ -37,7 +39,7 @@ namespace AreaControl.Utils.Tasks
         /// Get one or more peds which are executing this task.
         /// </summary>
         public IEnumerable<ExecutorEntity> ExecutorEntities { get; }
-        
+
         /// <summary>
         /// Get the event handler for when this task executor is completed.
         /// You can register a new event here that will be triggered when the state changes to COMPLETED.
@@ -139,7 +141,7 @@ namespace AreaControl.Utils.Tasks
         {
             if (IsCompleted)
                 return;
-            
+
             //TODO: implement
             IsAborted = true;
         }
@@ -182,7 +184,7 @@ namespace AreaControl.Utils.Tasks
                         OnCompletion?.Invoke(this, EventArgs.Empty);
                     }
 
-                    GameFiber.Sleep(250);
+                    GameFiber.Sleep(50);
                 }
             });
         }
@@ -202,9 +204,31 @@ namespace AreaControl.Utils.Tasks
                 var status = TaskUtil.GetScriptTaskStatus(executorEntity.Ped, (uint) TaskHash);
                 executorEntity.CompletionStatus = status;
 
-                //assume that if the status is 0 or 1, the task has been completed
-                if (status == 0)
+                //assume that if the status is 0, the task has been completed
+                //set the task to completed when it gets the status TaskNotAssignedStatus
+                if (status == 0 | status == ExecutorEntity.TaskNotAssignedStatus)
                     executorEntity.CompletedTask = true;
+
+                //when in debug, check if the hash was correct or not
+                //if not, try to figure out which one is correct by looping over all of them
+                CheckForIncorrectHash(executorEntity);
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private void CheckForIncorrectHash(ExecutorEntity executorEntity)
+        {
+            if (!executorEntity.IsIncorrectTaskHash)
+                return;
+
+            var rage = IoC.Instance.GetInstance<IRage>();
+
+            foreach (var value in Enum.GetValues(typeof(TaskHash)))
+            {
+                var status = TaskUtil.GetScriptTaskStatus(executorEntity.Ped, (uint) value);
+
+                if (status != ExecutorEntity.TaskNotAssignedStatus)
+                    rage.LogTrivial("Task Hash suggestion is " + value + "(" + (uint) value + ") for original task hash " + TaskHash);
             }
         }
     }

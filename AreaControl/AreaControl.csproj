@@ -76,6 +76,7 @@
     <Compile Include="Instances\Exceptions\ActiveDutyException.cs" />
     <Compile Include="Instances\IEntityManager.cs" />
     <Compile Include="Instances\IPreviewSupport.cs" />
+    <Compile Include="Instances\MovementSpeed.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IoCException.cs" />
     <Compile Include="Main.cs" />

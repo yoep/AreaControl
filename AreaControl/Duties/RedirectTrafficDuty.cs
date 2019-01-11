@@ -2,7 +2,6 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
-using LSPD_First_Response.Mod.API;
 using Rage;
 
 namespace AreaControl.Duties
@@ -40,10 +39,9 @@ namespace AreaControl.Duties
             _rage.NewSafeFiber(() =>
             {
                 var taskExecutor = ped.WalkTo(_position, _heading)
-                    .WaitForCompletion(10000);
-                //TODO: fix this completion
+                    .WaitForCompletion(20000);
                 _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
-                
+
                 _rage.LogTrivialDebug("Attaching wand to ped...");
                 ped.Attach(PropUtil.CreateWand());
                 _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
@@ -55,9 +53,9 @@ namespace AreaControl.Duties
         public void Abort()
         {
             _animationTaskExecutor?.Abort();
-            _ped.Instance.Tasks.EnterVehicle(_ped.Instance.LastVehicle, (int) VehicleSeat.Driver)
-                .WaitForCompletion();
-            Functions.SetPedAsCop(_ped.Instance);
+            _ped.DeleteAttachments();
+            _ped.EnterLastVehicle(MovementSpeed.Walk)
+                .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
         }
     }
 }
