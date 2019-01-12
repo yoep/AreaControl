@@ -59,7 +59,7 @@ namespace AreaControl.Duties
                     {
                         _rage.LogTrivialDebug("Completed task executor for walking to death ped " + taskExecutor);
                         return ped.LookAt(deathPed);
-                    }, 20000)
+                    }, 30000)
                     .WaitForAndExecute(taskExecutor =>
                     {
                         _rage.LogTrivialDebug("Completed task executor for looking at ped " + taskExecutor);
