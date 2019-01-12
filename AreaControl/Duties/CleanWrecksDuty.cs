@@ -55,7 +55,9 @@ namespace AreaControl.Duties
                         {
                             _rage.LogTrivialDebug("Completed write ticket at wreck " + taskExecutor);
                             Functions.RequestTowTruck(wreck, false);
-                        });
+                            return AnimationUtil.TalkToRadio(ped);
+                        })
+                        .WaitForCompletion(2000);
                 }
             }, "CleanWrecksDuty");
         }

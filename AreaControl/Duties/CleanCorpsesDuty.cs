@@ -66,14 +66,8 @@ namespace AreaControl.Duties
                         Functions.CallCoroner(deathPed.Position, false);
                         _rage.LogTrivialDebug("Called coroner");
 
-                        return ped.PlayAnimation("arrest", "radio_enter", AnimationFlags.None);
-                    }, 2000)
-                    .WaitForAndExecute(taskExecutor =>
-                    {
-                        _rage.LogTrivialDebug("Completed enter radio animation " + taskExecutor);
-                        return ped.PlayAnimation("arrest", "radio_exit", AnimationFlags.None);
-                    })
-                    .WaitForCompletion(2000);
+                        return AnimationUtil.TalkToRadio(ped);
+                    }, 2000);
 
                 AnimationUtil.IssueTicket(_ped)
                     .WaitForAndExecute(() => _ped.DeleteAttachments());
