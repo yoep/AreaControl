@@ -54,7 +54,7 @@ namespace AreaControl.Duties
                         .WaitForAndExecute(taskExecutor =>
                         {
                             _rage.LogTrivialDebug("Completed walk to wreck for task " + taskExecutor);
-                            AnimationUtil.IssueTicket(ped);
+                            return AnimationUtil.IssueTicket(ped);
                         }, 30000)
                         .WaitForAndExecute(taskExecutor =>
                         {

@@ -24,9 +24,7 @@ namespace AreaControl.Duties
         {
             var nextAvailableDuty = GetDuties(position).FirstOrDefault(x => x.IsAvailable && IsInstantiationAllowed(x));
 
-            if (nextAvailableDuty != null)
-                _rage.LogTrivialDebug("Found next available duty " + nextAvailableDuty);
-            else
+            if (nextAvailableDuty == null)
                 _rage.LogTrivialDebug("Their are no available duties in the area of " + position);
 
             _duties.Add(nextAvailableDuty);

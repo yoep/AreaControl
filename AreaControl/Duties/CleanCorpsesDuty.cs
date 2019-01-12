@@ -77,7 +77,7 @@ namespace AreaControl.Duties
                     {
                         _rage.LogTrivialDebug("Completed task executor for issuing ticket " + executor);
                         _ped.DeleteAttachments();
-                        
+
                         while (IsDeadBodyInRange())
                         {
                             GameFiber.Yield();
@@ -93,6 +93,10 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public void Abort()
         {
+            if (!IsActive)
+                return;
+
+            _rage.LogTrivialDebug("Aborting CleanCorpsesDuty");
             _rage.NewSafeFiber(() =>
             {
                 _rage.LogTrivialDebug("Ped is entering last vehicle for CleanCorpsesDuty");

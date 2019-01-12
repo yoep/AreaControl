@@ -36,7 +36,7 @@ namespace AreaControl.Utils
         /// <returns>Returns the animation task executor for this animation.</returns>
         public static AnimationTaskExecutor TalkToRadio(ACPed ped)
         {
-            return ped.PlayAnimation("random@arrests", "generic_radio_chatter", AnimationFlags.UpperBodyOnly | AnimationFlags.SecondaryTask);
+            return ped.PlayAnimation("random@arrests", "generic_radio_chatter", AnimationFlags.UpperBodyOnly);
         }
     }
 }

@@ -203,6 +203,7 @@ namespace AreaControl.Utils.Tasks
             foreach (var executorEntity in ExecutorEntities.Where(x => !x.CompletedTask))
             {
                 var status = TaskUtil.GetScriptTaskStatus(executorEntity.Ped, (uint) TaskHash);
+                var lastStatus = executorEntity.CompletionStatus;
                 executorEntity.CompletionStatus = status;
 
                 //assume that if the status is 0, the task has been completed
@@ -212,16 +213,14 @@ namespace AreaControl.Utils.Tasks
 
                 //when in debug, check if the hash was correct or not
                 //if not, try to figure out which one is correct by looping over all of them
-                CheckForIncorrectHash(executorEntity);
+                if (lastStatus == ExecutorEntity.UnknownCompletionStatus && status == ExecutorEntity.TaskNotAssignedStatus)
+                    CheckForIncorrectHash(executorEntity);
             }
         }
 
         [Conditional("DEBUG")]
         private void CheckForIncorrectHash(ExecutorEntity executorEntity)
         {
-            if (!executorEntity.IsIncorrectTaskHash)
-                return;
-
             var rage = IoC.Instance.GetInstance<IRage>();
 
             foreach (var value in Enum.GetValues(typeof(TaskHash)))
