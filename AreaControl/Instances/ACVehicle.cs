@@ -143,7 +143,7 @@ namespace AreaControl.Instances
 
             return $"--- {nameof(Driver)} ---" + Environment.NewLine +
                    Driver + Environment.NewLine +
-                   "---" + Environment.NewLine;
+                   "---";
         }
     }
 }
