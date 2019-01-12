@@ -137,7 +137,7 @@ namespace AreaControl.Instances
 
         private static Vector3 GetStreetAt(Vector3 position)
         {
-            return World.GetNextPositionOnStreet(position);
+            return World.GetNextPositionOnStreet(position.Around2D(20f));
         }
 
         private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition)

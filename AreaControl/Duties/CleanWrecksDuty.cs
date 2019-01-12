@@ -60,16 +60,19 @@ namespace AreaControl.Duties
                         })
                         .WaitForCompletion(2000);
                 }
-            }, "CleanWrecksDuty");
+            }, "CleanWrecksDuty.Execute");
         }
 
         /// <inheritdoc />
         public void Abort()
         {
-            _rage.LogTrivialDebug("Ped is entering last vehicle for CleanCorpsesDuty");
-            _ped.EnterLastVehicle(MovementSpeed.Walk)
-                .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
-            _rage.LogTrivialDebug("Ped should have been returned to LSPDFR duty for CleanCorpsesDuty");
+            _rage.NewSafeFiber(() =>
+            {
+                _rage.LogTrivialDebug("Ped is entering last vehicle for CleanCorpsesDuty");
+                _ped.EnterLastVehicle(MovementSpeed.Walk)
+                    .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
+                _rage.LogTrivialDebug("Ped should have been returned to LSPDFR duty for CleanCorpsesDuty");
+            }, "CleanWrecksDuty.Abort");
         }
 
         #region Functions

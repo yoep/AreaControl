@@ -51,23 +51,26 @@ namespace AreaControl.Duties
 
                 _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
                 _animationTaskExecutor = AnimationUtil.RedirectTraffic(ped);
-            }, typeof(RedirectTrafficDuty).Name);
+            }, "RedirectTrafficDuty.Execute");
         }
 
         /// <inheritdoc />
         public void Abort()
         {
-            _rage.LogTrivialDebug("Aborting redirect animation...");
-            _animationTaskExecutor?.Abort();
-            _rage.LogTrivialDebug("Deleting attachments from redirect officer ped...");
-            _ped.DeleteAttachments();
-            _rage.LogTrivialDebug("Entering last vehicle of the redirect officer...");
-            _ped.EnterLastVehicle(MovementSpeed.Walk)
-                .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
-            _ped.LastVehicle.DisableSirens();
-            _ped.LastVehicle.DeleteBlip();
-            _rage.LogTrivialDebug("Cruising with vehicle and leaving scene");
-            _ped.Instance.Tasks.CruiseWithVehicle(30f);
+            _rage.NewSafeFiber(() =>
+            {
+                _rage.LogTrivialDebug("Aborting redirect animation...");
+                _animationTaskExecutor?.Abort();
+                _rage.LogTrivialDebug("Deleting attachments from redirect officer ped...");
+                _ped.DeleteAttachments();
+                _rage.LogTrivialDebug("Entering last vehicle of the redirect officer...");
+                _ped.EnterLastVehicle(MovementSpeed.Walk)
+                    .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
+                _ped.LastVehicle.DisableSirens();
+                _ped.LastVehicle.DeleteBlip();
+                _rage.LogTrivialDebug("Cruising with vehicle and leaving scene");
+                _ped.Instance.Tasks.CruiseWithVehicle(30f);
+            }, "RedirectTrafficDuty.Abort");
         }
     }
 }
