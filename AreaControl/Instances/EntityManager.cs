@@ -37,7 +37,7 @@ namespace AreaControl.Instances
             if (controlledVehicle != null)
                 return controlledVehicle;
 
-            var vehicle = VehicleQuery.FindWithin(position, radius);
+            var vehicle = VehicleQuery.FindPoliceVehicleWithin(position, radius);
 
             return vehicle != null ? RegisterVehicle(vehicle) : CreateVehicleWithOccupants(GetStreetAt(spawnPosition));
         }
@@ -119,8 +119,8 @@ namespace AreaControl.Instances
             var registeredPed = new ACPed(ped);
 
             _managedPeds.Add(registeredPed);
-//            Functions.SetPedAsCop(ped);
-//            Functions.SetCopAsBusy(ped, true);
+            LSPD_First_Response.Mod.API.Functions.SetPedAsCop(ped);
+            LSPD_First_Response.Mod.API.Functions.SetCopAsBusy(ped, true);
 
             return registeredPed;
         }

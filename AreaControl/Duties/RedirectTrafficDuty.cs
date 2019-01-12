@@ -31,6 +31,9 @@ namespace AreaControl.Duties
 
         /// <inheritdoc />
         public bool IsActive { get; private set; }
+        
+        /// <inheritdoc />
+        public bool IsRepeatable => true;
 
         /// <inheritdoc />
         public EventHandler OnCompletion { get; set; }
@@ -46,10 +49,8 @@ namespace AreaControl.Duties
                     .WaitForCompletion(20000);
                 _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
 
-                _rage.LogTrivialDebug("Attaching wand to ped...");
-                ped.Attach(PropUtil.CreateWand(), PlacementType.RightHand);
                 _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
-                _animationTaskExecutor = ped.PlayAnimation("amb@world_human_car_park_attendant@male@base", "base", AnimationFlags.Loop);
+                _animationTaskExecutor = AnimationUtil.RedirectTraffic(ped);
             }, typeof(RedirectTrafficDuty).Name);
         }
 

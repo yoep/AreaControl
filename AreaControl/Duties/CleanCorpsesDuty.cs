@@ -21,7 +21,7 @@ namespace AreaControl.Duties
         private readonly IRage _rage;
         private ACPed _ped;
 
-        public CleanCorpsesDuty(Vector3 position)
+        internal CleanCorpsesDuty(Vector3 position)
         {
             Assert.NotNull(position, "position cannot be null");
             _position = position;
@@ -35,6 +35,9 @@ namespace AreaControl.Duties
 
         /// <inheritdoc />
         public bool IsActive { get; private set; }
+
+        /// <inheritdoc />
+        public bool IsRepeatable => false;
 
         /// <inheritdoc />
         public EventHandler OnCompletion { get; set; }
@@ -65,15 +68,15 @@ namespace AreaControl.Duties
 
                         return ped.PlayAnimation("arrest", "radio_enter", AnimationFlags.None);
                     }, 2000)
-                    .WaitForCompletion(10000);
+                    .WaitForAndExecute(taskExecutor =>
+                    {
+                        _rage.LogTrivialDebug("Completed enter radio animation " + taskExecutor);
+                        return ped.PlayAnimation("arrest", "radio_exit", AnimationFlags.None);
+                    })
+                    .WaitForCompletion(2000);
 
-                _ped.Attach(PropUtil.CreateNotebook(), PlacementType.LeftHand);
-                GameFiber.Yield();
-                _ped.Attach(PropUtil.CreatePencil(), PlacementType.RightHand);
-                GameFiber.Yield();
-                ped.PlayAnimation("veh@busted_low", "issue_ticket_cop", AnimationFlags.None)
-                    .WaitForCompletion();
-                _ped.DeleteAttachments();
+                AnimationUtil.IssueTicket(_ped)
+                    .WaitForAndExecute(() => _ped.DeleteAttachments());
 
                 while (IsDeadBodyInRange())
                 {

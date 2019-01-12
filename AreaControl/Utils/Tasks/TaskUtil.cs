@@ -126,7 +126,7 @@ namespace AreaControl.Utils.Tasks
             Assert.HasText(animationDictionary, "animationDictionary cannot be empty");
             Assert.HasText(animationName, "animationName cannot be empty");
             var dictionary = new AnimationDictionary(animationDictionary);
-            var rageAnimationTask = ped.Tasks.PlayAnimation(dictionary, animationName, 8f, animationFlags);
+            var rageAnimationTask = ped.Tasks.PlayAnimation(dictionary, animationName, 1.5f, animationFlags);
 
             return AnimationTaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Animation)

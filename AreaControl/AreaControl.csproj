@@ -70,6 +70,7 @@
     <Compile Include="Duties\IDuty.cs" />
     <Compile Include="Duties\IDutyManager.cs" />
     <Compile Include="Duties\RedirectTrafficDuty.cs" />
+    <Compile Include="Duties\ReturnToVehicleDuty.cs" />
     <Compile Include="EntryPoint.cs" />
     <Compile Include="Instances\EntityManager.cs" />
     <Compile Include="Instances\IACEntity.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AbstractionLayer\IRage.cs" />
     <Compile Include="AbstractionLayer\RageImpl.cs" />
+    <Compile Include="Utils\AnimationUtil.cs" />
     <Compile Include="Utils\EntityUtil.cs" />
     <Compile Include="Utils\PlacementType.cs" />
     <Compile Include="Utils\PreviewUtil.cs" />

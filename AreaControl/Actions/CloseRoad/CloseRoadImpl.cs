@@ -19,7 +19,6 @@ namespace AreaControl.Actions.CloseRoad
         private const float BlockHeadingTolerance = 40f;
         private const float BlockPositionTolerance = 8f;
 
-        private readonly IList<IDuty> _duties = new List<IDuty>();
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
         private readonly IDutyManager _dutyManager;
@@ -60,11 +59,7 @@ namespace AreaControl.Actions.CloseRoad
         /// <inheritdoc />
         public override void OpenRoad()
         {
-            foreach (var duty in _duties)
-            {
-                duty.Abort();
-            }
-
+            _dutyManager.DismissDuties();
             IsActive = false;
         }
 
@@ -84,11 +79,8 @@ namespace AreaControl.Actions.CloseRoad
                         var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius);
                         MoveToSlot(vehicle, slot);
 
-                        AssignRedirectTrafficDuty(vehicle, slot);
-                        var nextAvailableDuty = _dutyManager.GetNextAvailableDuty(Game.LocalPlayer.Character.Position);
-
-                        if (nextAvailableDuty != null)
-                            vehicle.Passengers.First().ActivateDuty(nextAvailableDuty);
+                        AssignRedirectTrafficDutyToDriver(vehicle, slot);
+                        AssignAvailableDutiesToPassengers(vehicle, slot);
                     }, "BlockSlot#" + i);
             }
         }
@@ -144,11 +136,22 @@ namespace AreaControl.Actions.CloseRoad
                 vehicle.Instance.Position = expectedPosition;
         }
 
-        private void AssignRedirectTrafficDuty(ACVehicle vehicle, BlockSlot slot)
+        private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, BlockSlot slot)
         {
             var trafficDuty = new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading);
-            _duties.Add(trafficDuty);
+            _dutyManager.RegisterDuty(trafficDuty);
             vehicle.Driver.ActivateDuty(trafficDuty);
+        }
+
+        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, BlockSlot slot)
+        {
+            vehicle.Passengers.ForEach(x =>
+            {
+                var nextAvailableDuty = _dutyManager.GetNextAvailableDuty(Game.LocalPlayer.Character.Position);
+
+                if (nextAvailableDuty != null)
+                    vehicle.Passengers.First().ActivateDuty(nextAvailableDuty);
+            });
         }
 
         private static Road GetPositionBehindSlot(BlockSlot slot)

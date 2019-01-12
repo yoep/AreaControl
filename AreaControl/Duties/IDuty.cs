@@ -19,6 +19,12 @@ namespace AreaControl.Duties
         bool IsActive { get; }
         
         /// <summary>
+        /// Check if this duty can be executed multiple times.
+        /// Indicates if the duty can be executed multiple times or multiple instances of this duty can be created.
+        /// </summary>
+        bool IsRepeatable { get; }
+        
+        /// <summary>
         /// Add an event handler to the on completion event.
         /// </summary>
         EventHandler OnCompletion { get; set; }
