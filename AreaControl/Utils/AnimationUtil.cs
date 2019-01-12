@@ -14,9 +14,7 @@ namespace AreaControl.Utils
         public static AnimationTaskExecutor IssueTicket(ACPed ped)
         {
             ped.Attach(PropUtil.CreateNotebook(), PlacementType.LeftHand);
-            GameFiber.Yield();
             ped.Attach(PropUtil.CreatePencil(), PlacementType.RightHand);
-            GameFiber.Yield();
             return ped.PlayAnimation("veh@busted_low", "issue_ticket_cop", AnimationFlags.None);
         }
         

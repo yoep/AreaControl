@@ -56,31 +56,37 @@ namespace AreaControl.Duties
                 var deathPed = GetFirstAvailableDeathPed();
 
                 ped.WalkTo(deathPed)
-                    .WaitForAndExecute(taskExecutor =>
+                    .WaitForAndExecute(executor =>
                     {
-                        _rage.LogTrivialDebug("Completed task executor for walking to death ped " + taskExecutor);
+                        _rage.LogTrivialDebug("Completed task executor for walking to death ped " + executor);
                         return ped.LookAt(deathPed);
                     }, 30000)
-                    .WaitForAndExecute(taskExecutor =>
+                    .WaitForAndExecute(executor =>
                     {
-                        _rage.LogTrivialDebug("Completed task executor for looking at ped " + taskExecutor);
-                        Functions.CallCoroner(deathPed.Position, false);
-                        _rage.LogTrivialDebug("Called coroner");
-
+                        _rage.LogTrivialDebug("Completed task executor for looking at ped " + executor);
                         return AnimationUtil.TalkToRadio(ped);
-                    }, 2000);
+                    }, 3000)
+                    .WaitForAndExecute(executor =>
+                    {
+                        _rage.LogTrivialDebug("Completed task executor talking to radio " + executor);
+                        _rage.LogTrivialDebug("Calling coroner...");
+                        Functions.CallCoroner(deathPed.Position, false);
+                        return AnimationUtil.IssueTicket(_ped);
+                    }, 3000)
+                    .WaitForAndExecute(executor =>
+                    {
+                        _rage.LogTrivialDebug("Completed task executor for issuing ticket " + executor);
+                        _ped.DeleteAttachments();
+                        
+                        while (IsDeadBodyInRange())
+                        {
+                            GameFiber.Yield();
+                        }
 
-                AnimationUtil.IssueTicket(_ped)
-                    .WaitForAndExecute(() => _ped.DeleteAttachments());
-
-                while (IsDeadBodyInRange())
-                {
-                    GameFiber.Yield();
-                }
-
-                _rage.LogTrivialDebug("CleanCorpsesDuty has been completed");
-                IsActive = false;
-                EndDuty();
+                        _rage.LogTrivialDebug("CleanCorpsesDuty has been completed");
+                        IsActive = false;
+                        EndDuty();
+                    });
             }, "CleanCorpsesDuty.Execute");
         }
 
