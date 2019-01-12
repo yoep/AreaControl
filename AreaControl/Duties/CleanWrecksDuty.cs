@@ -44,22 +44,26 @@ namespace AreaControl.Duties
             _ped = ped;
             _rage.NewSafeFiber(() =>
             {
+                var wrecks = GetWrecks();
+
                 _rage.LogTrivialDebug("Executing CleanWrecksDuty...");
-                foreach (var wreck in GetWrecks())
+                foreach (var wreck in wrecks)
                 {
+                    _rage.LogTrivialDebug("Going to wreck " + (wrecks.IndexOf(wreck) + 1) + " of " + wrecks.Count);
                     ped.WalkTo(wreck)
                         .WaitForAndExecute(taskExecutor =>
                         {
                             _rage.LogTrivialDebug("Completed walk to wreck for task " + taskExecutor);
                             AnimationUtil.IssueTicket(ped);
-                        }, 5000)
+                        }, 30000)
                         .WaitForAndExecute(taskExecutor =>
                         {
                             _rage.LogTrivialDebug("Completed write ticket at wreck " + taskExecutor);
+                            _rage.LogTrivialDebug("Calling tow truck for " + wreck.Model.Name + "...");
                             Functions.RequestTowTruck(wreck, false);
                             return AnimationUtil.TalkToRadio(ped);
-                        })
-                        .WaitForCompletion(3000);
+                        }, 5000)
+                        .WaitForAndExecute(executor => { _rage.LogTrivialDebug("Completed talk to radio task for wreck " + executor); }, 3000);
                 }
 
                 _rage.LogTrivialDebug("CleanWrecksDuty completed");
@@ -87,7 +91,7 @@ namespace AreaControl.Duties
             return GetWrecks().Count > 0;
         }
 
-        private ICollection<Vehicle> GetWrecks()
+        private IList<Vehicle> GetWrecks()
         {
             return VehicleQuery
                 .FindVehiclesWithin(_position, SearchRange)

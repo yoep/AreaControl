@@ -86,7 +86,7 @@ namespace AreaControl.Duties
                         _rage.LogTrivialDebug("CleanCorpsesDuty has been completed");
                         IsActive = false;
                         EndDuty();
-                    });
+                    }, 5000);
             }, "CleanCorpsesDuty.Execute");
         }
 
