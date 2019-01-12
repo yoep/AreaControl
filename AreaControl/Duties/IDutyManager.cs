@@ -5,11 +5,12 @@ namespace AreaControl.Duties
     public interface IDutyManager
     {
         /// <summary>
-        /// Get the next available duty in the area of the given position.
+        /// Get the next available duty in the area if found.
+        /// Otherwise, get the idle duty.
         /// </summary>
         /// <param name="position">Set the position to search in for an available duty.</param>
         /// <returns>Returns the next available duty if available, else null.</returns>
-        IDuty GetNextAvailableDuty(Vector3 position);
+        IDuty NextAvailableOrIdleDuty(Vector3 position);
 
         /// <summary>
         /// Register the duty in the <see cref="IDutyManager"/>.

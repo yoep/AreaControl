@@ -17,7 +17,6 @@ namespace AreaControl.Instances
     public class ACPed : IACEntity
     {
         private readonly List<Entity> _attachments = new List<Entity>();
-        private IDuty _duty;
         private VehicleSeat _lastSeat;
 
         public ACPed(Ped instance)
@@ -33,7 +32,7 @@ namespace AreaControl.Instances
         /// <summary>
         /// Get the current duty of the ped.
         /// </summary>
-        public IDuty CurrentDuty => _duty;
+        public IDuty CurrentDuty { get; private set; }
 
         /// <summary>
         /// Get or set if this vehicle is busy.
@@ -165,8 +164,8 @@ namespace AreaControl.Instances
             if (CurrentDuty != null && CurrentDuty.IsActive)
                 throw new ActiveDutyException("Ped has currently an active duty running and cannot be reassigned to a new duty");
 
-            _duty = duty;
-            _duty.Execute(this);
+            CurrentDuty = duty;
+            CurrentDuty.Execute(this);
         }
 
         /// <summary>

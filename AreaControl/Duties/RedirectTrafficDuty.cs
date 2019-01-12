@@ -31,7 +31,7 @@ namespace AreaControl.Duties
 
         /// <inheritdoc />
         public bool IsActive { get; private set; }
-        
+
         /// <inheritdoc />
         public bool IsRepeatable => true;
 
@@ -65,11 +65,14 @@ namespace AreaControl.Duties
                 _ped.DeleteAttachments();
                 _rage.LogTrivialDebug("Entering last vehicle of the redirect officer...");
                 _ped.EnterLastVehicle(MovementSpeed.Walk)
-                    .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
-                _ped.LastVehicle.DisableSirens();
-                _ped.LastVehicle.DeleteBlip();
-                _rage.LogTrivialDebug("Cruising with vehicle and leaving scene");
-                _ped.Instance.Tasks.CruiseWithVehicle(30f);
+                    .WaitForAndExecute(() =>
+                    {
+                        _ped.ReturnToLspdfrDuty();
+                        _ped.LastVehicle.DisableSirens();
+                        _ped.LastVehicle.DeleteBlip();
+                        _rage.LogTrivialDebug("Cruising with vehicle and leaving scene");
+                        _ped.Instance.Tasks.CruiseWithVehicle(30f);
+                    }, 30000);
             }, "RedirectTrafficDuty.Abort");
         }
     }

@@ -72,13 +72,15 @@ namespace AreaControl.Actions.CloseRoad
             foreach (var slot in blockSlots)
             {
                 i++;
+                var number = i;
                 Rage.NewSafeFiber(() =>
                     {
                         //get position behind the slot
                         var positionBehindSlot = GetPositionBehindSlot(slot);
                         var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius);
+                        Rage.LogTrivialDebug("Using vehicle " + vehicle + " for block slot " + number);
+                        
                         MoveToSlot(vehicle, slot);
-
                         AssignRedirectTrafficDutyToDriver(vehicle, slot);
                         AssignAvailableDutiesToPassengers(vehicle, slot);
                     }, "BlockSlot#" + i);
@@ -148,15 +150,14 @@ namespace AreaControl.Actions.CloseRoad
             vehicle.Passengers.ForEach(AssignNextAvailableDutyToPed);
         }
 
-        private void AssignNextAvailableDutyToPed(ACPed passenger)
+        private void AssignNextAvailableDutyToPed(ACPed ped)
         {
-            var nextAvailableDuty = _dutyManager.GetNextAvailableDuty(Game.LocalPlayer.Character.Position);
+            var nextAvailableDuty = _dutyManager.NextAvailableOrIdleDuty(Game.LocalPlayer.Character.Position);
 
-            if (nextAvailableDuty == null)
-                return;
+            if (nextAvailableDuty.GetType() != typeof(ReturnToVehicleDuty))
+                nextAvailableDuty.OnCompletion += (sender, args) => AssignNextAvailableDutyToPed(ped);
 
-            nextAvailableDuty.OnCompletion += (sender, args) => AssignNextAvailableDutyToPed(passenger);
-            passenger.ActivateDuty(nextAvailableDuty);
+            ped.ActivateDuty(nextAvailableDuty);
         }
 
         private static Road GetPositionBehindSlot(BlockSlot slot)

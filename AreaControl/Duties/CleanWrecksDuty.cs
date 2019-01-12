@@ -15,6 +15,7 @@ namespace AreaControl.Duties
         private const float SearchRange = 35f;
         private const string SpeedoModelName = "SPEEDO";
 
+        private readonly IList<Vehicle> _disposedWrecks = new List<Vehicle>();
         private readonly Vector3 _position;
         private readonly IRage _rage;
         private ACPed _ped;
@@ -59,11 +60,13 @@ namespace AreaControl.Duties
                         .WaitForAndExecute(taskExecutor =>
                         {
                             _rage.LogTrivialDebug("Completed write ticket at wreck " + taskExecutor);
+                            ped.DeleteAttachments();
                             _rage.LogTrivialDebug("Calling tow truck for " + wreck.Model.Name + "...");
                             Functions.RequestTowTruck(wreck, false);
                             return AnimationUtil.TalkToRadio(ped);
                         }, 5000)
-                        .WaitForAndExecute(executor => { _rage.LogTrivialDebug("Completed talk to radio task for wreck " + executor); }, 3000);
+                        .WaitForCompletion(3000);
+                    _disposedWrecks.Add(wreck);
                 }
 
                 _rage.LogTrivialDebug("CleanWrecksDuty completed");
@@ -95,6 +98,7 @@ namespace AreaControl.Duties
         {
             return VehicleQuery
                 .FindVehiclesWithin(_position, SearchRange)
+                .Where(x => !_disposedWrecks.Contains(x))
                 .Where(IsWreck)
                 .Where(x => !IsSpeedoModel(x))
                 .ToList();

@@ -39,7 +39,7 @@ namespace AreaControl.Duties
                     ped.ReturnToLspdfrDuty();
                     IsActive = false;
                     OnCompletion?.Invoke(this, EventArgs.Empty);
-                });
+                }, 30000);
         }
 
         /// <inheritdoc />

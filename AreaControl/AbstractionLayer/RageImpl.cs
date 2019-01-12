@@ -44,7 +44,7 @@ namespace AreaControl.AbstractionLayer
                 {
                     LogTrivial("*** An unexpected error occurred in '" + name + "' thread ***" +
                                Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
-                    DisplayNotification("~r " + name + " thread has stopped working, see logs for more info");
+                    DisplayNotification("~r~" + name + " thread has stopped working, see logs for more info");
                 }
             }, name);
         }

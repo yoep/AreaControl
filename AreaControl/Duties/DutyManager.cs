@@ -20,15 +20,18 @@ namespace AreaControl.Duties
         #endregion
 
         /// <inheritdoc />
-        public IDuty GetNextAvailableDuty(Vector3 position)
+        public IDuty NextAvailableOrIdleDuty(Vector3 position)
         {
-            var nextAvailableDuty = GetDuties(position).FirstOrDefault(x => x.IsAvailable && IsInstantiationAllowed(x));
+            var nextAvailableDuty = GetNextAvailableDuty(position);
 
-            if (nextAvailableDuty == null)
-                _rage.LogTrivialDebug("Their are no available duties in the area of " + position);
+            if (nextAvailableDuty != null)
+            {
+                RegisterDuty(nextAvailableDuty);
+                return nextAvailableDuty;
+            }
 
-            _duties.Add(nextAvailableDuty);
-            return nextAvailableDuty;
+            _rage.LogTrivialDebug("Their are no available duties in the area of " + position);
+            return GetIdleDuty();
         }
 
         /// <inheritdoc />
@@ -45,7 +48,13 @@ namespace AreaControl.Duties
             {
                 duty.Abort();
             }
+
             _duties.Clear();
+        }
+
+        private IDuty GetNextAvailableDuty(Vector3 position)
+        {
+            return GetDuties(position).FirstOrDefault(x => x.IsAvailable && IsInstantiationAllowed(x));
         }
 
         private bool IsInstantiationAllowed(IDuty duty)
@@ -67,8 +76,12 @@ namespace AreaControl.Duties
             {
                 new CleanCorpsesDuty(position),
                 new CleanWrecksDuty(position),
-                new ReturnToVehicleDuty()
             };
+        }
+
+        private static IDuty GetIdleDuty()
+        {
+            return new ReturnToVehicleDuty();
         }
     }
 }
