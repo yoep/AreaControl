@@ -52,6 +52,7 @@ namespace AreaControl.Duties
             _ped = ped;
             _rage.NewSafeFiber(() =>
             {
+                _rage.LogTrivialDebug("Executing CleanCorpsesDuty...");
                 var deathPed = GetFirstAvailableDeathPed();
 
                 ped.WalkTo(deathPed)

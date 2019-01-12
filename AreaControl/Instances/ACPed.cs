@@ -56,6 +56,7 @@ namespace AreaControl.Instances
             Assert.NotNull(vehicle, "vehicle cannot be null");
 
             LastVehicle = vehicle;
+            IsBusy = true;
             _lastSeat = seat;
             Instance.WarpIntoVehicle(vehicle.Instance, (int) seat);
         }
