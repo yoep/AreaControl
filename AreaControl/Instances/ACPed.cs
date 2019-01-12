@@ -206,6 +206,13 @@ namespace AreaControl.Instances
             _attachments.Clear();
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(Id)}: {Id},"  + Environment.NewLine +
+                   $"{nameof(CurrentDuty)}: {CurrentDuty}," + Environment.NewLine +
+                   $"{nameof(IsBusy)}: {IsBusy}";
+        }
+
         private EventHandler TaskExecutorOnCompletion()
         {
             return (sender, args) => IsBusy = false;

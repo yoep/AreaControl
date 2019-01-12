@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.Utils.Tasks;
@@ -18,7 +19,7 @@ namespace AreaControl.Instances
             Instance = instance;
             Id = id;
         }
-        
+
         /// <inheritdoc />
         public long Id { get; }
 
@@ -59,7 +60,7 @@ namespace AreaControl.Instances
         /// Get or set if this vehicle is busy.
         /// If not busy, this vehicle can be used for a task by the plugin.
         /// </summary>
-        public bool IsBusy => Driver.IsBusy;
+        public bool IsBusy => Driver == null || Driver.IsBusy;
 
         /// <summary>
         /// Create a blip in the map for this vehicle.
@@ -128,7 +129,21 @@ namespace AreaControl.Instances
 
         public override string ToString()
         {
-            return $"Position: {Instance.Position}, {nameof(IsBusy)}: {IsBusy}, {nameof(Driver)}: {Driver}, {nameof(Passengers)}: {Passengers?.Count}";
+            return $"{nameof(Id)}: {Id}," + Environment.NewLine +
+                   $"Position: {Instance.Position}," + Environment.NewLine +
+                   $"{nameof(IsBusy)}: {IsBusy}," + Environment.NewLine +
+                   $"{nameof(Occupants)}: {Occupants?.Count}" + Environment.NewLine +
+                   FormatDriver();
+        }
+
+        private string FormatDriver()
+        {
+            if (Driver == null)
+                return $"{nameof(Driver)}: NULL";
+
+            return $"--- {nameof(Driver)} ---" + Environment.NewLine +
+                   Driver + Environment.NewLine +
+                   "---" + Environment.NewLine;
         }
     }
 }

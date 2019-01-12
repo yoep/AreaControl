@@ -37,7 +37,7 @@ namespace AreaControl.Instances
 
             if (controlledVehicle != null)
             {
-                _rage.LogTrivialDebug("Returning controlled vehicle ");
+                _rage.LogTrivialDebug("Returning controlled vehicle " + controlledVehicle);
                 return controlledVehicle;
             }
 
@@ -98,7 +98,7 @@ namespace AreaControl.Instances
             var registeredVehicle = new ACVehicle(vehicle, GetNextId());
             var driver = vehicle.Driver;
 
-            _rage.LogTrivialDebug("Registering a new vehicle in entity manager...");
+            _rage.LogTrivialDebug("Registering a new vehicle in entity manager " + registeredVehicle);
             _managedVehicles.Add(registeredVehicle);
 
             foreach (var occupant in vehicle.Occupants)
