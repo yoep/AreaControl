@@ -43,6 +43,7 @@ namespace AreaControl.Duties
             _ped = ped;
             _rage.NewSafeFiber(() =>
             {
+                _rage.LogTrivialDebug("Executing CleanWrecksDuty...");
                 foreach (var wreck in GetWrecks())
                 {
                     ped.WalkTo(wreck)

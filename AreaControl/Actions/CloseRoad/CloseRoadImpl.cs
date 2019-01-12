@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
@@ -145,13 +144,18 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, BlockSlot slot)
         {
-            vehicle.Passengers.ForEach(x =>
-            {
-                var nextAvailableDuty = _dutyManager.GetNextAvailableDuty(Game.LocalPlayer.Character.Position);
+            vehicle.Passengers.ForEach(AssignNextAvailableDutyToPed);
+        }
 
-                if (nextAvailableDuty != null)
-                    vehicle.Passengers.First().ActivateDuty(nextAvailableDuty);
-            });
+        private void AssignNextAvailableDutyToPed(ACPed passenger)
+        {
+            var nextAvailableDuty = _dutyManager.GetNextAvailableDuty(Game.LocalPlayer.Character.Position);
+
+            if (nextAvailableDuty == null) 
+                return;
+            
+            nextAvailableDuty.OnCompletion += (sender, args) => AssignNextAvailableDutyToPed(passenger);
+            passenger.ActivateDuty(nextAvailableDuty);
         }
 
         private static Road GetPositionBehindSlot(BlockSlot slot)

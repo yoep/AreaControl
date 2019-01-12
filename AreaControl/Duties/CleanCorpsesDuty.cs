@@ -103,7 +103,7 @@ namespace AreaControl.Duties
 
         private bool IsDeadBodyInRange()
         {
-            return PedQuery.FindWithin(_position, SearchRange).Any(x => x.IsDead);
+            return PedQuery.FindWithin(_position, SearchRange).Any(x => x.IsValid() && x.IsDead);
         }
 
         private Ped GetFirstAvailableDeathPed()
