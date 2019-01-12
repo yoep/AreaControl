@@ -13,6 +13,7 @@ namespace AreaControl.Duties
     public class CleanWrecksDuty : IDuty
     {
         private const float SearchRange = 35f;
+        private const string SpeedoModelName = "SPEEDO";
 
         private readonly Vector3 _position;
         private readonly IRage _rage;
@@ -60,6 +61,8 @@ namespace AreaControl.Duties
                         })
                         .WaitForCompletion(3000);
                 }
+
+                _rage.LogTrivialDebug("CleanWrecksDuty completed");
                 IsActive = false;
                 OnCompletion?.Invoke(this, EventArgs.Empty);
             }, "CleanWrecksDuty.Execute");
@@ -81,17 +84,21 @@ namespace AreaControl.Duties
 
         private bool IsWreckInRang()
         {
-            return VehicleQuery
-                .FindVehiclesWithin(_position, SearchRange)
-                .Any(IsWreck);
+            return GetWrecks().Count > 0;
         }
 
-        private IEnumerable<Vehicle> GetWrecks()
+        private ICollection<Vehicle> GetWrecks()
         {
             return VehicleQuery
                 .FindVehiclesWithin(_position, SearchRange)
                 .Where(IsWreck)
+                .Where(x => !IsSpeedoModel(x))
                 .ToList();
+        }
+
+        private static bool IsSpeedoModel(IRenderable vehicle)
+        {
+            return vehicle.Model.Name.ToUpper().Equals(SpeedoModelName);
         }
 
         private static bool IsWreck(Vehicle vehicle)
