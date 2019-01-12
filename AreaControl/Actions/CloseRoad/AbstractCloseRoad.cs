@@ -51,7 +51,7 @@ namespace AreaControl.Actions.CloseRoad
 
         #endregion
 
-        protected IEnumerable<BlockSlot> DetermineBlockSlots()
+        protected ICollection<BlockSlot> DetermineBlockSlots()
         {
             var closestRoad = DetermineClosestRoad();
             var placementHeading = closestRoad.Lanes.First().Heading + 90f;
@@ -74,7 +74,7 @@ namespace AreaControl.Actions.CloseRoad
         {
             var closestRoad = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
             Rage.LogTrivialDebug("Found road to use " + closestRoad);
-            
+
             return closestRoad;
         }
     }

@@ -64,10 +64,11 @@ namespace AreaControl.Actions.CloseRoad
 
         #endregion
 
-        private void SpawnBlockSlots(IEnumerable<BlockSlot> blockSlots)
+        private void SpawnBlockSlots(ICollection<BlockSlot> blockSlots)
         {
             var i = 0;
 
+            Rage.LogTrivialDebug("Spawning " + blockSlots.Count + " block slot(s) for close road function");
             foreach (var slot in blockSlots)
             {
                 i++;
@@ -151,9 +152,9 @@ namespace AreaControl.Actions.CloseRoad
         {
             var nextAvailableDuty = _dutyManager.GetNextAvailableDuty(Game.LocalPlayer.Character.Position);
 
-            if (nextAvailableDuty == null) 
+            if (nextAvailableDuty == null)
                 return;
-            
+
             nextAvailableDuty.OnCompletion += (sender, args) => AssignNextAvailableDutyToPed(passenger);
             passenger.ActivateDuty(nextAvailableDuty);
         }
