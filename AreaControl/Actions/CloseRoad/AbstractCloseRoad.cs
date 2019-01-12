@@ -12,7 +12,7 @@ namespace AreaControl.Actions.CloseRoad
     public abstract class AbstractCloseRoad : ICloseRoad
     {
         private const float CarSize = 5.5f;
-        private const float DistanceFromPlayer = 8f;
+        private const float DistanceFromPlayer = 10f;
 
         protected readonly IRage Rage;
 
@@ -53,29 +53,44 @@ namespace AreaControl.Actions.CloseRoad
 
         protected ICollection<BlockSlot> DetermineBlockSlots()
         {
-            var closestRoad = DetermineClosestRoad();
-            var placementHeading = closestRoad.Lanes.First().Heading + 90f;
-            var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
-            var placementPosition = closestRoad.Lanes.First().RightSide + direction * 2f;
+            var closestRoadToPlayer = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
             var blockSlots = new List<BlockSlot>();
-            Rage.LogTrivialDebug("Found road to use " + closestRoad);
 
-            for (var i = 0; i < closestRoad.Width / CarSize; i++)
+            foreach (var road in GetRoadsAwayFromPlayer(closestRoadToPlayer))
             {
-                blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
-                placementPosition = placementPosition + direction * CarSize;
+                var placementHeading = road.Lanes.First().Heading + 90f;
+                var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
+                var placementPosition = road.Lanes.First().RightSide + direction * 2f;
+                Rage.LogTrivialDebug("Found road to use " + road);
+
+                for (var i = 0; i < road.Width / CarSize; i++)
+                {
+                    blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
+                    placementPosition = placementPosition + direction * CarSize;
+                }
             }
 
             Rage.LogTrivialDebug("Created " + blockSlots.Count + " block slot(s)");
             return blockSlots;
         }
 
-        protected Road DetermineClosestRoad()
+        protected Road DetermineClosestRoadTo(Vector3 position)
         {
-            var closestRoad = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
-            Rage.LogTrivialDebug("Found road to use " + closestRoad);
+            return RoadUtil.GetClosestRoad(position, RoadType.All);
+        }
 
-            return closestRoad;
+        private IEnumerable<Road> GetRoadsAwayFromPlayer(Road closestRoadToPlayer)
+        {
+            var originalHeading = closestRoadToPlayer.Lanes.First().Heading;
+            var oppositeHeading = -originalHeading;
+            var originalDirection = MathHelper.ConvertHeadingToDirection(originalHeading);
+            var oppositeDirection = MathHelper.ConvertHeadingToDirection(oppositeHeading);
+
+            return new List<Road>
+            {
+                DetermineClosestRoadTo(closestRoadToPlayer.Position + originalDirection * DistanceFromPlayer),
+                DetermineClosestRoadTo(closestRoadToPlayer.Position + oppositeDirection * DistanceFromPlayer)
+            };
         }
     }
 }

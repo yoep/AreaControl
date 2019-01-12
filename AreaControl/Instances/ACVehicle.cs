@@ -121,5 +121,10 @@ namespace AreaControl.Instances
             Instance.IsSirenOn = true;
             Instance.IsSirenSilent = true;
         }
+
+        public override string ToString()
+        {
+            return $"Position: {Instance.Position}, {nameof(Passengers)}: {Passengers}, {nameof(Driver)}: {Driver}, {nameof(IsBusy)}: {IsBusy}";
+        }
     }
 }

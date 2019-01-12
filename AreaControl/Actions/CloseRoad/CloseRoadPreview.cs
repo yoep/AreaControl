@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Menu;
+using Rage;
 using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.CloseRoad
@@ -31,7 +32,7 @@ namespace AreaControl.Actions.CloseRoad
             sender.ReplaceComponent(this, new RemoveCloseRoadPreview(this));
             Rage.NewSafeFiber(() =>
             {
-                _road = DetermineClosestRoad();
+                _road = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
                 _blockSlots = DetermineBlockSlots();
                 _road.CreatePreview();
 

@@ -31,15 +31,18 @@ namespace AreaControl.Duties
         {
             _rage.LogTrivialDebug("Executing ReturnToVehicleDuty...");
             IsActive = true;
-            ped
-                .EnterLastVehicle(MovementSpeed.Walk)
-                .WaitForAndExecute(() =>
-                {
-                    _rage.LogTrivialDebug("ReturnToVehicleDuty completed");
-                    ped.ReturnToLspdfrDuty();
-                    IsActive = false;
-                    OnCompletion?.Invoke(this, EventArgs.Empty);
-                }, 30000);
+           _rage.NewSafeFiber(() =>
+           {
+               ped
+                   .EnterLastVehicle(MovementSpeed.Walk)
+                   .WaitForAndExecute(() =>
+                   {
+                       _rage.LogTrivialDebug("ReturnToVehicleDuty completed");
+                       ped.ReturnToLspdfrDuty();
+                       IsActive = false;
+                       OnCompletion?.Invoke(this, EventArgs.Empty);
+                   }, 30000);
+           }, "ReturnToVehicleDuty.Execute");
         }
 
         /// <inheritdoc />
