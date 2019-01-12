@@ -72,13 +72,13 @@ namespace AreaControl.Actions.CloseRoad
             foreach (var slot in blockSlots)
             {
                 i++;
-                var number = i;
+                var index = i;
                 Rage.NewSafeFiber(() =>
                     {
                         //get position behind the slot
-                        var positionBehindSlot = GetPositionBehindSlot(slot);
+                        var positionBehindSlot = GetPositionBehindSlot(slot, index);
                         var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius);
-                        Rage.LogTrivialDebug("Using vehicle " + vehicle + " for block slot " + number);
+                        Rage.LogTrivialDebug("Using vehicle " + vehicle + " for block slot " + index);
                         
                         MoveToSlot(vehicle, slot);
                         AssignRedirectTrafficDutyToDriver(vehicle, slot);
@@ -160,9 +160,9 @@ namespace AreaControl.Actions.CloseRoad
             ped.ActivateDuty(nextAvailableDuty);
         }
 
-        private static Road GetPositionBehindSlot(BlockSlot slot)
+        private static Road GetPositionBehindSlot(BlockSlot slot, int index)
         {
-            return RoadUtil.GetClosestRoad(slot.Position + MathHelper.ConvertHeadingToDirection(slot.PedHeading) * 80f, RoadType.All);
+            return RoadUtil.GetClosestRoad(slot.Position + MathHelper.ConvertHeadingToDirection(slot.PedHeading) * (80f * index), RoadType.All);
         }
     }
 }

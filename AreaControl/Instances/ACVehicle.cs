@@ -13,10 +13,14 @@ namespace AreaControl.Instances
     {
         private Blip _blip;
 
-        public ACVehicle(Vehicle instance)
+        public ACVehicle(Vehicle instance, long id)
         {
             Instance = instance;
+            Id = id;
         }
+        
+        /// <inheritdoc />
+        public long Id { get; }
 
         /// <summary>
         /// Get the GTA V vehicle instance.
@@ -124,7 +128,7 @@ namespace AreaControl.Instances
 
         public override string ToString()
         {
-            return $"Position: {Instance.Position}, {nameof(Passengers)}: {Passengers}, {nameof(Driver)}: {Driver}, {nameof(IsBusy)}: {IsBusy}";
+            return $"Position: {Instance.Position}, {nameof(IsBusy)}: {IsBusy}, {nameof(Driver)}: {Driver}, {nameof(Passengers)}: {Passengers?.Count}";
         }
     }
 }

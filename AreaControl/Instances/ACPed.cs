@@ -19,10 +19,14 @@ namespace AreaControl.Instances
         private readonly List<Entity> _attachments = new List<Entity>();
         private VehicleSeat _lastSeat;
 
-        public ACPed(Ped instance)
+        public ACPed(Ped instance, long id)
         {
             Instance = instance;
+            Id = id;
         }
+
+        /// <inheritdoc />
+        public long Id { get; }
 
         /// <summary>
         /// Get the GTA V Ped instance.
@@ -198,7 +202,7 @@ namespace AreaControl.Instances
                 attachment.Dismiss();
                 attachment.Delete();
             }
-            
+
             _attachments.Clear();
         }
 

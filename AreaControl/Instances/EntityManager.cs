@@ -15,6 +15,7 @@ namespace AreaControl.Instances
         private readonly List<ACVehicle> _managedVehicles = new List<ACVehicle>();
         private readonly List<ACPed> _managedPeds = new List<ACPed>();
         private bool _isActive = true;
+        private long _lastInstanceId;
 
         #region Constructors
 
@@ -35,7 +36,10 @@ namespace AreaControl.Instances
             var controlledVehicle = FindAvailableManagedVehicle(position, radius);
 
             if (controlledVehicle != null)
+            {
+                _rage.LogTrivialDebug("Returning controlled vehicle ");
                 return controlledVehicle;
+            }
 
             var vehicle = VehicleQuery.FindPoliceVehicleWithin(position, radius);
 
@@ -91,7 +95,7 @@ namespace AreaControl.Instances
 
         private ACVehicle RegisterVehicle(Vehicle vehicle)
         {
-            var registeredVehicle = new ACVehicle(vehicle);
+            var registeredVehicle = new ACVehicle(vehicle, GetNextId());
             var driver = vehicle.Driver;
 
             _rage.LogTrivialDebug("Registering a new vehicle in entity manager...");
@@ -116,7 +120,7 @@ namespace AreaControl.Instances
 
         private ACPed RegisterPed(Ped ped)
         {
-            var registeredPed = new ACPed(ped);
+            var registeredPed = new ACPed(ped, GetNextId());
 
             _managedPeds.Add(registeredPed);
             LSPD_First_Response.Mod.API.Functions.SetPedAsCop(ped);
@@ -125,6 +129,12 @@ namespace AreaControl.Instances
             return registeredPed;
         }
 
+        private long GetNextId()
+        {
+            _lastInstanceId++;
+            return _lastInstanceId;
+        }
+        
         private static bool IsVehicleWithinRadius(Vector3 position, float radius, ACVehicle vehicle)
         {
             return vehicle.Instance.DistanceTo(position) <= radius;
@@ -137,7 +147,7 @@ namespace AreaControl.Instances
 
         private static Vector3 GetStreetAt(Vector3 position)
         {
-            return World.GetNextPositionOnStreet(position.Around2D(20f));
+            return World.GetNextPositionOnStreet(position);
         }
 
         private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition)
