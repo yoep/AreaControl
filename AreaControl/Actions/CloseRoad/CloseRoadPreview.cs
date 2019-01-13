@@ -9,7 +9,6 @@ namespace AreaControl.Actions.CloseRoad
 {
     public class CloseRoadPreview : AbstractCloseRoad, ICloseRoadPreview
     {
-        private Road _road;
         private IEnumerable<BlockSlot> _blockSlots;
 
         public CloseRoadPreview(IRage rage)
@@ -42,8 +41,6 @@ namespace AreaControl.Actions.CloseRoad
 
         private void RemovePreview()
         {
-            _road.DeletePreview();
-
             foreach (var blockSlot in _blockSlots)
             {
                 blockSlot.DeletePreview();
@@ -59,9 +56,7 @@ namespace AreaControl.Actions.CloseRoad
             MenuItem.Text = AreaControl.ActionRemoveCloseRoadPreview;
             Rage.NewSafeFiber(() =>
             {
-                _road = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
                 _blockSlots = DetermineBlockSlots();
-                _road.CreatePreview();
 
                 foreach (var slot in _blockSlots)
                 {

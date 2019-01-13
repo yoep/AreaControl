@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
@@ -11,8 +12,8 @@ namespace AreaControl.Actions.CloseRoad
 {
     public abstract class AbstractCloseRoad : ICloseRoad
     {
-        private const float CarSize = 5.5f;
-        private const float DistanceFromPlayer = 25f;
+        private const float DistanceFromPlayer = 35f;
+        private const float LaneHeadingTolerance = 40f;
 
         protected readonly IRage Rage;
 
@@ -55,18 +56,28 @@ namespace AreaControl.Actions.CloseRoad
 
             foreach (var road in GetRoadsAwayFromPlayer(closestRoadToPlayer))
             {
-                var placementHeading = road.Lanes.First().Heading + 90f;
-                var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
-                var placementPosition = road.Lanes.First().RightSide + direction * 2f;
+                var roadHeadingToOriginal =
+                    MathHelper.NormalizeHeading(MathHelper.ConvertDirectionToHeading(closestRoadToPlayer.Position - road.Position));
                 Rage.LogTrivialDebug("Found road to use " + road);
+                Rage.LogTrivialDebug("Road heading in regards to closest road " + roadHeadingToOriginal);
 
-                for (var i = 0; i < road.Width / CarSize; i++)
+                foreach (var lane in road.Lanes.Where(x => Math.Abs(x.Heading - roadHeadingToOriginal) < LaneHeadingTolerance))
                 {
+                    var placementHeading = lane.Heading + 90f;
+                    var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
+                    var placementPosition = lane.RightSide + direction * 2f;
+                    
                     blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
-                    placementPosition = placementPosition + direction * CarSize;
                 }
-
-                Rage.LogTrivialDebug("Heading in regards to player: " + MathHelper.ConvertDirectionToHeading((Game.LocalPlayer.Character.Position - road.Position)));
+                
+//                foreach (var lane in road.Lanes)
+//                {
+//                    var placementHeading = lane.Heading + 90f;
+//                    var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
+//                    var placementPosition = lane.RightSide + direction * 2f;
+//                    
+//                    blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
+//                }
             }
 
             Rage.LogTrivialDebug("Created " + blockSlots.Count + " block slot(s)");
@@ -84,12 +95,13 @@ namespace AreaControl.Actions.CloseRoad
             var oppositeHeading = -originalHeading;
             var originalDirection = MathHelper.ConvertHeadingToDirection(originalHeading);
             var oppositeDirection = MathHelper.ConvertHeadingToDirection(oppositeHeading);
+            var roads = new List<Road> {DetermineClosestRoadTo(closestRoadToPlayer.Position + oppositeDirection * DistanceFromPlayer)};
 
-            return new List<Road>
-            {
-                DetermineClosestRoadTo(closestRoadToPlayer.Position + originalDirection * DistanceFromPlayer),
-                DetermineClosestRoadTo(closestRoadToPlayer.Position + oppositeDirection * DistanceFromPlayer)
-            };
+            // only add an additional block if the road is not a single direction road
+            if (!closestRoadToPlayer.IsSingleDirection)
+                roads.Add(DetermineClosestRoadTo(closestRoadToPlayer.Position + originalDirection * DistanceFromPlayer));
+
+            return roads;
         }
     }
 }

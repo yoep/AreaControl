@@ -112,8 +112,8 @@ namespace AreaControl.Utils
                 lanes.Add(LaneBuilder.Builder()
                     .Number(index)
                     .Heading(heading)
-                    .RightSide(lastRightPosition)
-                    .LeftSide(laneLeftPosition)
+                    .RightSide(isOpposite ? laneLeftPosition : lastRightPosition)
+                    .LeftSide(isOpposite ? lastRightPosition : laneLeftPosition)
                     .NodePosition(vehicleNode.Position)
                     .Width(laneWidth)
                     .Build());
