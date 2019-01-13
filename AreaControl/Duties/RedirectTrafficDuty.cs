@@ -34,6 +34,9 @@ namespace AreaControl.Duties
 
         /// <inheritdoc />
         public bool IsRepeatable => true;
+        
+        /// <inheritdoc />
+        public bool IsMultipleInstancesAllowed => true;
 
         /// <inheritdoc />
         public EventHandler OnCompletion { get; set; }

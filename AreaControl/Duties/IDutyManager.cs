@@ -5,6 +5,13 @@ namespace AreaControl.Duties
     public interface IDutyManager
     {
         /// <summary>
+        /// Listen for a new available duty around the given position.
+        /// Will return a new listener that will be triggered when a new duty becomes available around the given position.
+        /// </summary>
+        /// <param name="position">Set the position to listen around.</param>
+        IDutyListener this[Vector3 position] { get; }
+
+        /// <summary>
         /// Get the next available duty in the area if found.
         /// Otherwise, get the idle duty.
         /// </summary>

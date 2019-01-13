@@ -163,12 +163,20 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignNextAvailableDutyToPed(ACPed ped)
         {
-            var nextAvailableDuty = _dutyManager.NextAvailableOrIdleDuty(Game.LocalPlayer.Character.Position);
+            var playerPosition = Game.LocalPlayer.Character.Position;
+            var nextAvailableDuty = _dutyManager.NextAvailableOrIdleDuty(playerPosition);
 
             if (nextAvailableDuty.GetType() != typeof(ReturnToVehicleDuty))
-                nextAvailableDuty.OnCompletion += (sender, args) => AssignNextAvailableDutyToPed(ped);
+                ActivateNonIdleDuty(ped, nextAvailableDuty);
 
+            _dutyManager[playerPosition].OnDutyAvailable += (sender, args) => ActivateNonIdleDuty(ped, args.AvailableDuty);
             ped.ActivateDuty(nextAvailableDuty);
+        }
+
+        private void ActivateNonIdleDuty(ACPed ped, IDuty duty)
+        {
+            duty.OnCompletion += (sender, args) => AssignNextAvailableDutyToPed(ped);
+            ped.ActivateDuty(duty);
         }
 
         private static Road GetPositionBehindSlot(BlockSlot slot, int index)

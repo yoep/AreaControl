@@ -66,8 +66,10 @@
     <Compile Include="Debug\RoadPreview.cs" />
     <Compile Include="Duties\CleanCorpsesDuty.cs" />
     <Compile Include="Duties\CleanWrecksDuty.cs" />
+    <Compile Include="Duties\DutyAvailableEventArgs.cs" />
     <Compile Include="Duties\DutyManager.cs" />
     <Compile Include="Duties\IDuty.cs" />
+    <Compile Include="Duties\IDutyListener.cs" />
     <Compile Include="Duties\IDutyManager.cs" />
     <Compile Include="Duties\RedirectTrafficDuty.cs" />
     <Compile Include="Duties\ReturnToVehicleDuty.cs" />
