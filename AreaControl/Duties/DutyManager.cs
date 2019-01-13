@@ -101,9 +101,10 @@ namespace AreaControl.Duties
                         if (availableDuty == null || dutyListener.OnDutyAvailable == null)
                             continue;
 
+                        _rage.LogTrivialDebug("Found a new available duty " + availableDuty + " for listener " + dutyListener);
                         RegisterDuty(availableDuty);
-                        dutyListener.OnDutyAvailable.Invoke(this, new DutyAvailableEventArgs(availableDuty));
                         _dutyListeners.Remove(dutyListener);
+                        dutyListener.OnDutyAvailable.Invoke(this, new DutyAvailableEventArgs(availableDuty));
                     }
 
                     GameFiber.Sleep(500);
@@ -158,6 +159,11 @@ namespace AreaControl.Duties
 
             /// <inheritdoc />
             public EventHandler<DutyAvailableEventArgs> OnDutyAvailable { get; set; }
+
+            public override string ToString()
+            {
+                return $"{nameof(Position)}: {Position}, {nameof(OnDutyAvailable)}: {OnDutyAvailable}";
+            }
         }
     }
 }
