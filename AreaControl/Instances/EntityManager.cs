@@ -5,6 +5,7 @@ using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
+using LSPD_First_Response.Mod.API;
 using Rage;
 
 namespace AreaControl.Instances
@@ -53,6 +54,30 @@ namespace AreaControl.Instances
         }
 
         /// <inheritdoc />
+        public IReadOnlyList<ACVehicle> GetAllManagedVehicles()
+        {
+            return _managedVehicles.AsReadOnly();
+        }
+
+        /// <inheritdoc />
+        public void Dismiss()
+        {
+            _rage.NewSafeFiber(() =>
+            {
+                while (_managedVehicles.Any(x => !x.IsWandering))
+                {
+                    foreach (var vehicle in _managedVehicles.Where(x => !x.IsWandering && x.AllOccupantsPresent))
+                    {
+                        vehicle.DisableSirens();
+                        vehicle.Wander();
+                    }
+                    
+                    GameFiber.Sleep(500);
+                }
+            }, "EntityManager.Dismiss");
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             _managedVehicles.ForEach(x => x.Delete());
@@ -75,10 +100,10 @@ namespace AreaControl.Instances
                 {
                     var vehiclesToBeRemoved = _managedVehicles.Where(x => !x.Instance.IsValid()).ToList();
                     var pedsToBeRemoved = _managedPeds.Where(x => !x.Instance.IsValid()).ToList();
-                    
+
                     vehiclesToBeRemoved.ForEach(x => _managedVehicles.Remove(x));
                     pedsToBeRemoved.ForEach(x => _managedPeds.Remove(x));
-                    
+
                     GameFiber.Sleep(30000);
                 }
             }, "EntityManager");
@@ -135,8 +160,8 @@ namespace AreaControl.Instances
             var registeredPed = new ACPed(ped, GetNextId());
 
             _managedPeds.Add(registeredPed);
-            LSPD_First_Response.Mod.API.Functions.SetPedAsCop(ped);
-            LSPD_First_Response.Mod.API.Functions.SetCopAsBusy(ped, true);
+            Functions.SetPedAsCop(ped);
+            Functions.SetCopAsBusy(ped, true);
 
             return registeredPed;
         }
@@ -146,7 +171,7 @@ namespace AreaControl.Instances
             _lastInstanceId++;
             return _lastInstanceId;
         }
-        
+
         private static bool IsVehicleWithinRadius(Vector3 position, float radius, ACVehicle vehicle)
         {
             return vehicle.Instance.DistanceTo(position) <= radius;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Rage;
 
 namespace AreaControl.Instances
@@ -20,5 +21,17 @@ namespace AreaControl.Instances
         /// <param name="instance">Set the game vehicle instance.</param>
         /// <returns>Returns the managed vehicle if found, else null.</returns>
         ACVehicle FindManagedVehicle(Vehicle instance);
+
+        /// <summary>
+        /// Get all current managed vehicles from this entity manager.
+        /// </summary>
+        /// <returns>Returns the list of managed vehicles.</returns>
+        IReadOnlyList<ACVehicle> GetAllManagedVehicles();
+
+        /// <summary>
+        /// Dismiss all managed vehicles and let them wander around again.
+        /// This will make the vehicles and peds be managed by Rage, but this manager will still keep the reference to the instances for potential later use.
+        /// </summary>
+        void Dismiss();
     }
 }

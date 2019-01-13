@@ -97,13 +97,7 @@ namespace AreaControl.Duties
                 return;
 
             _rage.LogTrivialDebug("Aborting CleanCorpsesDuty");
-            _rage.NewSafeFiber(() =>
-            {
-                _rage.LogTrivialDebug("Ped is entering last vehicle for CleanCorpsesDuty");
-                _ped.EnterLastVehicle(MovementSpeed.Walk)
-                    .WaitForAndExecute(() => _ped.ReturnToLspdfrDuty());
-                _rage.LogTrivialDebug("Ped should have been returned to LSPDFR duty for CleanCorpsesDuty");
-            }, "CleanCorpsesDuty.Abort");
+            _ped.ActivateDuty(new ReturnToVehicleDuty());
         }
 
         #endregion

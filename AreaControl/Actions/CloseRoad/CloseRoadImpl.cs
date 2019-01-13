@@ -58,6 +58,7 @@ namespace AreaControl.Actions.CloseRoad
             MenuItem.Text = AreaControl.ActionCloseRoad;
             Functions.PlayScannerAudio("WE_ARE_CODE_4");
             _dutyManager.DismissDuties();
+            _entityManager.Dismiss();
             IsActive = false;
         }
 
@@ -87,6 +88,7 @@ namespace AreaControl.Actions.CloseRoad
                         //get position behind the slot
                         var positionBehindSlot = GetPositionBehindSlot(slot, index);
                         var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius);
+                        vehicle.SetOccupantsBusyState(true);
                         Rage.LogTrivialDebug("Using vehicle " + vehicle + " for block slot " + index);
 
                         MoveToSlot(vehicle, slot);

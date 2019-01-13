@@ -18,7 +18,21 @@ namespace AreaControl.Utils
         /// <returns>Returns the position of the closest road.</returns>
         public static Road GetClosestRoad(Vector3 position, RoadType roadType)
         {
-            return GetNearbyRoads(position, roadType).First();
+            Road closestRoad = null;
+            var closestRoadDistance = 99999f;
+            
+            foreach (var road in GetNearbyRoads(position, roadType))
+            {
+                var roadDistanceToPosition = Vector3.Distance2D(road.Position, position);
+
+                if (roadDistanceToPosition > closestRoadDistance) 
+                    continue;
+                
+                closestRoad = road;
+                closestRoadDistance = roadDistanceToPosition;
+            }
+
+            return closestRoad;
         }
 
         /// <summary>
@@ -108,7 +122,7 @@ namespace AreaControl.Utils
             {
                 var laneLeftPosition = lastRightPosition + moveDirection * laneWidth;
                 var vehicleNode = GetVehicleNode(lastRightPosition);
-                var heading = isOpposite ? (vehicleNode.Heading + 180) % 360 : vehicleNode.Heading;
+                var heading = isOpposite ? (rightSideHeading + 180) % 360 : rightSideHeading;
                 lanes.Add(LaneBuilder.Builder()
                     .Number(index)
                     .Heading(heading)

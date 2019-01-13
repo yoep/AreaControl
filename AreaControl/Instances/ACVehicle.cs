@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using AreaControl.Utils.Tasks;
 using Rage;
 
@@ -63,6 +64,16 @@ namespace AreaControl.Instances
         public bool IsBusy => Driver == null || Driver.IsBusy;
 
         /// <summary>
+        /// Check if all original occupants or present again in this vehicle.
+        /// </summary>
+        public bool AllOccupantsPresent => Occupants.All(x => Instance.Occupants.Contains(x.Instance));
+        
+        /// <summary>
+        /// Get if this vehicle is wandering around.
+        /// </summary>
+        public bool IsWandering { get; private set; }
+
+        /// <summary>
         /// Create a blip in the map for this vehicle.
         /// </summary>
         public void CreateBlip()
@@ -89,6 +100,7 @@ namespace AreaControl.Instances
         /// </summary>
         public TaskExecutor Empty()
         {
+            IsWandering = false;
             Occupants.ForEach(x => x.IsBusy = true);
             var executor = TaskUtil.EmptyVehicle(Instance);
             executor.OnCompletion += (sender, args) => Occupants.ForEach(x => x.IsBusy = false);
@@ -125,6 +137,28 @@ namespace AreaControl.Instances
         {
             Instance.IsSirenOn = true;
             Instance.IsSirenSilent = true;
+        }
+
+        /// <summary>
+        /// Let this vehicle wander around.
+        /// </summary>
+        public void Wander()
+        {
+            if (Driver == null || !Driver.Instance.IsValid() || Instance.Driver != Driver.Instance)
+                return;
+
+            Driver.CruiseWithVehicle();
+            IsWandering = true;
+            Occupants.ForEach(x => x.IsBusy = false);
+        }
+
+        /// <summary>
+        /// Set the busy state of all occupants.
+        /// </summary>
+        /// <param name="busy">Set the busy state for the occupants.</param>
+        public void SetOccupantsBusyState(bool busy)
+        {
+            Occupants.ForEach(x => x.IsBusy = busy);
         }
 
         public override string ToString()

@@ -206,6 +206,11 @@ namespace AreaControl.Instances
             _attachments.Clear();
         }
 
+        public void CruiseWithVehicle()
+        {
+            Instance.Tasks.CruiseWithVehicle(30f);
+        }
+
         public override string ToString()
         {
             return $"{nameof(Id)}: {Id},"  + Environment.NewLine +

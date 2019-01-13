@@ -12,7 +12,7 @@ namespace AreaControl.Actions.CloseRoad
 {
     public abstract class AbstractCloseRoad : ICloseRoad
     {
-        private const float DistanceFromPlayer = 35f;
+        private const float DistanceFromPlayer = 25f;
         private const float LaneHeadingTolerance = 40f;
 
         protected readonly IRage Rage;
@@ -69,15 +69,6 @@ namespace AreaControl.Actions.CloseRoad
                     
                     blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
                 }
-                
-//                foreach (var lane in road.Lanes)
-//                {
-//                    var placementHeading = lane.Heading + 90f;
-//                    var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
-//                    var placementPosition = lane.RightSide + direction * 2f;
-//                    
-//                    blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
-//                }
             }
 
             Rage.LogTrivialDebug("Created " + blockSlots.Count + " block slot(s)");
