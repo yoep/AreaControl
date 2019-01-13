@@ -8,7 +8,7 @@ namespace AreaControl.Utils
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum RoadType
     {
-        All,
-        MajorRoadsOnly
+        All = 0,
+        MajorRoadsOnly = 1
     }
 }

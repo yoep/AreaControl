@@ -9,11 +9,15 @@ namespace AreaControl.Instances
 {
     public class Road : IPreviewSupport
     {
+        private readonly List<Object> _previewObjects = new List<Object>();
+
         #region Constructors
 
-        internal Road(Vector3 position, IReadOnlyList<Lane> lanes, bool isAtJunction, bool isSingleDirection)
+        internal Road(Vector3 position, Vector3 rightSide, Vector3 leftSide, IReadOnlyList<Lane> lanes, bool isAtJunction, bool isSingleDirection)
         {
             Position = position;
+            RightSide = rightSide;
+            LeftSide = leftSide;
             Lanes = lanes;
             IsAtJunction = isAtJunction;
             IsSingleDirection = isSingleDirection;
@@ -24,9 +28,19 @@ namespace AreaControl.Instances
         #region Properties
 
         /// <summary>
-        /// Get the position of the road.
+        /// Get the center position of the road.
         /// </summary>
         public Vector3 Position { get; }
+
+        /// <summary>
+        /// Get the right side position of the road.
+        /// </summary>
+        public Vector3 RightSide { get; }
+
+        /// <summary>
+        /// Get the left side position of the road.
+        /// </summary>
+        public Vector3 LeftSide { get; }
 
         /// <summary>
         /// Get the lanes of this road.
@@ -56,11 +70,15 @@ namespace AreaControl.Instances
         #region IPreviewSupport implementation
 
         /// <inheritdoc />
-        public bool IsPreviewActive => Lanes.Select(x => x.IsPreviewActive).First();
+        public bool IsPreviewActive => _previewObjects.Count > 0;
 
         /// <inheritdoc />
         public void CreatePreview()
         {
+            _previewObjects.Add(PropUtil.CreateLargeThinConeWithStripes(Position));
+            _previewObjects.Add(PropUtil.CreateLargeThinConeWithStripes(RightSide));
+            _previewObjects.Add(PropUtil.CreateLargeThinConeWithStripes(LeftSide));
+            _previewObjects.ForEach(PreviewUtil.TransformToPreview);
             foreach (var lane in Lanes)
             {
                 lane.CreatePreview();
@@ -70,6 +88,8 @@ namespace AreaControl.Instances
         /// <inheritdoc />
         public void DeletePreview()
         {
+            _previewObjects.ForEach(PropUtil.Remove);
+            _previewObjects.Clear();
             foreach (var lane in Lanes)
             {
                 lane.DeletePreview();
@@ -81,10 +101,12 @@ namespace AreaControl.Instances
         public override string ToString()
         {
             var message = Environment.NewLine + $"{nameof(Position)}: {Position}," +
+                          Environment.NewLine + $"{nameof(RightSide)}: {RightSide}," +
+                          Environment.NewLine + $"{nameof(LeftSide)}: {LeftSide}," +
                           Environment.NewLine + $"{nameof(IsAtJunction)}: {IsAtJunction}," +
                           Environment.NewLine + $"{nameof(IsSingleDirection)}: {IsSingleDirection}," +
                           Environment.NewLine + $"{nameof(Width)}: {Width}" +
-                          Environment.NewLine + "--- Lanes ---";
+                          Environment.NewLine + "--- Lanes ---" + Environment.NewLine;
             return Lanes.Aggregate(message, (current, lane) => current + (Environment.NewLine + lane)) + Environment.NewLine + "---";
         }
 
@@ -97,13 +119,19 @@ namespace AreaControl.Instances
             private Object _previewRightSide;
             private Object _previewDirection;
 
-            public Lane(float heading, Vector3 rightSide, Vector3 leftSide, float width)
+            public Lane(int number, float heading, Vector3 rightSide, Vector3 leftSide, float width)
             {
+                Number = number;
                 Heading = heading;
                 RightSide = rightSide;
                 LeftSide = leftSide;
                 Width = width;
             }
+
+            /// <summary>
+            /// Get the unique lane number.
+            /// </summary>
+            public int Number { get; }
 
             /// <summary>
             /// Get the heading of the lane.
@@ -134,9 +162,11 @@ namespace AreaControl.Instances
                 if (IsPreviewActive)
                     return;
 
-                _previewLeftSide = PropUtil.CreateSmallBlankCone(LeftSide);
-                _previewRightSide = PropUtil.CreateSmallConeWithStripes(RightSide);
-                _previewDirection = PropUtil.CreateBigConeWithStripes(RightSide + MathHelper.ConvertHeadingToDirection(Heading) * 1f);
+                var offsetDirection = MathHelper.ConvertHeadingToDirection(Heading);
+
+                _previewLeftSide = PropUtil.CreateSmallBlankCone(LeftSide + offsetDirection * (2f * Number));
+                _previewRightSide = PropUtil.CreateSmallConeWithStripes(RightSide + offsetDirection * (2f * Number));
+                _previewDirection = PropUtil.CreateBigConeWithStripes(RightSide + offsetDirection * (2f * Number + 2f));
                 PreviewUtil.TransformToPreview(_previewLeftSide);
                 PreviewUtil.TransformToPreview(_previewRightSide);
                 PreviewUtil.TransformToPreview(_previewDirection);
@@ -148,21 +178,22 @@ namespace AreaControl.Instances
                 if (!IsPreviewActive)
                     return;
 
-                _previewLeftSide.Dismiss();
+                PropUtil.Remove(_previewLeftSide);
+                PropUtil.Remove(_previewRightSide);
+                PropUtil.Remove(_previewDirection);
                 _previewLeftSide = null;
-                _previewRightSide.Dismiss();
                 _previewRightSide = null;
-                _previewDirection.Dismiss();
                 _previewDirection = null;
             }
 
             public override string ToString()
             {
-                return $"{nameof(Heading)}: {Heading}," +
-                       Environment.NewLine + $"{nameof(RightSide)}: {RightSide}," +
-                       Environment.NewLine + $"{nameof(LeftSide)}: {LeftSide}," +
-                       Environment.NewLine + $"{nameof(Width)}: {Width}," +
-                       Environment.NewLine + $"{nameof(IsPreviewActive)}: {IsPreviewActive}";
+                return $"{nameof(Number)}: {Number}," + Environment.NewLine +
+                       $"{nameof(Heading)}: {Heading}," + Environment.NewLine +
+                       $"{nameof(RightSide)}: {RightSide}," + Environment.NewLine +
+                       $"{nameof(LeftSide)}: {LeftSide}," + Environment.NewLine +
+                       $"{nameof(Width)}: {Width}," + Environment.NewLine +
+                       $"{nameof(IsPreviewActive)}: {IsPreviewActive}" + Environment.NewLine;
             }
         }
     }

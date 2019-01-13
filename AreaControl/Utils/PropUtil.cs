@@ -45,5 +45,20 @@ namespace AreaControl.Utils
                 IsPersistent = false
             };
         }
+        
+        public static Object CreateLargeThinConeWithStripes(Vector3 position)
+        {
+            return new Object(new Model("prop_mp_cone_04"), position)
+            {
+                IsPersistent = false
+            };
+        }
+
+        public static void Remove(Object entity)
+        {
+            Assert.NotNull(entity, "entity cannot be null");
+            entity.Dismiss();
+            entity.Delete();
+        }
     }
 }

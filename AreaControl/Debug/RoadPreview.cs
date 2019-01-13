@@ -1,3 +1,4 @@
+using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Utils;
@@ -8,7 +9,13 @@ namespace AreaControl.Debug
 {
     public class RoadPreview : IMenuComponent
     {
+        private readonly IRage _rage;
         private Road _road;
+
+        public RoadPreview(IRage rage)
+        {
+            _rage = rage;
+        }
 
         /// <inheritdoc />
         public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.RoadPreview);
@@ -34,16 +41,22 @@ namespace AreaControl.Debug
 
         private void CreateRoadPreview()
         {
-            MenuItem.Text = AreaControl.RoadPreviewRemove;
-            _road = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
-            _road.CreatePreview();
+            _rage.NewSafeFiber(() =>
+            {
+                MenuItem.Text = AreaControl.RoadPreviewRemove;
+                _road = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
+                _road.CreatePreview();
+            }, "RoadPreview.CreateRoadPreview");
         }
 
         private void RemoveRoadPreview()
         {
-            MenuItem.Text = AreaControl.RoadPreview;
-            _road.DeletePreview();
-            _road = null;
+            _rage.NewSafeFiber(() =>
+            {
+                MenuItem.Text = AreaControl.RoadPreview;
+                _road.DeletePreview();
+                _road = null;
+            }, "RoadPreview.RemoveRoadPreview");
         }
     }
 }
