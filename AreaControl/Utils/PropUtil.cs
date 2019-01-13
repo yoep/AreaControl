@@ -9,7 +9,7 @@ namespace AreaControl.Utils
             var model = new Model("prop_parking_wand_01");
             return new Object(model, Vector3.Zero);
         }
-        
+
         public static Object CreateNotebook()
         {
             var model = new Model("prop_notepad_01");
@@ -29,7 +29,7 @@ namespace AreaControl.Utils
                 IsPersistent = false
             };
         }
-        
+
         public static Object CreateSmallConeWithStripes(Vector3 position)
         {
             return new Object(new Model("prop_mp_cone_02"), position)
@@ -37,7 +37,7 @@ namespace AreaControl.Utils
                 IsPersistent = false
             };
         }
-        
+
         public static Object CreateBigConeWithStripes(Vector3 position)
         {
             return new Object(new Model("prop_mp_cone_01"), position)
@@ -45,7 +45,7 @@ namespace AreaControl.Utils
                 IsPersistent = false
             };
         }
-        
+
         public static Object CreateLargeThinConeWithStripes(Vector3 position)
         {
             return new Object(new Model("prop_mp_cone_04"), position)
@@ -57,6 +57,9 @@ namespace AreaControl.Utils
         public static void Remove(Object entity)
         {
             Assert.NotNull(entity, "entity cannot be null");
+            if (!entity.IsValid()) 
+                return;
+            
             entity.Dismiss();
             entity.Delete();
         }
