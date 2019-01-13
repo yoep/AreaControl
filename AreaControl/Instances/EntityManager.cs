@@ -15,6 +15,7 @@ namespace AreaControl.Instances
         private readonly IRage _rage;
         private readonly List<ACVehicle> _managedVehicles = new List<ACVehicle>();
         private readonly List<ACPed> _managedPeds = new List<ACPed>();
+        private readonly List<Vehicle> _disposedWrecks = new List<Vehicle>();
         private bool _isActive = true;
         private long _lastInstanceId;
 
@@ -60,6 +61,19 @@ namespace AreaControl.Instances
         }
 
         /// <inheritdoc />
+        public IReadOnlyList<Vehicle> GetAllDisposedWrecks()
+        {
+            return _disposedWrecks.AsReadOnly();
+        }
+
+        /// <inheritdoc />
+        public void RegisterDisposedWreck(Vehicle instance)
+        {
+            Assert.NotNull(instance, "instance cannot be null");
+            _disposedWrecks.Add(instance);
+        }
+
+        /// <inheritdoc />
         public void Dismiss()
         {
             _rage.NewSafeFiber(() =>
@@ -71,7 +85,7 @@ namespace AreaControl.Instances
                         vehicle.DisableSirens();
                         vehicle.Wander();
                     }
-                    
+
                     GameFiber.Sleep(500);
                 }
             }, "EntityManager.Dismiss");
@@ -100,9 +114,11 @@ namespace AreaControl.Instances
                 {
                     var vehiclesToBeRemoved = _managedVehicles.Where(x => !x.Instance.IsValid()).ToList();
                     var pedsToBeRemoved = _managedPeds.Where(x => !x.Instance.IsValid()).ToList();
+                    var disposedWrecksToBeRemoved = _disposedWrecks.Where(x => !x.IsValid()).ToList();
 
                     vehiclesToBeRemoved.ForEach(x => _managedVehicles.Remove(x));
                     pedsToBeRemoved.ForEach(x => _managedPeds.Remove(x));
+                    disposedWrecksToBeRemoved.ForEach(x => _disposedWrecks.Remove(x));
 
                     GameFiber.Sleep(30000);
                 }

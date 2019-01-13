@@ -15,14 +15,15 @@ namespace AreaControl.Duties
         private const float SearchRange = 35f;
         private const string SpeedoModelName = "SPEEDO";
 
-        private readonly IList<Vehicle> _disposedWrecks = new List<Vehicle>();
         private readonly Vector3 _position;
         private readonly IRage _rage;
+        private readonly IEntityManager _entityManager;
         private ACPed _ped;
 
-        internal CleanWrecksDuty(Vector3 position)
+        internal CleanWrecksDuty(Vector3 position, IEntityManager entityManager)
         {
             _position = position;
+            _entityManager = entityManager;
             _rage = IoC.Instance.GetInstance<IRage>();
         }
 
@@ -69,7 +70,7 @@ namespace AreaControl.Duties
                             return AnimationUtil.TalkToRadio(ped);
                         }, 5000)
                         .WaitForCompletion(3000);
-                    _disposedWrecks.Add(wreck);
+                    _entityManager.RegisterDisposedWreck(wreck);
                 }
 
                 _rage.LogTrivialDebug("CleanWrecksDuty completed");
@@ -95,7 +96,7 @@ namespace AreaControl.Duties
         {
             return VehicleQuery
                 .FindVehiclesWithin(_position, SearchRange)
-                .Where(x => !_disposedWrecks.Contains(x))
+                .Where(x => !_entityManager.GetAllDisposedWrecks().Contains(x))
                 .Where(IsWreck)
                 .Where(x => !IsSpeedoModel(x))
                 .ToList();

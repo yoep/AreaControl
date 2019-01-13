@@ -29,6 +29,18 @@ namespace AreaControl.Instances
         IReadOnlyList<ACVehicle> GetAllManagedVehicles();
 
         /// <summary>
+        /// Get all current disposed wrecks.
+        /// </summary>
+        /// <returns>Returns the list of disposed wrecks.</returns>
+        IReadOnlyList<Vehicle> GetAllDisposedWrecks();
+
+        /// <summary>
+        /// Register the given vehicle instance as a disposed wreck.
+        /// </summary>
+        /// <param name="instance">Set the instance to register.</param>
+        void RegisterDisposedWreck(Vehicle instance);
+        
+        /// <summary>
         /// Dismiss all managed vehicles and let them wander around again.
         /// This will make the vehicles and peds be managed by Rage, but this manager will still keep the reference to the instances for potential later use.
         /// </summary>

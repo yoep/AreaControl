@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AreaControl.AbstractionLayer;
+using AreaControl.Instances;
 using Rage;
 
 namespace AreaControl.Duties
@@ -12,13 +13,15 @@ namespace AreaControl.Duties
         private readonly List<IDuty> _duties = new List<IDuty>();
         private readonly List<DutyListener> _dutyListeners = new List<DutyListener>();
         private readonly IRage _rage;
+        private readonly IEntityManager _entityManager;
         private bool _isActive = true;
 
         #region Constructors
 
-        public DutyManager(IRage rage)
+        public DutyManager(IRage rage, IEntityManager entityManager)
         {
             _rage = rage;
+            _entityManager = entityManager;
         }
 
         #endregion
@@ -136,12 +139,12 @@ namespace AreaControl.Duties
             return _duties.Any(x => x.GetType() == duty.GetType());
         }
 
-        private static IEnumerable<IDuty> GetDuties(Vector3 position)
+        private IEnumerable<IDuty> GetDuties(Vector3 position)
         {
             return new List<IDuty>
             {
                 new CleanCorpsesDuty(position),
-                new CleanWrecksDuty(position)
+                new CleanWrecksDuty(position, _entityManager)
             };
         }
 
