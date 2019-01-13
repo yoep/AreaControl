@@ -140,9 +140,7 @@ namespace AreaControl.Instances
         /// </summary>
         public class Lane : IPreviewSupport
         {
-            private Object _previewLeftSide;
-            private Object _previewRightSide;
-            private Object _previewDirection;
+            private readonly List<Object> _previewObjects = new List<Object>();
 
             public Lane(int number, float heading, Vector3 rightSide, Vector3 leftSide, Vector3 nodePosition, float width)
             {
@@ -178,14 +176,14 @@ namespace AreaControl.Instances
             /// Get the position of the node that was used for determining the heading of this lane.
             /// </summary>
             public Vector3 NodePosition { get; }
-
+            
             /// <summary>
             /// Get the width of the lane.
             /// </summary>
             public float Width { get; }
 
             /// <inheritdoc />
-            public bool IsPreviewActive => _previewLeftSide != null;
+            public bool IsPreviewActive => _previewObjects.Count > 0;
 
             /// <inheritdoc />
             public void CreatePreview()
@@ -195,12 +193,11 @@ namespace AreaControl.Instances
 
                 var offsetDirection = MathHelper.ConvertHeadingToDirection(Heading);
 
-                _previewLeftSide = PropUtil.CreateSmallBlankCone(LeftSide + offsetDirection * (2f * Number));
-                _previewRightSide = PropUtil.CreateSmallConeWithStripes(RightSide + offsetDirection * (2f * Number));
-                _previewDirection = PropUtil.CreateBigConeWithStripes(RightSide + offsetDirection * (2f * Number + 2f));
-                PreviewUtil.TransformToPreview(_previewLeftSide);
-                PreviewUtil.TransformToPreview(_previewRightSide);
-                PreviewUtil.TransformToPreview(_previewDirection);
+                _previewObjects.Add(PropUtil.CreateSmallBlankCone(LeftSide + offsetDirection * (2f * Number)));
+                _previewObjects.Add(PropUtil.CreateSmallConeWithStripes(RightSide + offsetDirection * (2f * Number)));
+                _previewObjects.Add(PropUtil.CreateBigConeWithStripes(RightSide + offsetDirection * (2f * Number + 2f)));
+                
+                _previewObjects.ForEach(PreviewUtil.TransformToPreview);
             }
 
             /// <inheritdoc />
@@ -209,12 +206,8 @@ namespace AreaControl.Instances
                 if (!IsPreviewActive)
                     return;
 
-                PropUtil.Remove(_previewLeftSide);
-                PropUtil.Remove(_previewRightSide);
-                PropUtil.Remove(_previewDirection);
-                _previewLeftSide = null;
-                _previewRightSide = null;
-                _previewDirection = null;
+                _previewObjects.ForEach(PropUtil.Remove);
+                _previewObjects.Clear();
             }
 
             public override string ToString()

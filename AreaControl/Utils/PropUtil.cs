@@ -24,34 +24,27 @@ namespace AreaControl.Utils
 
         public static Object CreateSmallBlankCone(Vector3 position)
         {
-            return new Object(new Model("prop_mp_cone_03"), position)
-            {
-                IsPersistent = false
-            };
+            return new Object(new Model("prop_mp_cone_03"), position);
         }
 
         public static Object CreateSmallConeWithStripes(Vector3 position)
         {
-            return new Object(new Model("prop_mp_cone_02"), position)
-            {
-                IsPersistent = false
-            };
+            return new Object(new Model("prop_mp_cone_02"), position);
         }
 
         public static Object CreateBigConeWithStripes(Vector3 position)
         {
-            return new Object(new Model("prop_mp_cone_01"), position)
-            {
-                IsPersistent = false
-            };
+            return new Object(new Model("prop_mp_cone_01"), position);
         }
 
         public static Object CreateLargeThinConeWithStripes(Vector3 position)
         {
-            return new Object(new Model("prop_mp_cone_04"), position)
-            {
-                IsPersistent = false
-            };
+            return new Object(new Model("prop_mp_cone_04"), position);
+        }
+        
+        public static Object CreateBarrier(Vector3 position)
+        {
+            return new Object(new Model("prop_ld_barrier_01"), position);
         }
 
         public static void Remove(Object entity)

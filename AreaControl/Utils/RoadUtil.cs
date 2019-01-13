@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using Rage;
 using Rage.Native;
@@ -9,8 +8,6 @@ namespace AreaControl.Utils
 {
     public static class RoadUtil
     {
-        private static readonly IRage Rage = IoC.Instance.GetInstance<IRage>();
-
         #region Methods
 
         /// <summary>
@@ -42,9 +39,6 @@ namespace AreaControl.Utils
 
             NativeFunction.Natives.GET_CLOSEST_ROAD(position.X, position.Y, position.Z, 1f, 1, out road1, out road2, out numberOfLanes1, out numberOfLanes2,
                 out junctionIndication, (int) roadType);
-            Rage.LogTrivialDebug("numberOfLanes1=" + numberOfLanes1);
-            Rage.LogTrivialDebug("numberOfLanes2=" + numberOfLanes2);
-            Rage.LogTrivialDebug("junctionIndication=" + junctionIndication);
 
             return new List<Road>
             {
@@ -76,12 +70,12 @@ namespace AreaControl.Utils
                 .NumberOfLanes1(numberOfLanes1)
                 .NumberOfLanes2(numberOfLanes2)
                 .JunctionIndicator((int) junctionIndication)
-                .Lanes(DiscoverLanes(roadRightSide, roadLeftSide, rightSideHeading, numberOfLanes1, numberOfLanes2))
+                .Lanes(DiscoverLanes(roadRightSide, roadLeftSide, roadPosition, rightSideHeading, numberOfLanes1, numberOfLanes2))
                 .Build();
         }
 
-        private static List<Road.Lane> DiscoverLanes(Vector3 roadRightSide, Vector3 roadLeftSide, float rightSideHeading, int numberOfLanes1,
-            int numberOfLanes2)
+        private static List<Road.Lane> DiscoverLanes(Vector3 roadRightSide, Vector3 roadLeftSide, Vector3 roadMiddle, float rightSideHeading,
+            int numberOfLanes1, int numberOfLanes2)
         {
             var singleDirection = IsSingleDirectionRoad(numberOfLanes1, numberOfLanes2);
             var lanes = new List<Road.Lane>();
@@ -90,26 +84,40 @@ namespace AreaControl.Utils
             {
                 var numberOfLanes = numberOfLanes1 == 0 ? numberOfLanes2 : numberOfLanes1;
                 var laneWidth = GetWidth(roadRightSide, roadLeftSide) / numberOfLanes;
-                var lastRightPosition = roadRightSide;
-                var moveDirection = MathHelper.ConvertHeadingToDirection(rightSideHeading + 90f);
-
-                for (var index = 1; index <= numberOfLanes; index++)
-                {
-                    var laneLeftPosition = lastRightPosition + moveDirection * laneWidth;
-                    var vehicleNode = GetVehicleNode(lastRightPosition);
-                    lanes.Add(LaneBuilder.Builder()
-                        .Number(index)
-                        .Heading(vehicleNode.Heading)
-                        .RightSide(lastRightPosition)
-                        .LeftSide(laneLeftPosition)
-                        .NodePosition(vehicleNode.Position)
-                        .Width(laneWidth)
-                        .Build());
-                    lastRightPosition = laneLeftPosition;
-                }
+                lanes.AddRange(CreateLanes(roadRightSide, rightSideHeading, numberOfLanes, laneWidth, false));
             }
             else
             {
+                var laneWidthRight = GetWidth(roadRightSide, roadMiddle) / numberOfLanes1;
+                var laneWidthLeft = GetWidth(roadMiddle, roadLeftSide) / numberOfLanes2;
+
+                lanes.AddRange(CreateLanes(roadRightSide, rightSideHeading, numberOfLanes1, laneWidthRight, false));
+                lanes.AddRange(CreateLanes(roadMiddle, rightSideHeading, numberOfLanes2, laneWidthLeft, true));
+            }
+
+            return lanes;
+        }
+
+        private static IEnumerable<Road.Lane> CreateLanes(Vector3 roadRightSide, float rightSideHeading, int numberOfLanes, float laneWidth, bool isOpposite)
+        {
+            var lastRightPosition = roadRightSide;
+            var moveDirection = MathHelper.ConvertHeadingToDirection(rightSideHeading + 90f);
+            var lanes = new List<Road.Lane>();
+
+            for (var index = 1; index <= numberOfLanes; index++)
+            {
+                var laneLeftPosition = lastRightPosition + moveDirection * laneWidth;
+                var vehicleNode = GetVehicleNode(lastRightPosition);
+                var heading = isOpposite ? (vehicleNode.Heading + 180) % 360 : vehicleNode.Heading;
+                lanes.Add(LaneBuilder.Builder()
+                    .Number(index)
+                    .Heading(heading)
+                    .RightSide(lastRightPosition)
+                    .LeftSide(laneLeftPosition)
+                    .NodePosition(vehicleNode.Position)
+                    .Width(laneWidth)
+                    .Build());
+                lastRightPosition = laneLeftPosition;
             }
 
             return lanes;
@@ -121,7 +129,6 @@ namespace AreaControl.Utils
         {
             var widthOtherSide = Vector3.Distance2D(roadPosition, otherSidePosition);
             var directionOfTheSideToFix = MathHelper.ConvertHeadingToDirection(heading);
-            Rage.LogTrivial("Last Point calculation failed, executing fix for road at " + roadPosition);
             return roadPosition + directionOfTheSideToFix * widthOtherSide;
         }
 
@@ -199,11 +206,6 @@ namespace AreaControl.Utils
         /// The last point that was check and was still on the road.
         /// </summary>
         public Vector3 LastPointOnRoad { get; set; }
-
-        public override string ToString()
-        {
-            return $"{nameof(LastCheckedPoint)}: {LastCheckedPoint}, {nameof(LastPointOnRoad)}: {LastPointOnRoad}";
-        }
     }
 
     internal class VehicleNodeResult
@@ -217,11 +219,6 @@ namespace AreaControl.Utils
         /// The heading of the vehicle node.
         /// </summary>
         public float Heading { get; set; }
-
-        public override string ToString()
-        {
-            return $"{nameof(Position)}: {Position}, {nameof(Heading)}: {Heading}";
-        }
     }
 
     internal class RoadBuilder
