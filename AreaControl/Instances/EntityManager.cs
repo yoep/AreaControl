@@ -120,7 +120,7 @@ namespace AreaControl.Instances
                     pedsToBeRemoved.ForEach(x => _managedPeds.Remove(x));
                     disposedWrecksToBeRemoved.ForEach(x => _disposedWrecks.Remove(x));
 
-                    GameFiber.Sleep(30000);
+                    GameFiber.Sleep(2000);
                 }
             }, "EntityManager");
         }
