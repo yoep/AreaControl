@@ -58,7 +58,8 @@ namespace AreaControl
         {
             IoC.Instance
                 .Register<ICloseRoadPreview>(typeof(CloseRoadPreview))
-                .Register<IMenuComponent>(typeof(RoadInfo));
+                .Register<IMenuComponent>(typeof(RoadInfo))
+                .Register<IMenuComponent>(typeof(RoadPreview));
         }
     }
 }

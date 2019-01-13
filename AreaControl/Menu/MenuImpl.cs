@@ -47,21 +47,6 @@ namespace AreaControl.Menu
             AreaControlMenu.AddItem(component.MenuItem);
         }
 
-        /// <inheritdoc />
-        public void ReplaceComponent(IMenuComponent originalComponent, IMenuComponent newComponent)
-        {
-            if (!MenuItems.Contains(originalComponent))
-                return;
-
-            var index = AreaControlMenu.MenuItems.IndexOf(originalComponent.MenuItem);
-            _rage.LogTrivialDebug("Replacing menu item at index " + index);
-
-            AreaControlMenu.AddItem(newComponent.MenuItem, index);
-            RemoveItemFromMenu(originalComponent);
-            MenuItems.Remove(originalComponent);
-            MenuItems.Add(newComponent);
-        }
-
         #endregion
 
         #region Functions

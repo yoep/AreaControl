@@ -34,27 +34,29 @@ namespace AreaControl.Utils
             Assert.NotNull(roadType, "roadType cannot be null");
             Vector3 road1;
             Vector3 road2;
-            int p7;
-            int p8;
+            int numberOfLanes1;
+            int numberOfLanes2;
             float junctionIndication;
 
-            NativeFunction.Natives.GET_CLOSEST_ROAD(position.X, position.Y, position.Z, 1f, 1, out road1, out road2, out p7, out p8, out junctionIndication,
-                (int) roadType);
+            NativeFunction.Natives.GET_CLOSEST_ROAD(position.X, position.Y, position.Z, 1f, 1, out road1, out road2, out numberOfLanes1, out numberOfLanes2,
+                out junctionIndication, (int) roadType);
             var rage = IoC.Instance.GetInstance<IRage>();
-            rage.LogTrivialDebug("p7=" + p7);
-            rage.LogTrivialDebug("p8=" + p8);
-            rage.LogTrivialDebug("p9=" + junctionIndication);
+            rage.LogTrivialDebug("numberOfLanes1=" + numberOfLanes1);
+            rage.LogTrivialDebug("numberOfLanes2=" + numberOfLanes2);
+            rage.LogTrivialDebug("junctionIndication=" + junctionIndication);
 
             return new List<Road>
             {
                 RoadBuilder.Builder()
                     .Position(road1)
                     .IsAtJunction((int) junctionIndication != 0)
+                    .IsSingleDirection(IsSingleDirectionRoad(numberOfLanes1, numberOfLanes2))
                     .Lanes(DiscoverLanes(road1))
                     .Build(),
                 RoadBuilder.Builder()
                     .Position(road2)
                     .IsAtJunction((int) junctionIndication != 0)
+                    .IsSingleDirection(IsSingleDirectionRoad(numberOfLanes1, numberOfLanes2))
                     .Lanes(DiscoverLanes(road2))
                     .Build()
             };
@@ -121,6 +123,11 @@ namespace AreaControl.Utils
             return Vector3.Distance(point1, point2);
         }
 
+        private static bool IsSingleDirectionRoad(int numberOfLanes1, int numberOfLanes2)
+        {
+            return numberOfLanes1 == 0 || numberOfLanes2 == 0;
+        }
+
         #endregion
     }
 
@@ -129,6 +136,7 @@ namespace AreaControl.Utils
         private readonly List<Road.Lane> _lanes = new List<Road.Lane>();
         private Vector3 _position;
         private bool _isAtJunction;
+        private bool _isSingleDirection;
 
         private RoadBuilder()
         {
@@ -152,6 +160,12 @@ namespace AreaControl.Utils
             return this;
         }
 
+        public RoadBuilder IsSingleDirection(bool value)
+        {
+            _isSingleDirection = value;
+            return this;
+        }
+
         public RoadBuilder Lanes(List<Road.Lane> lanes)
         {
             Assert.NotNull(lanes, "lanes cannot be null");
@@ -168,7 +182,8 @@ namespace AreaControl.Utils
 
         public Road Build()
         {
-            return new Road(_position, _lanes.AsReadOnly(), _isAtJunction);
+            Assert.NotNull(_position, "position has not been set");
+            return new Road(_position, _lanes.AsReadOnly(), _isAtJunction, _isSingleDirection);
         }
     }
 

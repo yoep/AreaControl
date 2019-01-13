@@ -11,11 +11,12 @@ namespace AreaControl.Instances
     {
         #region Constructors
 
-        internal Road(Vector3 position, IReadOnlyList<Lane> lanes, bool isAtJunction)
+        internal Road(Vector3 position, IReadOnlyList<Lane> lanes, bool isAtJunction, bool isSingleDirection)
         {
             Position = position;
             Lanes = lanes;
             IsAtJunction = isAtJunction;
+            IsSingleDirection = isSingleDirection;
         }
 
         #endregion
@@ -45,12 +46,17 @@ namespace AreaControl.Instances
         /// </summary>
         public bool IsAtJunction { get; }
 
-        /// <inheritdoc />
-        public bool IsPreviewActive => Lanes.Select(x => x.IsPreviewActive).First();
+        /// <summary>
+        /// Check if the road goes in one direction (no opposite lane present).
+        /// </summary>
+        public bool IsSingleDirection { get; }
 
         #endregion
 
         #region IPreviewSupport implementation
+
+        /// <inheritdoc />
+        public bool IsPreviewActive => Lanes.Select(x => x.IsPreviewActive).First();
 
         /// <inheritdoc />
         public void CreatePreview()
@@ -76,9 +82,10 @@ namespace AreaControl.Instances
         {
             var message = Environment.NewLine + $"{nameof(Position)}: {Position}," +
                           Environment.NewLine + $"{nameof(IsAtJunction)}: {IsAtJunction}," +
+                          Environment.NewLine + $"{nameof(IsSingleDirection)}: {IsSingleDirection}," +
                           Environment.NewLine + $"{nameof(Width)}: {Width}" +
                           Environment.NewLine + "--- Lanes ---";
-            return Lanes.Aggregate(message, (current, lane) => current + (Environment.NewLine + lane));
+            return Lanes.Aggregate(message, (current, lane) => current + (Environment.NewLine + lane)) + Environment.NewLine + "---";
         }
 
         /// <summary>

@@ -36,13 +36,35 @@ namespace AreaControl.Actions.CloseRoad
         public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ActionCloseRoad);
 
         /// <inheritdoc />
-        public override bool IsVisible => !IsActive;
+        public override bool IsVisible => true;
 
         /// <inheritdoc />
         public override void OnMenuActivation(IMenu sender)
         {
+            if (IsActive)
+            {
+                OpenRoad();
+            }
+            else
+            {
+                CloseRoad();
+            }
+        }
+
+        #endregion
+
+        private void OpenRoad()
+        {
+            MenuItem.Text = AreaControl.ActionCloseRoad;
+            Functions.PlayScannerAudio("WE_ARE_CODE_4");
+            _dutyManager.DismissDuties();
+            IsActive = false;
+        }
+
+        private void CloseRoad()
+        {
             IsActive = true;
-            sender.ReplaceComponent(this, new OpenRoad(this));
+            MenuItem.Text = AreaControl.ActionOpenRoad;
             Rage.NewSafeFiber(() =>
             {
                 Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
@@ -50,19 +72,6 @@ namespace AreaControl.Actions.CloseRoad
                 SpawnBlockSlots(blockSlots);
             }, "AreaControl.CloseRoad");
         }
-
-        #endregion
-
-        #region ICloseRoad implementation
-
-        /// <inheritdoc />
-        public override void OpenRoad()
-        {
-            _dutyManager.DismissDuties();
-            IsActive = false;
-        }
-
-        #endregion
 
         private void SpawnBlockSlots(ICollection<BlockSlot> blockSlots)
         {
@@ -79,7 +88,7 @@ namespace AreaControl.Actions.CloseRoad
                         var positionBehindSlot = GetPositionBehindSlot(slot, index);
                         var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius);
                         Rage.LogTrivialDebug("Using vehicle " + vehicle + " for block slot " + index);
-                        
+
                         MoveToSlot(vehicle, slot);
                         AssignRedirectTrafficDutyToDriver(vehicle, slot);
                         AssignAvailableDutiesToPassengers(vehicle, slot);

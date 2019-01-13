@@ -16,7 +16,7 @@ namespace AreaControl.Debug
         }
 
         /// <inheritdoc />
-        public UIMenuItem MenuItem => new UIMenuItem(AreaControl.RoadInfo);
+        public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.RoadInfo);
 
         /// <inheritdoc />
         public bool IsAutoClosed => true;

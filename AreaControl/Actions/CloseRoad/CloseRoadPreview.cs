@@ -23,13 +23,40 @@ namespace AreaControl.Actions.CloseRoad
         public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ActionCloseRoadPreview);
 
         /// <inheritdoc />
-        public override bool IsVisible => !IsActive;
+        public override bool IsVisible => true;
 
         /// <inheritdoc />
         public override void OnMenuActivation(IMenu sender)
         {
+            if (IsActive)
+            {
+                RemovePreview();
+            }
+            else
+            {
+                CreatePreview();
+            }
+        }
+
+        #endregion
+
+        private void RemovePreview()
+        {
+            _road.DeletePreview();
+
+            foreach (var blockSlot in _blockSlots)
+            {
+                blockSlot.DeletePreview();
+            }
+
+            MenuItem.Text = AreaControl.ActionCloseRoadPreview;
+            IsActive = false;
+        }
+
+        private void CreatePreview()
+        {
             IsActive = true;
-            sender.ReplaceComponent(this, new RemoveCloseRoadPreview(this));
+            MenuItem.Text = AreaControl.ActionRemoveCloseRoadPreview;
             Rage.NewSafeFiber(() =>
             {
                 _road = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
@@ -42,24 +69,5 @@ namespace AreaControl.Actions.CloseRoad
                 }
             }, "AreaControl.CloseRoadPreview");
         }
-
-        #endregion
-
-        #region ICloseRoad implementation
-
-        /// <inheritdoc />
-        public override void OpenRoad()
-        {
-            _road.DeletePreview();
-
-            foreach (var blockSlot in _blockSlots)
-            {
-                blockSlot.DeletePreview();
-            }
-
-            IsActive = false;
-        }
-
-        #endregion
     }
 }

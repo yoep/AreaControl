@@ -46,9 +46,6 @@ namespace AreaControl.Actions.CloseRoad
         /// <inheritdoc />
         public bool IsActive { get; protected set; }
 
-        /// <inheritdoc />
-        public abstract void OpenRoad();
-
         #endregion
 
         protected ICollection<BlockSlot> DetermineBlockSlots()
