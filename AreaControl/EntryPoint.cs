@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
 using AreaControl.Actions.CloseRoad;
+using AreaControl.Debug;
 using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Menu;
@@ -56,7 +57,8 @@ namespace AreaControl
         private static void InitializeDebugComponents()
         {
             IoC.Instance
-                .Register<ICloseRoadPreview>(typeof(CloseRoadPreview));
+                .Register<ICloseRoadPreview>(typeof(CloseRoadPreview))
+                .Register<IMenuComponent>(typeof(RoadInfo));
         }
     }
 }

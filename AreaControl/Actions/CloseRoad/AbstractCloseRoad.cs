@@ -12,7 +12,7 @@ namespace AreaControl.Actions.CloseRoad
     public abstract class AbstractCloseRoad : ICloseRoad
     {
         private const float CarSize = 5.5f;
-        private const float DistanceFromPlayer = 10f;
+        private const float DistanceFromPlayer = 25f;
 
         protected readonly IRage Rage;
 
@@ -68,6 +68,8 @@ namespace AreaControl.Actions.CloseRoad
                     blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
                     placementPosition = placementPosition + direction * CarSize;
                 }
+
+                Rage.LogTrivialDebug("Heading in regards to player: " + MathHelper.ConvertDirectionToHeading((Game.LocalPlayer.Character.Position - road.Position)));
             }
 
             Rage.LogTrivialDebug("Created " + blockSlots.Count + " block slot(s)");

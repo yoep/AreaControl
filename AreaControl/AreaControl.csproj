@@ -64,6 +64,7 @@
     <Compile Include="Actions\RoadBlock\RoadBlockImpl.cs" />
     <Compile Include="AreaControl.cs" />
     <Compile Include="Assert.cs" />
+    <Compile Include="Debug\RoadInfo.cs" />
     <Compile Include="Duties\CleanCorpsesDuty.cs" />
     <Compile Include="Duties\CleanWrecksDuty.cs" />
     <Compile Include="Duties\DutyManager.cs" />
