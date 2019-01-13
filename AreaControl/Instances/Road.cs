@@ -13,14 +13,16 @@ namespace AreaControl.Instances
 
         #region Constructors
 
-        internal Road(Vector3 position, Vector3 rightSide, Vector3 leftSide, IReadOnlyList<Lane> lanes, bool isAtJunction, bool isSingleDirection)
+        internal Road(Vector3 position, Vector3 rightSide, Vector3 leftSide, IReadOnlyList<Lane> lanes, int numberOfLanes1, int numberOfLanes2,
+            int junctionIndicator)
         {
             Position = position;
             RightSide = rightSide;
             LeftSide = leftSide;
             Lanes = lanes;
-            IsAtJunction = isAtJunction;
-            IsSingleDirection = isSingleDirection;
+            NumberOfLanes1 = numberOfLanes1;
+            NumberOfLanes2 = numberOfLanes2;
+            JunctionIndicator = junctionIndicator;
         }
 
         #endregion
@@ -48,6 +50,21 @@ namespace AreaControl.Instances
         public IReadOnlyList<Lane> Lanes { get; }
 
         /// <summary>
+        /// Get the total number of lanes.
+        /// </summary>
+        public int NumberOfLanes1 { get; }
+
+        /// <summary>
+        /// Get the total number of lanes.
+        /// </summary>
+        public int NumberOfLanes2 { get; }
+
+        /// <summary>
+        /// Get the junction indicator.
+        /// </summary>
+        public int JunctionIndicator { get; }
+
+        /// <summary>
         /// Get or set the width of the road.
         /// </summary>
         public float Width
@@ -58,12 +75,12 @@ namespace AreaControl.Instances
         /// <summary>
         /// Check if the road position is at a junction.
         /// </summary>
-        public bool IsAtJunction { get; }
+        public bool IsAtJunction => JunctionIndicator != 0;
 
         /// <summary>
         /// Check if the road goes in one direction (no opposite lane present).
         /// </summary>
-        public bool IsSingleDirection { get; }
+        public bool IsSingleDirection => IsSingleDirectionRoad();
 
         #endregion
 
@@ -103,11 +120,19 @@ namespace AreaControl.Instances
             var message = Environment.NewLine + $"{nameof(Position)}: {Position}," +
                           Environment.NewLine + $"{nameof(RightSide)}: {RightSide}," +
                           Environment.NewLine + $"{nameof(LeftSide)}: {LeftSide}," +
+                          Environment.NewLine + $"{nameof(NumberOfLanes1)}: {NumberOfLanes1}," +
+                          Environment.NewLine + $"{nameof(NumberOfLanes2)}: {NumberOfLanes2}," +
+                          Environment.NewLine + $"{nameof(JunctionIndicator)}: {JunctionIndicator}," +
                           Environment.NewLine + $"{nameof(IsAtJunction)}: {IsAtJunction}," +
                           Environment.NewLine + $"{nameof(IsSingleDirection)}: {IsSingleDirection}," +
                           Environment.NewLine + $"{nameof(Width)}: {Width}" +
                           Environment.NewLine + "--- Lanes ---" + Environment.NewLine;
             return Lanes.Aggregate(message, (current, lane) => current + (Environment.NewLine + lane)) + Environment.NewLine + "---";
+        }
+
+        private bool IsSingleDirectionRoad()
+        {
+            return NumberOfLanes1 == 0 || NumberOfLanes2 == 0;
         }
 
         /// <summary>
@@ -119,12 +144,13 @@ namespace AreaControl.Instances
             private Object _previewRightSide;
             private Object _previewDirection;
 
-            public Lane(int number, float heading, Vector3 rightSide, Vector3 leftSide, float width)
+            public Lane(int number, float heading, Vector3 rightSide, Vector3 leftSide, Vector3 nodePosition, float width)
             {
                 Number = number;
                 Heading = heading;
                 RightSide = rightSide;
                 LeftSide = leftSide;
+                NodePosition = nodePosition;
                 Width = width;
             }
 
@@ -147,6 +173,11 @@ namespace AreaControl.Instances
             /// Get the left side start position of the lane.
             /// </summary>
             public Vector3 LeftSide { get; }
+            
+            /// <summary>
+            /// Get the position of the node that was used for determining the heading of this lane.
+            /// </summary>
+            public Vector3 NodePosition { get; }
 
             /// <summary>
             /// Get the width of the lane.
@@ -192,6 +223,7 @@ namespace AreaControl.Instances
                        $"{nameof(Heading)}: {Heading}," + Environment.NewLine +
                        $"{nameof(RightSide)}: {RightSide}," + Environment.NewLine +
                        $"{nameof(LeftSide)}: {LeftSide}," + Environment.NewLine +
+                       $"{nameof(NodePosition)}: {NodePosition}," + Environment.NewLine +
                        $"{nameof(Width)}: {Width}," + Environment.NewLine +
                        $"{nameof(IsPreviewActive)}: {IsPreviewActive}" + Environment.NewLine;
             }

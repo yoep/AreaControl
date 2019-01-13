@@ -9,6 +9,8 @@ namespace AreaControl.Utils
 {
     public static class RoadUtil
     {
+        private static readonly IRage Rage = IoC.Instance.GetInstance<IRage>();
+
         #region Methods
 
         /// <summary>
@@ -40,10 +42,9 @@ namespace AreaControl.Utils
 
             NativeFunction.Natives.GET_CLOSEST_ROAD(position.X, position.Y, position.Z, 1f, 1, out road1, out road2, out numberOfLanes1, out numberOfLanes2,
                 out junctionIndication, (int) roadType);
-            var rage = IoC.Instance.GetInstance<IRage>();
-            rage.LogTrivialDebug("numberOfLanes1=" + numberOfLanes1);
-            rage.LogTrivialDebug("numberOfLanes2=" + numberOfLanes2);
-            rage.LogTrivialDebug("junctionIndication=" + junctionIndication);
+            Rage.LogTrivialDebug("numberOfLanes1=" + numberOfLanes1);
+            Rage.LogTrivialDebug("numberOfLanes2=" + numberOfLanes2);
+            Rage.LogTrivialDebug("junctionIndication=" + junctionIndication);
 
             return new List<Road>
             {
@@ -58,10 +59,9 @@ namespace AreaControl.Utils
 
         private static Road DiscoverRoad(Vector3 roadPosition, int numberOfLanes1, int numberOfLanes2, float junctionIndication)
         {
-            var rightSideHeading = GetHeading(roadPosition);
+            var rightSideHeading = GetVehicleNode(roadPosition).Heading;
             var roadRightSide = GetLastPointOnTheLane(roadPosition, rightSideHeading - 90f);
             var roadLeftSide = GetLastPointOnTheLane(roadPosition, rightSideHeading + 90f);
-            var singleDirection = IsSingleDirectionRoad(numberOfLanes1, numberOfLanes2);
 
             //Fix a side if it's the same as the middle of the road as GetLastPointOnTheLane probably failed to determine the last point
             if (roadRightSide == roadPosition)
@@ -73,8 +73,9 @@ namespace AreaControl.Utils
                 .Position(roadPosition)
                 .RightSide(roadRightSide)
                 .LeftSide(roadLeftSide)
-                .IsAtJunction((int) junctionIndication != 0)
-                .IsSingleDirection(singleDirection)
+                .NumberOfLanes1(numberOfLanes1)
+                .NumberOfLanes2(numberOfLanes2)
+                .JunctionIndicator((int) junctionIndication)
                 .Lanes(DiscoverLanes(roadRightSide, roadLeftSide, rightSideHeading, numberOfLanes1, numberOfLanes2))
                 .Build();
         }
@@ -95,11 +96,13 @@ namespace AreaControl.Utils
                 for (var index = 1; index <= numberOfLanes; index++)
                 {
                     var laneLeftPosition = lastRightPosition + moveDirection * laneWidth;
+                    var vehicleNode = GetVehicleNode(lastRightPosition);
                     lanes.Add(LaneBuilder.Builder()
                         .Number(index)
-                        .Heading(rightSideHeading)
+                        .Heading(vehicleNode.Heading)
                         .RightSide(lastRightPosition)
                         .LeftSide(laneLeftPosition)
+                        .NodePosition(vehicleNode.Position)
                         .Width(laneWidth)
                         .Build());
                     lastRightPosition = laneLeftPosition;
@@ -107,7 +110,6 @@ namespace AreaControl.Utils
             }
             else
             {
-                
             }
 
             return lanes;
@@ -119,20 +121,40 @@ namespace AreaControl.Utils
         {
             var widthOtherSide = Vector3.Distance2D(roadPosition, otherSidePosition);
             var directionOfTheSideToFix = MathHelper.ConvertHeadingToDirection(heading);
+            Rage.LogTrivial("Last Point calculation failed, executing fix for road at " + roadPosition);
             return roadPosition + directionOfTheSideToFix * widthOtherSide;
         }
 
-        private static float GetHeading(Vector3 position)
+        private static VehicleNodeResult GetVehicleNode(Vector3 position)
         {
-            Vector3 roadPosition;
-            float heading;
+            Vector3 nodePosition;
+            float nodeHeading;
 
-            NativeFunction.Natives.GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(position.X, position.Y, position.Z, out roadPosition, out heading, 1, 3, 0);
+            NativeFunction.Natives.GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(position.X, position.Y, position.Z, out nodePosition, out nodeHeading, 1, 3, 0);
 
-            return MathHelper.NormalizeHeading(heading);
+            return new VehicleNodeResult
+            {
+                Position = nodePosition,
+                Heading = MathHelper.NormalizeHeading(nodeHeading)
+            };
         }
 
         private static Vector3 GetLastPointOnTheLane(Vector3 position, float heading)
+        {
+            var checkInterval = 5f;
+            var lastPositionOnTheRoad = position;
+
+            do
+            {
+                var lastPointResult = DetermineLastPointOnLane(lastPositionOnTheRoad, heading, checkInterval);
+                lastPositionOnTheRoad = lastPointResult.LastPointOnRoad;
+                checkInterval /= 2;
+            } while (checkInterval > 0.1f);
+
+            return lastPositionOnTheRoad;
+        }
+
+        private static LastPointResult DetermineLastPointOnLane(Vector3 position, float heading, float checkInterval)
         {
             var currentPosition = position;
             var direction = MathHelper.ConvertHeadingToDirection(heading);
@@ -142,11 +164,15 @@ namespace AreaControl.Utils
             do
             {
                 lastPositionOnTheRoad = currentPosition;
-                currentPosition = currentPosition + direction * 0.5f;
+                currentPosition = currentPosition + direction * checkInterval;
                 isPointOnRoad = NativeFunction.Natives.IS_POINT_ON_ROAD<bool>(currentPosition.X, currentPosition.Y, currentPosition.Z);
             } while (isPointOnRoad);
 
-            return lastPositionOnTheRoad;
+            return new LastPointResult
+            {
+                LastCheckedPoint = currentPosition,
+                LastPointOnRoad = lastPositionOnTheRoad
+            };
         }
 
         private static float GetWidth(Vector3 point1, Vector3 point2)
@@ -162,14 +188,51 @@ namespace AreaControl.Utils
         #endregion
     }
 
+    internal class LastPointResult
+    {
+        /// <summary>
+        /// The last point that was checked and was not on the road anymore.
+        /// </summary>
+        public Vector3 LastCheckedPoint { get; set; }
+
+        /// <summary>
+        /// The last point that was check and was still on the road.
+        /// </summary>
+        public Vector3 LastPointOnRoad { get; set; }
+
+        public override string ToString()
+        {
+            return $"{nameof(LastCheckedPoint)}: {LastCheckedPoint}, {nameof(LastPointOnRoad)}: {LastPointOnRoad}";
+        }
+    }
+
+    internal class VehicleNodeResult
+    {
+        /// <summary>
+        /// The position of the vehicle node.
+        /// </summary>
+        public Vector3 Position { get; set; }
+
+        /// <summary>
+        /// The heading of the vehicle node.
+        /// </summary>
+        public float Heading { get; set; }
+
+        public override string ToString()
+        {
+            return $"{nameof(Position)}: {Position}, {nameof(Heading)}: {Heading}";
+        }
+    }
+
     internal class RoadBuilder
     {
         private readonly List<Road.Lane> _lanes = new List<Road.Lane>();
         private Vector3 _position;
         private Vector3 _rightSide;
         private Vector3 _leftSide;
-        private bool _isAtJunction;
-        private bool _isSingleDirection;
+        private int _numberOfLanes1;
+        private int _numberOfLanes2;
+        private int _junctionIndicator;
 
         private RoadBuilder()
         {
@@ -201,15 +264,21 @@ namespace AreaControl.Utils
             return this;
         }
 
-        public RoadBuilder IsAtJunction(bool value)
+        public RoadBuilder NumberOfLanes1(int value)
         {
-            _isAtJunction = value;
+            _numberOfLanes1 = value;
             return this;
         }
 
-        public RoadBuilder IsSingleDirection(bool value)
+        public RoadBuilder NumberOfLanes2(int value)
         {
-            _isSingleDirection = value;
+            _numberOfLanes2 = value;
+            return this;
+        }
+
+        public RoadBuilder JunctionIndicator(int value)
+        {
+            _junctionIndicator = value;
             return this;
         }
 
@@ -220,17 +289,12 @@ namespace AreaControl.Utils
             return this;
         }
 
-        public RoadBuilder AddLane(Road.Lane lane)
-        {
-            Assert.NotNull(lane, "lane cannot be null");
-            _lanes.Add(lane);
-            return this;
-        }
-
         public Road Build()
         {
             Assert.NotNull(_position, "position has not been set");
-            return new Road(_position, _rightSide, _leftSide, _lanes.AsReadOnly(), _isAtJunction, _isSingleDirection);
+            Assert.NotNull(_rightSide, "rightSide has not been set");
+            Assert.NotNull(_leftSide, "leftSide has not been set");
+            return new Road(_position, _rightSide, _leftSide, _lanes.AsReadOnly(), _numberOfLanes1, _numberOfLanes2, _junctionIndicator);
         }
     }
 
@@ -240,6 +304,7 @@ namespace AreaControl.Utils
         private float _heading;
         private Vector3 _rightSide;
         private Vector3 _leftSide;
+        private Vector3 _nodePosition;
         private float _width;
 
         private LaneBuilder()
@@ -278,6 +343,13 @@ namespace AreaControl.Utils
             return this;
         }
 
+        public LaneBuilder NodePosition(Vector3 position)
+        {
+            Assert.NotNull(position, "position cannot be null");
+            _nodePosition = position;
+            return this;
+        }
+
         public LaneBuilder Width(float width)
         {
             Assert.NotNull(width, "width cannot be null");
@@ -287,7 +359,7 @@ namespace AreaControl.Utils
 
         public Road.Lane Build()
         {
-            return new Road.Lane(_number, _heading, _rightSide, _leftSide, _width);
+            return new Road.Lane(_number, _heading, _rightSide, _leftSide, _nodePosition, _width);
         }
     }
 }
