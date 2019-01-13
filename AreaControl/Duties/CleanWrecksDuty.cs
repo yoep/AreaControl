@@ -54,6 +54,10 @@ namespace AreaControl.Duties
                 _rage.LogTrivialDebug("Executing CleanWrecksDuty...");
                 foreach (var wreck in wrecks)
                 {
+                    _rage.LogTrivialDebug("Making wreck persistent...");
+                    //make the wreck persistent as the game likes to remove it suddenly making this duty crash :(
+                    wreck.IsPersistent = true;
+                    
                     _rage.LogTrivialDebug("Going to wreck " + (wrecks.IndexOf(wreck) + 1) + " of " + wrecks.Count);
                     ped.WalkTo(wreck)
                         .WaitForAndExecute(taskExecutor =>
