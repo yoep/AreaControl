@@ -9,6 +9,8 @@ namespace AreaControl.Menu
     {
         private const string ResponseCodeValue = "Code";
         private const string RespondCodeAudio = "UNITS_RESPOND_CODE_0";
+        private const float VehicleNormalSpeed = 30f;
+        private const float VehicleEmergencySpeed = 45f;
 
         private readonly IRage _rage;
         private bool _isActive = true;
@@ -25,9 +27,17 @@ namespace AreaControl.Menu
 
         #region Properties
 
+        /// <inheritdoc />
         public ResponseCode ResponseCode { get; private set; }
 
+        /// <inheritdoc />
         public string ResponseCodeAudio => GetResponseCodeAudio();
+
+        /// <inheritdoc />
+        public float VehicleSpeed => ResponseCode == ResponseCode.Code2 ? VehicleNormalSpeed : VehicleEmergencySpeed;
+
+        /// <inheritdoc />
+        public VehicleDrivingFlags VehicleDrivingFlags => ResponseCode == ResponseCode.Code2 ? VehicleDrivingFlags.Normal : VehicleDrivingFlags.Emergency;
 
         #endregion
 
@@ -59,7 +69,7 @@ namespace AreaControl.Menu
         }
 
         #endregion
-        
+
         #region Functions
 
         [IoC.PostConstruct]

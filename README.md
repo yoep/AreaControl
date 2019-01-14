@@ -8,14 +8,15 @@ You can request the road to be closed, which will call backup units to close and
 Closes the road closest to the player & cleans the road area from wrecks and death bodies (integration with Arrest Manager).
 
 - Calls backup vehicles for closing the road (securing the area & redirecting the traffic)
-- Auto call coroner service for death bodies 
-- Auto call tow trucks for wrecks
+- Auto call coroner service for death bodies (animated)
+- Auto call tow trucks for wrecks (animated)
 - Reopen the closed road
 
 ### Redirect Traffic
 Redirects the traffic from the side of the road. This will make it safer for you to work.
 
-- Call one backup vehicle which will redirect the traffic 
+- Call one backup vehicle which will redirect the traffic
+- Auto places cones for redirecting the traffic (optional)
 
 ## Planned Features
 
@@ -27,5 +28,9 @@ Redirects the traffic from the side of the road. This will make it safer for you
 
 ## Dependencies
 - [RAGE Plugin Hook](http://ragepluginhook.net/)
+- [RAGE Native UI](https://github.com/alexguirre/RAGENativeUI)
 - [LSPDFR](https://www.lcpdfr.com/files/file/7792-lspd-first-response/)
 - [Arrest Manager](https://www.lcpdfr.com/files/file/8107-arrest-manager-grab-peds-more-jail-points-prisoner-transport-more/)
+
+## Suggestions
+**Area Control** is in early development, so feel free to make suggestion or ask for new features.

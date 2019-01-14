@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
 using AreaControl.Actions.CloseRoad;
+using AreaControl.Actions.RedirectTraffic;
 using AreaControl.Debug;
 using AreaControl.Duties;
 using AreaControl.Instances;
@@ -50,7 +51,8 @@ namespace AreaControl
                 .RegisterSingleton<IEntityManager>(typeof(EntityManager))
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
                 .RegisterSingleton<IDutyManager>(typeof(DutyManager))
-                .Register<ICloseRoad>(typeof(CloseRoadImpl));
+                .Register<ICloseRoad>(typeof(CloseRoadImpl))
+                .Register<IRedirectTraffic>(typeof(RedirectTrafficImpl));
         }
 
         [Conditional("DEBUG")]
@@ -59,7 +61,8 @@ namespace AreaControl
             IoC.Instance
                 .Register<ICloseRoadPreview>(typeof(CloseRoadPreview))
                 .Register<IMenuComponent>(typeof(RoadInfo))
-                .Register<IMenuComponent>(typeof(RoadPreview));
+                .Register<IMenuComponent>(typeof(RoadPreview))
+                .Register<IMenuComponent>(typeof(RedirectTrafficPreview));
         }
     }
 }

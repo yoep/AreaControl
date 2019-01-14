@@ -31,10 +31,11 @@ namespace AreaControl.Instances
         #region Methods
 
         /// <inheritdoc />
-        public ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, float radius)
+        public ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, float radius, int numberOfOccupantsToSpawn)
         {
             Assert.NotNull(position, "position cannot be null");
             Assert.IsPositive(radius, "radius must be a positive number");
+            Assert.IsPositive(numberOfOccupantsToSpawn, "numberOfOccupantsToSpawn must be a positive number");
             var controlledVehicle = FindAvailableManagedVehicle(position, radius);
 
             if (controlledVehicle != null)
@@ -45,7 +46,7 @@ namespace AreaControl.Instances
 
             var vehicle = FindAvailablePoliceVehicleInWorld(position, radius);
 
-            return vehicle != null ? RegisterVehicle(vehicle) : CreateVehicleWithOccupants(GetStreetAt(spawnPosition));
+            return vehicle != null ? RegisterVehicle(vehicle) : CreateVehicleWithOccupants(GetStreetAt(spawnPosition), numberOfOccupantsToSpawn);
         }
 
         /// <inheritdoc />
@@ -80,8 +81,9 @@ namespace AreaControl.Instances
             {
                 while (_managedVehicles.Any(x => !x.IsWandering))
                 {
-                    foreach (var vehicle in _managedVehicles.Where(x => !x.IsWandering && x.AllOccupantsPresent))
+                    foreach (var vehicle in GetAllManagedVehicles().Where(x => !x.IsWandering && x.AllOccupantsPresent))
                     {
+                        vehicle.DeleteBlip();
                         vehicle.DisableSirens();
                         vehicle.Wander();
                     }
@@ -203,17 +205,32 @@ namespace AreaControl.Instances
             return World.GetNextPositionOnStreet(position);
         }
 
-        private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition)
+        private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition, int numberOfOccupantsToSpawn)
         {
             var closestRoad = RoadUtil.GetClosestRoad(spawnPosition, RoadType.All);
             var vehicle = RegisterVehicle(new Vehicle("POLICE", closestRoad.Position, closestRoad.Lanes.First().Heading));
-            var driver = RegisterPed(CreatePed(spawnPosition));
-            driver.WarpIntoVehicle(vehicle, VehicleSeat.Driver);
-            var passenger = RegisterPed(CreatePed(spawnPosition));
-            passenger.WarpIntoVehicle(vehicle, VehicleSeat.RightFront);
 
-            vehicle.Driver = driver;
-            vehicle.Passengers.Add(passenger);
+            for (var i = 0; i < numberOfOccupantsToSpawn; i++)
+            {
+                var ped = RegisterPed(CreatePed(spawnPosition));
+
+                switch (i)
+                {
+                    case 0:
+                        ped.WarpIntoVehicle(vehicle, VehicleSeat.Driver);
+                        vehicle.Driver = ped;
+                        break;
+                    case 1:
+                        ped.WarpIntoVehicle(vehicle, VehicleSeat.RightFront);
+                        vehicle.Passengers.Add(ped);
+                        break;
+                    default:
+                        ped.WarpIntoVehicle(vehicle, VehicleSeat.Any);
+                        vehicle.Passengers.Add(ped);
+                        break;
+                }
+            }
+
             vehicle.CreateBlip();
 
             return vehicle;

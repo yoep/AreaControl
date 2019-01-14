@@ -87,7 +87,7 @@ namespace AreaControl.Actions.CloseRoad
                     {
                         //get position behind the slot
                         var positionBehindSlot = GetPositionBehindSlot(slot, index);
-                        var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius);
+                        var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius, 2);
                         vehicle.SetOccupantsBusyState(true);
                         Rage.LogTrivialDebug("Using vehicle " + vehicle + " for block slot " + index);
 
@@ -101,8 +101,8 @@ namespace AreaControl.Actions.CloseRoad
         private void MoveToSlot(ACVehicle vehicle, BlockSlot slot)
         {
             var vehicleDriver = vehicle.Driver;
-            var initialDrivingFlags = _responseManager.ResponseCode == ResponseCode.Code2 ? VehicleDrivingFlags.Normal : VehicleDrivingFlags.Emergency;
-            var initialDrivingSpeed = _responseManager.ResponseCode == ResponseCode.Code2 ? 30f : 45f;
+            var initialDrivingFlags = _responseManager.VehicleDrivingFlags;
+            var initialDrivingSpeed = _responseManager.VehicleSpeed;
 
             if (_responseManager.ResponseCode == ResponseCode.Code3)
                 vehicle.EnableSirens();

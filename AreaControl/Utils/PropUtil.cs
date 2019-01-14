@@ -1,4 +1,5 @@
 using Rage;
+using Rage.Native;
 
 namespace AreaControl.Utils
 {
@@ -24,37 +25,46 @@ namespace AreaControl.Utils
 
         public static Object CreateSmallBlankCone(Vector3 position)
         {
-            return new Object(new Model("prop_mp_cone_03"), position);
+            var instance = new Object(new Model("prop_mp_cone_03"), position);
+            PlaceCorrectlyOnGround(instance);
+            return instance;
         }
 
         public static Object CreateSmallConeWithStripes(Vector3 position)
         {
-            return new Object(new Model("prop_mp_cone_02"), position);
+            var instance = new Object(new Model("prop_mp_cone_02"), position);
+            PlaceCorrectlyOnGround(instance);
+            return instance;
         }
 
         public static Object CreateBigConeWithStripes(Vector3 position)
         {
-            return new Object(new Model("prop_mp_cone_01"), position);
+            var instance = new Object(new Model("prop_mp_cone_01"), position);
+            PlaceCorrectlyOnGround(instance);
+            return instance;
         }
 
         public static Object CreateLargeThinConeWithStripes(Vector3 position)
         {
-            return new Object(new Model("prop_mp_cone_04"), position);
+            var instance = new Object(new Model("prop_mp_cone_04"), position);
+            PlaceCorrectlyOnGround(instance);
+            return instance;
         }
-        
+
         public static Object CreateBarrier(Vector3 position)
         {
             return new Object(new Model("prop_ld_barrier_01"), position);
         }
 
+        public static bool PlaceCorrectlyOnGround(Object instance)
+        {
+            Assert.NotNull(instance, "instance cannot be null");
+            return NativeFunction.Natives.PLACE_OBJECT_ON_GROUND_PROPERLY<bool>(instance);
+        }
+
         public static void Remove(Object entity)
         {
-            Assert.NotNull(entity, "entity cannot be null");
-            if (!entity.IsValid()) 
-                return;
-            
-            entity.Dismiss();
-            entity.Delete();
+            EntityUtil.Remove(entity);
         }
     }
 }

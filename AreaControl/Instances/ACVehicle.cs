@@ -66,8 +66,8 @@ namespace AreaControl.Instances
         /// <summary>
         /// Check if all original occupants or present again in this vehicle.
         /// </summary>
-        public bool AllOccupantsPresent => Occupants.All(x => Instance.Occupants.Contains(x.Instance));
-        
+        public bool AllOccupantsPresent => Occupants.All(x => Instance.IsValid() && Instance.Occupants.Contains(x.Instance));
+
         /// <summary>
         /// Get if this vehicle is wandering around.
         /// </summary>
@@ -123,6 +123,24 @@ namespace AreaControl.Instances
         }
 
         /// <summary>
+        /// Enables the emergency lights without sound.
+        /// </summary>
+        public void EnableEmergencyLights()
+        {
+            Instance.IsSirenOn = true;
+            Instance.IsSirenSilent = true;
+        }
+
+        /// <summary>
+        /// Enable the hazard lights on this vehicle.
+        /// </summary>
+        public void EnableHazardIndicators()
+        {
+            if (Instance.IsValid())
+                Instance.IndicatorLightsStatus = VehicleIndicatorLightsStatus.Both;
+        }
+
+        /// <summary>
         /// Disables the emergency lights with sound.
         /// </summary>
         public void DisableSirens()
@@ -131,12 +149,12 @@ namespace AreaControl.Instances
         }
 
         /// <summary>
-        /// Enables the emergency lights without sound.
+        /// Disable the hazard lights on this vehicle.
         /// </summary>
-        public void EnableEmergencyLights()
+        public void DisableHazardLights()
         {
-            Instance.IsSirenOn = true;
-            Instance.IsSirenSilent = true;
+            if (Instance.IsValid())
+                Instance.IndicatorLightsStatus = VehicleIndicatorLightsStatus.Off;
         }
 
         /// <summary>

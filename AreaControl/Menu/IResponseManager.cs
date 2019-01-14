@@ -1,4 +1,5 @@
 using System;
+using Rage;
 
 namespace AreaControl.Menu
 {
@@ -13,5 +14,15 @@ namespace AreaControl.Menu
         /// Get the response code audio for the current <see cref="ResponseCode"/>.
         /// </summary>
         string ResponseCodeAudio { get; }
+        
+        /// <summary>
+        /// Get the vehicle speed for then current response code.
+        /// </summary>
+        float VehicleSpeed { get; }
+        
+        /// <summary>
+        /// Get the vehicle driving flags for the current response code.
+        /// </summary>
+        VehicleDrivingFlags VehicleDrivingFlags { get; }
     }
 }

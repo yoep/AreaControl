@@ -58,6 +58,11 @@
     <Compile Include="Actions\CloseRoad\CloseRoadPreview.cs" />
     <Compile Include="Actions\CloseRoad\ICloseRoad.cs" />
     <Compile Include="Actions\CloseRoad\ICloseRoadPreview.cs" />
+    <Compile Include="Actions\RedirectTraffic\AbstractRedirectTraffic.cs" />
+    <Compile Include="Actions\RedirectTraffic\IRedirectTraffic.cs" />
+    <Compile Include="Actions\RedirectTraffic\RedirectSlot.cs" />
+    <Compile Include="Actions\RedirectTraffic\RedirectTrafficImpl.cs" />
+    <Compile Include="Actions\RedirectTraffic\RedirectTrafficPreview.cs" />
     <Compile Include="Actions\RoadBlock\IRoadBlock.cs" />
     <Compile Include="Actions\RoadBlock\RoadBlockImpl.cs" />
     <Compile Include="AreaControl.cs" />
@@ -116,7 +121,6 @@
     <Compile Include="Utils\Tasks\TaskUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Actions" />
     <Folder Include="Settings" />
   </ItemGroup>
   <ItemGroup>

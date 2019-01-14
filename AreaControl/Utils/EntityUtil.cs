@@ -29,5 +29,15 @@ namespace AreaControl.Utils
             Assert.NotNull(attachment, "attachment cannot be null");
             NativeFunction.Natives.DETACH_ENTITY(attachment, false, false);
         }
+        
+        public static void Remove(Entity entity)
+        {
+            Assert.NotNull(entity, "entity cannot be null");
+            if (!entity.IsValid()) 
+                return;
+            
+            entity.Dismiss();
+            entity.Delete();
+        }
     }
 }

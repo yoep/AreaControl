@@ -12,8 +12,9 @@ namespace AreaControl.Instances
         /// <param name="position">Set the position to search from.</param>
         /// <param name="spawnPosition">Set the spawn position for the created vehicle.</param>
         /// <param name="radius">Set the range around the position to search within.</param>
+        /// <param name="numberOfOccupantsToSpawn">Set the number of occupants to spawn if it needs to be created.</param>
         /// <returns>Returns a Area Controlled vehicle within the given range of the position.</returns>
-        ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, float radius);
+        ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, float radius, int numberOfOccupantsToSpawn);
 
         /// <summary>
         /// Get the managed vehicle for the given game vehicle if found.

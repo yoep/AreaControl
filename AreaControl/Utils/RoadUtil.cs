@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using AreaControl.Instances;
 using Rage;
 using Rage.Native;
@@ -59,6 +58,16 @@ namespace AreaControl.Utils
                 DiscoverRoad(road1, numberOfLanes1, numberOfLanes2, junctionIndication),
                 DiscoverRoad(road2, numberOfLanes1, numberOfLanes2, junctionIndication)
             };
+        }
+        
+        /// <summary>
+        /// Get the opposite heading of the given heading.
+        /// </summary>
+        /// <param name="heading">Set the heading.</param>
+        /// <returns>Returns the opposite heading of the given heading.</returns>
+        public static float OppositeHeading(float heading)
+        {
+            return (heading + 180) % 360;
         }
 
         #endregion
@@ -122,7 +131,7 @@ namespace AreaControl.Utils
             {
                 var laneLeftPosition = lastRightPosition + moveDirection * laneWidth;
                 var vehicleNode = GetVehicleNode(lastRightPosition);
-                var heading = isOpposite ? (rightSideHeading + 180) % 360 : rightSideHeading;
+                var heading = isOpposite ? OppositeHeading(rightSideHeading) : rightSideHeading;
                 lanes.Add(LaneBuilder.Builder()
                     .Number(index)
                     .Heading(heading)
