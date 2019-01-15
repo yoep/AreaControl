@@ -20,6 +20,9 @@ namespace AreaControl.Settings
         /// <inheritdoc />
         public GeneralSettings GeneralSettings { get; private set; }
 
+        /// <inheritdoc />
+        public RedirectTrafficSettings RedirectTrafficSettings { get; private set; }
+
         [IoC.PostConstruct]
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private void LoadSettings()
@@ -29,6 +32,7 @@ namespace AreaControl.Settings
                 var settingsFile = new InitializationFile(File);
 
                 ReadGeneralSettings(settingsFile);
+                ReadRedirectTrafficSettings(settingsFile);
             }
             catch (Exception ex)
             {
@@ -36,12 +40,20 @@ namespace AreaControl.Settings
             }
         }
 
-        private void ReadGeneralSettings(InitializationFile settingsFile)
+        private void ReadGeneralSettings(InitializationFile file)
         {
             GeneralSettings = new GeneralSettings
             {
-                OpenMenuKey = ValueToKey(settingsFile.ReadString("General", "OpenMenuKey", "C")),
-                OpenMenuModifierKey = ValueToKey(settingsFile.ReadString("General", "OpenMenuModifierKey", "None"))
+                OpenMenuKey = ValueToKey(file.ReadString("General", "OpenMenuKey", "T")),
+                OpenMenuModifierKey = ValueToKey(file.ReadString("General", "OpenMenuModifierKey", "Shift"))
+            };
+        }
+
+        private void ReadRedirectTrafficSettings(InitializationFile file)
+        {
+            RedirectTrafficSettings = new RedirectTrafficSettings
+            {
+                ShowPreview = file.ReadBoolean("Redirect Traffic", "ShowPreview", true)
             };
         }
 

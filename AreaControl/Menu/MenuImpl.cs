@@ -35,6 +35,9 @@ namespace AreaControl.Menu
         public bool IsMenuInitialized { get; private set; }
 
         /// <inheritdoc />
+        public bool IsShown { get; private set; }
+
+        /// <inheritdoc />
         public int TotalItems => MenuItems.Count;
 
         #endregion
@@ -67,6 +70,7 @@ namespace AreaControl.Menu
                 Game.FrameRender += Process;
                 _rage.LogTrivialDebug("MenuImpl.Process added to FrameRender handler");
                 AreaControlMenu.OnItemSelect += ItemSelectionHandler;
+                AreaControlMenu.OnIndexChange += ItemChangeHandler;
 
                 IsMenuInitialized = true;
             }
@@ -91,6 +95,7 @@ namespace AreaControl.Menu
                 }
 
                 AreaControlMenu.Visible = !AreaControlMenu.Visible;
+                IsShown = AreaControlMenu.Visible;
             }
 
             MenuPool.ProcessMenus();
@@ -99,9 +104,16 @@ namespace AreaControl.Menu
         private bool IsMenuKeyPressed()
         {
             var generalSettings = _settingsManager.GeneralSettings;
+            var secondKey = generalSettings.OpenMenuModifierKey;
+            var secondKeyDown = secondKey == Keys.None;
 
-            return Game.IsKeyDown(generalSettings.OpenMenuKey) &&
-                   (generalSettings.OpenMenuModifierKey == Keys.None || Game.IsKeyDown(generalSettings.OpenMenuModifierKey));
+            if (!secondKeyDown && secondKey == Keys.ShiftKey && Game.IsShiftKeyDownRightNow)
+                secondKeyDown = true; 
+            
+            if (!secondKeyDown && secondKey == Keys.ControlKey && Game.IsControlKeyDownRightNow)
+                secondKeyDown = true;
+
+            return Game.IsKeyDown(generalSettings.OpenMenuKey) && secondKeyDown;
         }
 
         private static bool IsShownInMenu(IMenuComponent component)
@@ -134,6 +146,11 @@ namespace AreaControl.Menu
                                  Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
                 _rage.DisplayNotification("an unexpected error occurred while invoking the menu action");
             }
+        }
+
+        private void ItemChangeHandler(UIMenu sender, int newindex)
+        {
+            MenuItems.FirstOrDefault(x => x.MenuItem == sender.MenuItems[newindex])?.OnMenuHighlighted(this);
         }
 
         private static void RemoveItemFromMenu(IMenuComponent component)

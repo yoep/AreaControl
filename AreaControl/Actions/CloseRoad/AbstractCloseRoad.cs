@@ -39,6 +39,12 @@ namespace AreaControl.Actions.CloseRoad
 
         /// <inheritdoc />
         public abstract void OnMenuActivation(IMenu sender);
+        
+        /// <inheritdoc />
+        public void OnMenuHighlighted(IMenu sender)
+        {
+            //do nothing
+        }
 
         #endregion
 

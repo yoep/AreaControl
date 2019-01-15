@@ -31,5 +31,11 @@ namespace AreaControl.Debug
             _rage.LogTrivial("Nearest road info: " + road);
             _rage.DisplayNotification("see console or log file for info about the closest road");
         }
+        
+        /// <inheritdoc />
+        public void OnMenuHighlighted(IMenu sender)
+        {
+            //do nothing
+        }
     }
 }

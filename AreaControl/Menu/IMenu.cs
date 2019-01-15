@@ -5,8 +5,12 @@ namespace AreaControl.Menu
         /// <summary>
         /// Check if the menu has been initialized.
         /// </summary>
-        /// <returns>Returns true if menu is initialized and activated, else false.</returns>
         bool IsMenuInitialized { get; }
+        
+        /// <summary>
+        /// Check if the menu is currently being shown.
+        /// </summary>
+        bool IsShown { get; }
 
         /// <summary>
         /// Get the total menu items that are available.

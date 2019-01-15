@@ -2,6 +2,7 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Menu;
+using AreaControl.Settings;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
@@ -9,22 +10,31 @@ using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.RedirectTraffic
 {
-    public class RedirectTrafficImpl : AbstractRedirectTraffic
+    public class RedirectTrafficImpl : AbstractRedirectTraffic, IPreviewSupport
     {
         private const float ScanRadius = 250f;
-        
+
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
         private readonly IDutyManager _dutyManager;
+        private readonly ISettingsManager _settingsManager;
 
-        public RedirectTrafficImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager, IDutyManager dutyManager)
+        private RedirectSlot _redirectSlot;
+
+        #region Constructor
+
+        public RedirectTrafficImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager, IDutyManager dutyManager,
+            ISettingsManager settingsManager)
         {
             _rage = rage;
             _entityManager = entityManager;
             _responseManager = responseManager;
             _dutyManager = dutyManager;
+            _settingsManager = settingsManager;
         }
+
+        #endregion
 
         #region IMenuComponent implementation
 
@@ -45,6 +55,59 @@ namespace AreaControl.Actions.RedirectTraffic
             {
                 RedirectTraffic();
             }
+        }
+
+        public override void OnMenuHighlighted(IMenu sender)
+        {
+            if (_settingsManager.RedirectTrafficSettings.ShowPreview && !IsActive)
+                _rage.NewSafeFiber(() =>
+                {
+                    while (sender.IsShown && MenuItem.Selected)
+                    {
+                        var redirectSlot = DetermineRedirectSlot();
+
+                        if (redirectSlot.Position != _redirectSlot?.Position)
+                        {
+                            DeletePreview();
+                            _redirectSlot = redirectSlot;
+                            CreatePreview();
+                        }
+                        
+                        GameFiber.Sleep(1000);
+                    }
+
+                    DeletePreview();
+                }, "RedirectTrafficImpl.OnMenuHighlighted");
+        }
+
+        #endregion
+
+        #region IPreviewSupport implementation
+
+        /// <inheritdoc />
+        public bool IsPreviewActive { get; private set; }
+
+        /// <inheritdoc />
+        public void CreatePreview()
+        {
+            _rage.NewSafeFiber(() =>
+            {
+                IsPreviewActive = true;
+                _redirectSlot?.CreatePreview();
+            }, "RedirectTrafficImpl.CreatePreview");
+        }
+
+        /// <inheritdoc />
+        public void DeletePreview()
+        {
+            if (!IsPreviewActive)
+                return;
+
+            _rage.NewSafeFiber(() =>
+            {
+                IsPreviewActive = false;
+                _redirectSlot?.DeletePreview();
+            }, "RedirectTrafficImpl.DeletePreview");
         }
 
         #endregion
@@ -68,7 +131,9 @@ namespace AreaControl.Actions.RedirectTraffic
             _rage.NewSafeFiber(() =>
             {
                 Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
-                var redirectSlot = DetermineRedirectSlot();
+                var redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
+                DeletePreview();
+
                 var spawnPosition = GetSpawnPosition(redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
 
@@ -83,10 +148,10 @@ namespace AreaControl.Actions.RedirectTraffic
             var vehicleDriver = vehicle.Driver;
             var initialDrivingFlags = _responseManager.VehicleDrivingFlags;
             var initialDrivingSpeed = _responseManager.VehicleSpeed;
-            
+
             if (_responseManager.ResponseCode == ResponseCode.Code3)
                 vehicle.EnableSirens();
-            
+
             _rage.LogTrivialDebug("Vehicle driving to redirect traffic slot...");
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(redirectSlot.Position, initialDrivingSpeed, initialDrivingFlags, 35f)
@@ -97,12 +162,12 @@ namespace AreaControl.Actions.RedirectTraffic
                 .DriveToPosition(redirectSlot.Position, 10f, VehicleDrivingFlags.Emergency, 1f)
                 .WaitForCompletion(30000);
             vehicle.EnableHazardIndicators();
-            
+
             var emptyVehicleTask = vehicle.Empty()
                 .WaitForCompletion(10000);
             _rage.LogTrivialDebug("Empty vehicle task ended with " + emptyVehicleTask);
         }
-        
+
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, RedirectSlot redirectSlot)
         {
             var trafficDuty = new RedirectTrafficDuty(redirectSlot.PedPosition, redirectSlot.PedHeading);

@@ -59,6 +59,12 @@ namespace AreaControl.Menu
             UpdateResponseCode();
         }
 
+        /// <inheritdoc />
+        public void OnMenuHighlighted(IMenu sender)
+        {
+            //do nothing
+        }
+
         #endregion
 
         #region IDisposable implementation

@@ -18,5 +18,11 @@ namespace AreaControl.Actions.RoadBlock
         {
             //TODO: implement
         }
+        
+        /// <inheritdoc />
+        public void OnMenuHighlighted(IMenu sender)
+        {
+            //do nothing
+        }
     }
 }

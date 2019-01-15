@@ -38,6 +38,12 @@ namespace AreaControl.Debug
                 RemoveRoadPreview();
             }
         }
+        
+        /// <inheritdoc />
+        public void OnMenuHighlighted(IMenu sender)
+        {
+            //do nothing
+        }
 
         private void CreateRoadPreview()
         {

@@ -104,6 +104,7 @@
     <Compile Include="AbstractionLayer\RageImpl.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
+    <Compile Include="Settings\RedirectTrafficSettings.cs" />
     <Compile Include="Settings\SettingsManager.cs" />
     <Compile Include="Utils\AnimationUtil.cs" />
     <Compile Include="Utils\EntityUtil.cs" />

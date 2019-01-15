@@ -24,5 +24,11 @@ namespace AreaControl.Menu
         /// </summary>
         /// <param name="sender">The menu that activated the menu item.</param>
         void OnMenuActivation(IMenu sender);
+
+        /// <summary>
+        /// Is triggered when the menu item is highlighted in the menu and the menu is open.
+        /// </summary>
+        /// <param name="sender">The menu that triggered this.</param>
+        void OnMenuHighlighted(IMenu sender);
     }
 }
