@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Windows.Forms;
 using AreaControl.AbstractionLayer;
+using AreaControl.Settings;
 using Rage;
 using RAGENativeUI;
 using RAGENativeUI.Elements;
@@ -16,12 +17,14 @@ namespace AreaControl.Menu
         private static readonly UIMenu AreaControlMenu = new UIMenu("Area Control", "~b~CONTROL YOUR SURROUNDING");
         private static readonly List<IMenuComponent> MenuItems = new List<IMenuComponent>();
         private readonly IRage _rage;
+        private readonly ISettingsManager _settingsManager;
 
         #region Constructors
 
-        public MenuImpl(IRage rage)
+        public MenuImpl(IRage rage, ISettingsManager settingsManager)
         {
             _rage = rage;
+            _settingsManager = settingsManager;
         }
 
         #endregion
@@ -77,7 +80,7 @@ namespace AreaControl.Menu
 
         private void Process(object sender, GraphicsEventArgs e)
         {
-            if (Game.IsKeyDown(Keys.T))
+            if (IsMenuKeyPressed())
             {
                 foreach (var component in MenuItems)
                 {
@@ -91,6 +94,14 @@ namespace AreaControl.Menu
             }
 
             MenuPool.ProcessMenus();
+        }
+
+        private bool IsMenuKeyPressed()
+        {
+            var generalSettings = _settingsManager.GeneralSettings;
+
+            return Game.IsKeyDown(generalSettings.OpenMenuKey) &&
+                   (generalSettings.OpenMenuModifierKey == Keys.None || Game.IsKeyDown(generalSettings.OpenMenuModifierKey));
         }
 
         private static bool IsShownInMenu(IMenuComponent component)
@@ -129,7 +140,7 @@ namespace AreaControl.Menu
         {
             if (IsShownInMenu(component))
                 AreaControlMenu.RemoveItemAt(AreaControlMenu.MenuItems.IndexOf(component.MenuItem));
-            
+
             AreaControlMenu.RefreshIndex();
         }
 

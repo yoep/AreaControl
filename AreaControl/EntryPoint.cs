@@ -8,6 +8,7 @@ using AreaControl.Debug;
 using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Menu;
+using AreaControl.Settings;
 using LSPD_First_Response.Mod.API;
 
 namespace AreaControl
@@ -51,6 +52,7 @@ namespace AreaControl
                 .RegisterSingleton<IEntityManager>(typeof(EntityManager))
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
                 .RegisterSingleton<IDutyManager>(typeof(DutyManager))
+                .RegisterSingleton<ISettingsManager>(typeof(SettingsManager))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl))
                 .Register<IRedirectTraffic>(typeof(RedirectTrafficImpl));
         }

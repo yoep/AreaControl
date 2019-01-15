@@ -51,7 +51,6 @@ namespace AreaControl
 
         private static void CheckDependencies()
         {
-            
         }
     }
 }
