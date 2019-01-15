@@ -208,7 +208,7 @@ namespace AreaControl.Instances
         private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition, int numberOfOccupantsToSpawn)
         {
             var closestRoad = RoadUtil.GetClosestRoad(spawnPosition, RoadType.All);
-            var vehicle = RegisterVehicle(new Vehicle("POLICE", closestRoad.Position, closestRoad.Lanes.First().Heading));
+            var vehicle = RegisterVehicle(new Vehicle(ModelUtil.GetLocalVehicle(spawnPosition), closestRoad.Position, closestRoad.Lanes.First().Heading));
 
             for (var i = 0; i < numberOfOccupantsToSpawn; i++)
             {
@@ -238,7 +238,7 @@ namespace AreaControl.Instances
 
         private static Ped CreatePed(Vector3 spawnPosition)
         {
-            return new Ped(new Model("s_m_y_cop_01"), spawnPosition, 3f)
+            return new Ped(ModelUtil.GetLocalPed(spawnPosition), spawnPosition, 3f)
             {
                 IsPersistent = true,
                 BlockPermanentEvents = true,

@@ -73,6 +73,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
 
                 MoveToSlot(redirectSlot, vehicle);
+                //TODO: place cones
                 AssignRedirectTrafficDutyToDriver(vehicle, redirectSlot);
             }, "RedirectTrafficImpl.RedirectTraffic");
         }

@@ -36,6 +36,7 @@ namespace AreaControl.Duties
             IsActive = true;
            _rage.NewSafeFiber(() =>
            {
+               ped.WeaponsEnabled = true;
                ped
                    .EnterLastVehicle(MovementSpeed.Walk)
                    .WaitForAndExecute(() =>

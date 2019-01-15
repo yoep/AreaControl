@@ -104,6 +104,7 @@
     <Compile Include="AbstractionLayer\RageImpl.cs" />
     <Compile Include="Utils\AnimationUtil.cs" />
     <Compile Include="Utils\EntityUtil.cs" />
+    <Compile Include="Utils\ModelUtil.cs" />
     <Compile Include="Utils\PlacementType.cs" />
     <Compile Include="Utils\PreviewUtil.cs" />
     <Compile Include="Utils\PropUtil.cs" />

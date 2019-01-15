@@ -7,6 +7,7 @@ using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
 using LSPD_First_Response.Mod.API;
 using Rage;
+using Rage.Native;
 
 namespace AreaControl.Instances
 {
@@ -18,6 +19,7 @@ namespace AreaControl.Instances
     {
         private readonly List<Entity> _attachments = new List<Entity>();
         private VehicleSeat _lastSeat;
+        private bool _weaponsEnabled;
 
         public ACPed(Ped instance, long id)
         {
@@ -43,6 +45,15 @@ namespace AreaControl.Instances
         /// If not busy, this vehicle can be used for a task by the plugin.
         /// </summary>
         public bool IsBusy { get; internal set; }
+        
+        /// <summary>
+        /// Get or set if weapons are enabled on this ped.
+        /// </summary>
+        public bool WeaponsEnabled
+        {
+            get { return _weaponsEnabled;}
+            set { SetWeaponState(value); }
+        }
 
         /// <summary>
         /// Get the last vehicle of this ped.
@@ -221,6 +232,12 @@ namespace AreaControl.Instances
         private EventHandler TaskExecutorOnCompletion()
         {
             return (sender, args) => IsBusy = false;
+        }
+
+        private void SetWeaponState(bool weaponsEnabled)
+        {
+            _weaponsEnabled = weaponsEnabled;
+            NativeFunction.Natives.SET_PED_CAN_SWITCH_WEAPON(Instance, weaponsEnabled);
         }
     }
 }

@@ -48,12 +48,13 @@ namespace AreaControl.Duties
             _ped = ped;
             _rage.NewSafeFiber(() =>
             {
-                var taskExecutor = ped.WalkTo(_position, _heading)
+                _ped.WeaponsEnabled = false;
+                var taskExecutor = _ped.WalkTo(_position, _heading)
                     .WaitForCompletion(20000);
                 _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
 
                 _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
-                _animationTaskExecutor = AnimationUtil.RedirectTraffic(ped);
+                _animationTaskExecutor = AnimationUtil.RedirectTraffic(_ped);
             }, "RedirectTrafficDuty.Execute");
         }
 
@@ -62,6 +63,7 @@ namespace AreaControl.Duties
         {
             _rage.NewSafeFiber(() =>
             {
+                _ped.WeaponsEnabled = true;
                 _rage.LogTrivialDebug("Aborting redirect animation...");
                 _animationTaskExecutor?.Abort();
                 _rage.LogTrivialDebug("Deleting attachments from redirect officer ped...");

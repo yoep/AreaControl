@@ -48,5 +48,10 @@ namespace AreaControl
                 rage.LogTrivial("Failed to unload plugin correctly with: " + ex.Message + Environment.NewLine + ex.StackTrace);
             }
         }
+
+        private static void CheckDependencies()
+        {
+            
+        }
     }
 }
