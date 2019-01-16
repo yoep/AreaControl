@@ -127,6 +127,19 @@ namespace AreaControl.Instances
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
+        
+        /// <summary>
+        /// Run to the given target.
+        /// </summary>
+        /// <param name="target">Set the target to walk to.</param>
+        /// <returns>Returns the task executor.</returns>
+        public TaskExecutor RunTo(Entity target)
+        {
+            IsBusy = true;
+            var taskExecutor = TaskUtil.GoToEntity(Instance, target, MovementSpeed.Run);
+            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            return taskExecutor;
+        }
 
         /// <summary>
         /// Look at the target entity.

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Rage;
 
@@ -49,6 +50,7 @@ namespace AreaControl.Utils.Tasks
             {
                 RageTask.WaitForCompletion();
                 IsCompleted = true;
+                OnCompletion?.Invoke(this, EventArgs.Empty);
             });
         }
     }

@@ -21,7 +21,6 @@ Redirects the traffic from the side of the road. This will make it safer for you
 ## Planned Features
 
 - Police Smart Radio integration
-- Configuration for plugin
 
 ### Close Road
 - Auto call EMS when closing the road and death bodies are present

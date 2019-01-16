@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
+using AreaControl.Menu;
 using Rage;
 
 namespace AreaControl.Duties
@@ -14,14 +15,16 @@ namespace AreaControl.Duties
         private readonly List<DutyListener> _dutyListeners = new List<DutyListener>();
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
+        private readonly IResponseManager _responseManager;
         private bool _isActive = true;
 
         #region Constructors
 
-        public DutyManager(IRage rage, IEntityManager entityManager)
+        public DutyManager(IRage rage, IEntityManager entityManager, IResponseManager responseManager)
         {
             _rage = rage;
             _entityManager = entityManager;
+            _responseManager = responseManager;
         }
 
         #endregion
@@ -143,8 +146,8 @@ namespace AreaControl.Duties
         {
             return new List<IDuty>
             {
-                new CleanCorpsesDuty(position),
-                new CleanWrecksDuty(position, _entityManager)
+                new CleanCorpsesDuty(position, _responseManager.ResponseCode),
+                new CleanWrecksDuty(position, _entityManager, _responseManager.ResponseCode)
             };
         }
 

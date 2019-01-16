@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
@@ -7,12 +9,15 @@ using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
+using Object = Rage.Object;
 
 namespace AreaControl.Actions.RedirectTraffic
 {
     public class RedirectTrafficImpl : AbstractRedirectTraffic, IPreviewSupport
     {
         private const float ScanRadius = 250f;
+        private const float VehiclePositionTolerance = 2f;
+        private const float VehicleHeadingTolerance = 20f;
 
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
@@ -20,6 +25,7 @@ namespace AreaControl.Actions.RedirectTraffic
         private readonly IDutyManager _dutyManager;
         private readonly ISettingsManager _settingsManager;
 
+        private readonly List<Object> _cones = new List<Object>();
         private RedirectSlot _redirectSlot;
 
         #region Constructor
@@ -62,18 +68,18 @@ namespace AreaControl.Actions.RedirectTraffic
             if (_settingsManager.RedirectTrafficSettings.ShowPreview && !IsActive)
                 _rage.NewSafeFiber(() =>
                 {
-                    while (sender.IsShown && MenuItem.Selected)
+                    while (sender.IsShown && MenuItem.Selected && !IsActive)
                     {
                         var redirectSlot = DetermineRedirectSlot();
 
-                        if (redirectSlot.Position != _redirectSlot?.Position)
+                        if (redirectSlot.Position != _redirectSlot?.Position || !IsPreviewActive)
                         {
                             DeletePreview();
                             _redirectSlot = redirectSlot;
                             CreatePreview();
                         }
-                        
-                        GameFiber.Sleep(1000);
+
+                        GameFiber.Sleep(500);
                     }
 
                     DeletePreview();
@@ -100,9 +106,6 @@ namespace AreaControl.Actions.RedirectTraffic
         /// <inheritdoc />
         public void DeletePreview()
         {
-            if (!IsPreviewActive)
-                return;
-
             _rage.NewSafeFiber(() =>
             {
                 IsPreviewActive = false;
@@ -120,6 +123,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 Functions.PlayScannerAudio("WE_ARE_CODE_4");
                 _dutyManager.DismissDuties();
                 _entityManager.Dismiss();
+                _cones.ForEach(PropUtil.Remove);
                 IsActive = false;
             }, "RedirectTrafficImpl.RemoveRedirectTraffic");
         }
@@ -130,15 +134,15 @@ namespace AreaControl.Actions.RedirectTraffic
             MenuItem.Text = AreaControl.RedirectTrafficRemove;
             _rage.NewSafeFiber(() =>
             {
+                DeletePreview();
                 Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
                 var redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
-                DeletePreview();
 
                 var spawnPosition = GetSpawnPosition(redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
 
                 MoveToSlot(redirectSlot, vehicle);
-                //TODO: place cones
+                PlaceCones(vehicle.Driver, redirectSlot);
                 AssignRedirectTrafficDutyToDriver(vehicle, redirectSlot);
             }, "RedirectTrafficImpl.RedirectTraffic");
         }
@@ -161,6 +165,7 @@ namespace AreaControl.Actions.RedirectTraffic
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(redirectSlot.Position, 10f, VehicleDrivingFlags.Emergency, 1f)
                 .WaitForCompletion(30000);
+            WarpInPositionIfNeeded(vehicle, redirectSlot);
             vehicle.EnableHazardIndicators();
 
             var emptyVehicleTask = vehicle.Empty()
@@ -170,9 +175,30 @@ namespace AreaControl.Actions.RedirectTraffic
 
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, RedirectSlot redirectSlot)
         {
-            var trafficDuty = new RedirectTrafficDuty(redirectSlot.PedPosition, redirectSlot.PedHeading);
+            var trafficDuty = new RedirectTrafficDuty(redirectSlot.PedPosition, redirectSlot.PedHeading, _responseManager.ResponseCode);
             _dutyManager.RegisterDuty(trafficDuty);
             vehicle.Driver.ActivateDuty(trafficDuty);
+        }
+
+        private void PlaceCones(ACPed ped, RedirectSlot redirectSlot)
+        {
+            foreach (var cone in redirectSlot.Cones)
+            {
+                var positionBehindCone = cone.Position + MathHelper.ConvertHeadingToDirection(cone.Heading) * 0.5f;
+                var walkToExecutor = _responseManager.ResponseCode == ResponseCode.Code2
+                    ? ped.WalkTo(positionBehindCone, cone.Heading)
+                    : ped.RunTo(positionBehindCone, cone.Heading);
+                var animationExecutor = walkToExecutor
+                    .WaitForAndExecute(executor =>
+                    {
+                        _rage.LogTrivialDebug("Completed walk to cone for " + executor);
+                        var coneProp = PropUtil.CreateSmallConeWithStripes(cone.Position);
+                        _cones.Add(coneProp);
+                        return AnimationUtil.PlaceDownObject(ped, coneProp);
+                    }, 20000)
+                    .WaitForCompletion(2000);
+                _rage.LogTrivialDebug("Completed place cone animation for " + animationExecutor);
+            }
         }
 
         private static Vector3 GetSpawnPosition(RedirectSlot redirectSlot)
@@ -181,6 +207,17 @@ namespace AreaControl.Actions.RedirectTraffic
             var closestRoad = RoadUtil.GetClosestRoad(positionBehindSlot, RoadType.All);
 
             return closestRoad.Position;
+        }
+
+        private static void WarpInPositionIfNeeded(ACVehicle vehicle, RedirectSlot redirectSlot)
+        {
+            var positionDifference = Vector3.Distance2D(vehicle.Instance.Position, redirectSlot.Position);
+            var headingDifference = Math.Abs(vehicle.Instance.Heading - redirectSlot.Heading);
+
+            if (positionDifference > VehiclePositionTolerance)
+                vehicle.Instance.Position = redirectSlot.Position;
+            if (headingDifference > VehicleHeadingTolerance)
+                vehicle.Instance.Heading = redirectSlot.Heading;
         }
     }
 }

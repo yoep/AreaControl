@@ -40,6 +40,11 @@ namespace AreaControl.Actions.RedirectTraffic
         /// </summary>
         public float PedHeading { get; }
 
+        /// <summary>
+        /// Get the cones to place for this redirect traffic slot.
+        /// </summary>
+        public IReadOnlyList<Cone> Cones => _cones.AsReadOnly();
+
         #region IPreviewSupport implementation
 
         /// <inheritdoc />
@@ -85,7 +90,7 @@ namespace AreaControl.Actions.RedirectTraffic
 
             for (var i = 0; i < 3; i++)
             {
-                _cones.Add(new Cone(lastPosition));
+                _cones.Add(new Cone(lastPosition, moveHeading));
                 moveHeading *= 1.075f;
                 lastPosition = lastPosition + MathHelper.ConvertHeadingToDirection(moveHeading) * 2f;
             }
@@ -95,15 +100,21 @@ namespace AreaControl.Actions.RedirectTraffic
         {
             private Object _previewObject;
 
-            public Cone(Vector3 position)
+            public Cone(Vector3 position, float heading)
             {
                 Position = position;
+                Heading = heading;
             }
 
             /// <summary>
             /// Get the position of the cone.
             /// </summary>
             public Vector3 Position { get; }
+
+            /// <summary>
+            /// Get the heading of the cone placement.
+            /// </summary>
+            public float Heading { get; }
 
             #region IPreviewSupport implementation
 

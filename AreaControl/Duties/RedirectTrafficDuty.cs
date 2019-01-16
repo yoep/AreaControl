@@ -1,6 +1,7 @@
 using System;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
+using AreaControl.Menu;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
 using Rage;
@@ -16,14 +17,16 @@ namespace AreaControl.Duties
         private readonly IRage _rage;
         private readonly Vector3 _position;
         private readonly float _heading;
+        private readonly ResponseCode _code;
         private ACPed _ped;
         private AnimationTaskExecutor _animationTaskExecutor;
 
-        public RedirectTrafficDuty(Vector3 position, float heading)
+        public RedirectTrafficDuty(Vector3 position, float heading, ResponseCode code)
         {
             _rage = IoC.Instance.GetInstance<IRage>();
             _position = position;
             _heading = heading;
+            _code = code;
         }
 
         /// <inheritdoc />
@@ -34,7 +37,7 @@ namespace AreaControl.Duties
 
         /// <inheritdoc />
         public bool IsRepeatable => true;
-        
+
         /// <inheritdoc />
         public bool IsMultipleInstancesAllowed => true;
 
@@ -49,7 +52,8 @@ namespace AreaControl.Duties
             _rage.NewSafeFiber(() =>
             {
                 _ped.WeaponsEnabled = false;
-                var taskExecutor = _ped.WalkTo(_position, _heading)
+                var goToExecutor = _code == ResponseCode.Code2 ? _ped.WalkTo(_position, _heading) : _ped.RunTo(_position, _heading);
+                var taskExecutor = goToExecutor
                     .WaitForCompletion(20000);
                 _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
 

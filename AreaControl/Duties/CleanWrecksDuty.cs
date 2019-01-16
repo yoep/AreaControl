@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
+using AreaControl.Menu;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
 using Arrest_Manager.API;
@@ -18,12 +19,14 @@ namespace AreaControl.Duties
         private readonly Vector3 _position;
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
+        private readonly ResponseCode _code;
         private ACPed _ped;
 
-        internal CleanWrecksDuty(Vector3 position, IEntityManager entityManager)
+        internal CleanWrecksDuty(Vector3 position, IEntityManager entityManager, ResponseCode code)
         {
             _position = position;
             _entityManager = entityManager;
+            _code = code;
             _rage = IoC.Instance.GetInstance<IRage>();
         }
 
@@ -59,7 +62,9 @@ namespace AreaControl.Duties
                     wreck.IsPersistent = true;
                     
                     _rage.LogTrivialDebug("Going to wreck " + (wrecks.IndexOf(wreck) + 1) + " of " + wrecks.Count);
-                    ped.WalkTo(wreck)
+                    var goToExecutor = _code == ResponseCode.Code2 ? ped.WalkTo(wreck) : ped.RunTo(wreck);
+                    
+                    goToExecutor
                         .WaitForAndExecute(taskExecutor =>
                         {
                             _rage.LogTrivialDebug("Completed walk to wreck for task " + taskExecutor);

@@ -17,7 +17,7 @@ namespace AreaControl.Utils
             ped.Attach(PropUtil.CreatePencil(), PlacementType.RightHand);
             return ped.PlayAnimation("veh@busted_low", "issue_ticket_cop", AnimationFlags.None);
         }
-        
+
         /// <summary>
         /// Attach props an play the redirect traffic animation.
         /// </summary>
@@ -37,6 +37,31 @@ namespace AreaControl.Utils
         public static AnimationTaskExecutor TalkToRadio(ACPed ped)
         {
             return ped.PlayAnimation("random@arrests", "generic_radio_chatter", AnimationFlags.UpperBodyOnly);
+        }
+
+        public static AnimationTaskExecutor Investigate(ACPed ped)
+        {
+            return ped.PlayAnimation("amb@code_human_police_investigate@base", "base", AnimationFlags.None);
+        }
+
+        /// <summary>
+        /// Place down the given entity.
+        /// Attaches the entity before playing the animation, and removes the entity when the object is placed down.
+        /// </summary>
+        /// <param name="ped">Set the ped that executes the animation.</param>
+        /// <param name="entity">Set the entity to place down.</param>
+        /// <returns>Returns the animation executor.</returns>
+        public static AnimationTaskExecutor PlaceDownObject(ACPed ped, Object entity)
+        {
+            var clonedEntity = new Object(entity.Model, entity.Position) {IsVisible = false};
+            ped.Attach(entity, PlacementType.RightHand);
+            var executor = ped.PlayAnimation("pickup_object", "putdown_low", AnimationFlags.None);
+            executor.OnCompletion += (sender, args) =>
+            {
+                ped.DeleteAttachments();
+                clonedEntity.IsVisible = true;
+            };
+            return executor;
         }
     }
 }

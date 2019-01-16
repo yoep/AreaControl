@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
+using AreaControl.Menu;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
 using Arrest_Manager.API;
@@ -18,13 +19,15 @@ namespace AreaControl.Duties
         private const float SearchRange = 35f;
 
         private readonly Vector3 _position;
+        private readonly ResponseCode _code;
         private readonly IRage _rage;
         private ACPed _ped;
 
-        internal CleanCorpsesDuty(Vector3 position)
+        internal CleanCorpsesDuty(Vector3 position, ResponseCode code)
         {
             Assert.NotNull(position, "position cannot be null");
             _position = position;
+            _code = code;
             _rage = IoC.Instance.GetInstance<IRage>();
         }
 
@@ -57,8 +60,9 @@ namespace AreaControl.Duties
             {
                 _rage.LogTrivialDebug("Executing CleanCorpsesDuty...");
                 var deathPed = GetFirstAvailableDeathPed();
-
-                ped.WalkTo(deathPed)
+                var goToExecutor = _code == ResponseCode.Code2 ? ped.WalkTo(deathPed) : ped.RunTo(deathPed);
+                
+                goToExecutor
                     .WaitForAndExecute(executor =>
                     {
                         _rage.LogTrivialDebug("Completed task executor for walking to death ped " + executor);
@@ -74,11 +78,11 @@ namespace AreaControl.Duties
                         _rage.LogTrivialDebug("Completed task executor talking to radio " + executor);
                         _rage.LogTrivialDebug("Calling coroner...");
                         Functions.CallCoroner(deathPed.Position, false);
-                        return AnimationUtil.IssueTicket(_ped);
+                        return AnimationUtil.Investigate(_ped);
                     }, 3000)
                     .WaitForAndExecute(executor =>
                     {
-                        _rage.LogTrivialDebug("Completed task executor for issuing ticket " + executor);
+                        _rage.LogTrivialDebug("Completed animation executor for investigate " + executor);
                         _ped.DeleteAttachments();
 
                         while (IsDeadBodyInRange())

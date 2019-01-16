@@ -35,7 +35,8 @@ namespace AreaControl.Utils
             Assert.NotNull(entity, "entity cannot be null");
             if (!entity.IsValid()) 
                 return;
-            
+
+            entity.IsPersistent = false;
             entity.Dismiss();
             entity.Delete();
         }

@@ -151,7 +151,7 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, BlockSlot slot)
         {
-            var trafficDuty = new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading);
+            var trafficDuty = new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode);
             _dutyManager.RegisterDuty(trafficDuty);
             vehicle.Driver.ActivateDuty(trafficDuty);
         }
