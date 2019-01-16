@@ -175,9 +175,10 @@ namespace AreaControl.Actions.RedirectTraffic
 
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, RedirectSlot redirectSlot)
         {
+            var driver = vehicle.Driver;
             var trafficDuty = new RedirectTrafficDuty(redirectSlot.PedPosition, redirectSlot.PedHeading, _responseManager.ResponseCode);
-            _dutyManager.RegisterDuty(trafficDuty);
-            vehicle.Driver.ActivateDuty(trafficDuty);
+            _dutyManager.RegisterDuty(driver, trafficDuty);
+            trafficDuty.Execute();
         }
 
         private void PlaceCones(ACPed ped, RedirectSlot redirectSlot)

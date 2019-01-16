@@ -1,5 +1,6 @@
 using System;
 using AreaControl.Instances;
+using Rage;
 
 namespace AreaControl.Duties
 {
@@ -11,12 +12,6 @@ namespace AreaControl.Duties
         /// (e.g. death bodies or wrecks in the area).
         /// </summary>
         bool IsAvailable { get; }
-
-        /// <summary>
-        /// Get if this duty is still active.
-        /// Some duties can be completed and will become inactive when completed.
-        /// </summary>
-        bool IsActive { get; }
         
         /// <summary>
         /// Check if this duty can be repeated multiple times.
@@ -30,15 +25,24 @@ namespace AreaControl.Duties
         bool IsMultipleInstancesAllowed { get; }
         
         /// <summary>
+        /// Get the state of the duty.
+        /// </summary>
+        DutyState State { get; }
+        
+        /// <summary>
         /// Add an event handler to the on completion event.
         /// </summary>
         EventHandler OnCompletion { get; set; }
+        
+        /// <summary>
+        /// Get or set the ped for this duty.
+        /// </summary>
+        ACPed Ped { get; set; }
 
         /// <summary>
         /// Execute this duty on the given ped.
         /// </summary>
-        /// <param name="ped">Set the ped instance.</param>
-        void Execute(ACPed ped);
+        void Execute();
 
         /// <summary>
         /// End forcefully the duty if it's still active.

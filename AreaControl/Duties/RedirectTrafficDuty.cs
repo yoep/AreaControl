@@ -1,4 +1,3 @@
-using System;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Menu;
@@ -12,13 +11,12 @@ namespace AreaControl.Duties
     /// Duty for redirecting the traffic on the road.
     /// This duty will let the given ped walk to the given position and play the parking assistant animation.
     /// </summary>
-    public class RedirectTrafficDuty : IDuty
+    public class RedirectTrafficDuty : AbstractDuty
     {
         private readonly IRage _rage;
         private readonly Vector3 _position;
         private readonly float _heading;
         private readonly ResponseCode _code;
-        private ACPed _ped;
         private AnimationTaskExecutor _animationTaskExecutor;
 
         public RedirectTrafficDuty(Vector3 position, float heading, ResponseCode code)
@@ -30,50 +28,44 @@ namespace AreaControl.Duties
         }
 
         /// <inheritdoc />
-        public bool IsAvailable => true;
+        public override bool IsAvailable => true;
 
         /// <inheritdoc />
-        public bool IsActive { get; private set; }
+        public override bool IsRepeatable => true;
 
         /// <inheritdoc />
-        public bool IsRepeatable => true;
+        public override bool IsMultipleInstancesAllowed => true;
 
         /// <inheritdoc />
-        public bool IsMultipleInstancesAllowed => true;
-
-        /// <inheritdoc />
-        public EventHandler OnCompletion { get; set; }
-
-        /// <inheritdoc />
-        public void Execute(ACPed ped)
+        public override void Execute()
         {
-            IsActive = true;
-            _ped = ped;
+            base.Execute();
+
             _rage.NewSafeFiber(() =>
             {
-                _ped.WeaponsEnabled = false;
-                var goToExecutor = _code == ResponseCode.Code2 ? _ped.WalkTo(_position, _heading) : _ped.RunTo(_position, _heading);
+                Ped.WeaponsEnabled = false;
+                var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(_position, _heading) : Ped.RunTo(_position, _heading);
                 var taskExecutor = goToExecutor
                     .WaitForCompletion(20000);
                 _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
 
                 _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
-                _animationTaskExecutor = AnimationUtil.RedirectTraffic(_ped);
+                _animationTaskExecutor = AnimationUtil.RedirectTraffic(Ped);
             }, "RedirectTrafficDuty.Execute");
         }
 
         /// <inheritdoc />
-        public void Abort()
+        public override void Abort()
         {
+            base.Abort();
+
             _rage.NewSafeFiber(() =>
             {
-                _ped.WeaponsEnabled = true;
+                Ped.WeaponsEnabled = true;
                 _rage.LogTrivialDebug("Aborting redirect animation...");
                 _animationTaskExecutor?.Abort();
                 _rage.LogTrivialDebug("Deleting attachments from redirect officer ped...");
-                _ped.DeleteAttachments();
-                IsActive = false;
-                _ped.ActivateDuty(new ReturnToVehicleDuty());
+                Ped.DeleteAttachments();
             }, "RedirectTrafficDuty.Abort");
         }
     }

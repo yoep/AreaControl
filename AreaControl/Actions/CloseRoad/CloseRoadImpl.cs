@@ -93,7 +93,7 @@ namespace AreaControl.Actions.CloseRoad
 
                         MoveToSlot(vehicle, slot);
                         AssignRedirectTrafficDutyToDriver(vehicle, slot);
-                        AssignAvailableDutiesToPassengers(vehicle, slot);
+                        AssignAvailableDutiesToPassengers(vehicle);
                     }, "BlockSlot#" + i);
             }
         }
@@ -151,20 +151,23 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, BlockSlot slot)
         {
-            var trafficDuty = new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode);
-            _dutyManager.RegisterDuty(trafficDuty);
-            vehicle.Driver.ActivateDuty(trafficDuty);
+            var driver = vehicle.Driver;
+            var trafficDuty = new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode)
+            {
+                Ped = driver
+            };
+            _dutyManager.RegisterDuty(driver, trafficDuty);
+            trafficDuty.Execute();
         }
 
-        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, BlockSlot slot)
+        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle)
         {
             vehicle.Passengers.ForEach(AssignNextAvailableDutyToPed);
         }
 
         private void AssignNextAvailableDutyToPed(ACPed ped)
         {
-            var playerPosition = Game.LocalPlayer.Character.Position;
-            var nextAvailableDuty = _dutyManager.NextAvailableOrIdleDuty(playerPosition);
+            var nextAvailableDuty = _dutyManager.NextAvailableOrIdleDuty(ped);
 
             if (nextAvailableDuty.GetType() != typeof(ReturnToVehicleDuty))
             {
@@ -172,20 +175,20 @@ namespace AreaControl.Actions.CloseRoad
             }
             else
             {
-                nextAvailableDuty.OnCompletion += (sender, args) => RegisterDutyListenerForIdlePed(ped, playerPosition);
-                ped.ActivateDuty(nextAvailableDuty);
+                nextAvailableDuty.OnCompletion += (sender, args) => RegisterDutyListenerForIdlePed(ped);
+                nextAvailableDuty.Execute();
             }
         }
 
         private void ActivateNonIdleDuty(ACPed ped, IDuty duty)
         {
             duty.OnCompletion += (sender, args) => AssignNextAvailableDutyToPed(ped);
-            ped.ActivateDuty(duty);
+            duty.Execute();
         }
 
-        private void RegisterDutyListenerForIdlePed(ACPed ped, Vector3 playerPosition)
+        private void RegisterDutyListenerForIdlePed(ACPed ped)
         {
-            _dutyManager[playerPosition].OnDutyAvailable += (sender, args) => ActivateNonIdleDuty(ped, args.AvailableDuty);
+            _dutyManager[ped].OnDutyAvailable += (sender, args) => ActivateNonIdleDuty(ped, args.AvailableDuty);
         }
 
         private static Road GetPositionBehindSlot(BlockSlot slot, int index)

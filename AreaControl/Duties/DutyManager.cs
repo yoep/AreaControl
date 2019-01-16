@@ -11,7 +11,7 @@ namespace AreaControl.Duties
 {
     public class DutyManager : IDutyManager, IDisposable
     {
-        private readonly List<IDuty> _duties = new List<IDuty>();
+        private readonly Dictionary<ACPed, List<IDuty>> _duties = new Dictionary<ACPed, List<IDuty>>();
         private readonly List<DutyListener> _dutyListeners = new List<DutyListener>();
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
@@ -32,13 +32,13 @@ namespace AreaControl.Duties
         #region IDutyManager implementation
 
         /// <inheritdoc />
-        public IDutyListener this[Vector3 position]
+        public IDutyListener this[ACPed ped]
         {
             get
             {
                 var listener = new DutyListener
                 {
-                    Position = position
+                    Ped = ped
                 };
                 _dutyListeners.Add(listener);
                 return listener;
@@ -46,13 +46,14 @@ namespace AreaControl.Duties
         }
 
         /// <inheritdoc />
-        public IDuty NextAvailableOrIdleDuty(Vector3 position)
+        public IDuty NextAvailableOrIdleDuty(ACPed ped)
         {
+            var position = ped.Instance.Position;
             var nextAvailableDuty = GetNextAvailableDuty(position);
 
             if (nextAvailableDuty != null)
             {
-                RegisterDuty(nextAvailableDuty);
+                RegisterDuty(ped, nextAvailableDuty);
                 return nextAvailableDuty;
             }
 
@@ -61,21 +62,55 @@ namespace AreaControl.Duties
         }
 
         /// <inheritdoc />
-        public void RegisterDuty(IDuty duty)
+        public IReadOnlyList<IDuty> RegisteredDuties
         {
+            get
+            {
+                var duties = new List<IDuty>();
+
+                foreach (var value in _duties.Values)
+                {
+                    duties.AddRange(value);
+                }
+
+                return duties;
+            }
+        }
+
+        /// <inheritdoc />
+        public void RegisterDuty(ACPed ped, IDuty duty)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(duty, "duty cannot be null");
-            _duties.Add(duty);
+            List<IDuty> pedDuties;
+
+            if (_duties.ContainsKey(ped))
+            {
+                pedDuties = _duties[ped];
+            }
+            else
+            {
+                pedDuties = new List<IDuty>();
+                _duties.Add(ped, pedDuties);
+            }
+
+            duty.Ped = ped;
+            pedDuties.Add(duty);
         }
 
         /// <inheritdoc />
         public void DismissDuties()
         {
-            foreach (var duty in _duties.Where(x => x.IsActive))
+            foreach (var duties in _duties.Values)
             {
-                duty.Abort();
+                foreach (var duty in duties.Where(x => x.State == DutyState.Active))
+                {
+                    duty.Abort();
+                }
+
+                duties.Clear();
             }
 
-            _duties.Clear();
             _dutyListeners.Clear();
         }
 
@@ -102,13 +137,19 @@ namespace AreaControl.Duties
 
                     foreach (var dutyListener in clonedDutyListeners)
                     {
-                        var availableDuty = GetNextAvailableDuty(dutyListener.Position);
+                        var pedInstance = dutyListener.Ped.Instance;
+
+                        //check if the ped instance is still valid
+                        if (!pedInstance.IsValid())
+                            continue;
+
+                        var availableDuty = GetNextAvailableDuty(pedInstance.Position);
 
                         if (availableDuty == null || dutyListener.OnDutyAvailable == null)
                             continue;
 
                         _rage.LogTrivialDebug("Found a new available duty " + availableDuty + " for listener " + dutyListener);
-                        RegisterDuty(availableDuty);
+                        RegisterDuty(dutyListener.Ped, availableDuty);
                         _dutyListeners.Remove(dutyListener);
                         dutyListener.OnDutyAvailable.Invoke(this, new DutyAvailableEventArgs(availableDuty));
                     }
@@ -132,14 +173,12 @@ namespace AreaControl.Duties
                 return false;
 
             //check if the duty has never been instantiated before or not active anymore
-            return !_duties
-                .Where(x => x.GetType() == duty.GetType())
-                .Any(x => x.IsActive);
+            return RegisteredDuties.Where(x => x.GetType() == duty.GetType()).All(x => x.State != DutyState.Active);
         }
 
         private bool HasAlreadyBeenInstantiatedBefore(IDuty duty)
         {
-            return _duties.Any(x => x.GetType() == duty.GetType());
+            return RegisteredDuties.Any(x => x.GetType() == duty.GetType());
         }
 
         private IEnumerable<IDuty> GetDuties(Vector3 position)
@@ -161,14 +200,14 @@ namespace AreaControl.Duties
         public class DutyListener : IDutyListener
         {
             /// <inheritdoc />
-            public Vector3 Position { get; internal set; }
+            public ACPed Ped { get; internal set; }
 
             /// <inheritdoc />
             public EventHandler<DutyAvailableEventArgs> OnDutyAvailable { get; set; }
 
             public override string ToString()
             {
-                return $"{nameof(Position)}: {Position}, {nameof(OnDutyAvailable)}: {OnDutyAvailable}";
+                return $"{nameof(ACPed)}: {Ped}, {nameof(OnDutyAvailable)}: {OnDutyAvailable}";
             }
         }
     }

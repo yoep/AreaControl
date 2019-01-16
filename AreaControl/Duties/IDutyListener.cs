@@ -1,14 +1,14 @@
 using System;
-using Rage;
+using AreaControl.Instances;
 
 namespace AreaControl.Duties
 {
     public interface IDutyListener
     {
         /// <summary>
-        /// Get the position the listener is searching on.
+        /// Get the ped the duty listener is listening for.
         /// </summary>
-        Vector3 Position { get; }
+        ACPed Ped { get; }
 
         /// <summary>
         /// Register an event that will be triggered when a new duty is available.

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
@@ -11,7 +10,7 @@ using Rage;
 
 namespace AreaControl.Duties
 {
-    public class CleanWrecksDuty : IDuty
+    public class CleanWrecksDuty : AbstractDuty
     {
         private const float SearchRange = 35f;
         private const string SpeedoModelName = "SPEEDO";
@@ -20,7 +19,6 @@ namespace AreaControl.Duties
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
         private readonly ResponseCode _code;
-        private ACPed _ped;
 
         internal CleanWrecksDuty(Vector3 position, IEntityManager entityManager, ResponseCode code)
         {
@@ -31,25 +29,19 @@ namespace AreaControl.Duties
         }
 
         /// <inheritdoc />
-        public bool IsAvailable => IsWreckInRang();
+        public override bool IsAvailable => IsWreckInRang();
 
         /// <inheritdoc />
-        public bool IsActive { get; private set; }
+        public override bool IsRepeatable => true;
 
         /// <inheritdoc />
-        public bool IsRepeatable => true;
-        
-        /// <inheritdoc />
-        public bool IsMultipleInstancesAllowed => false;
+        public override bool IsMultipleInstancesAllowed => false;
 
         /// <inheritdoc />
-        public EventHandler OnCompletion { get; set; }
-
-        /// <inheritdoc />
-        public void Execute(ACPed ped)
+        public override void Execute()
         {
-            IsActive = true;
-            _ped = ped;
+            base.Execute();
+
             _rage.NewSafeFiber(() =>
             {
                 var wrecks = GetWrecks();
@@ -60,38 +52,31 @@ namespace AreaControl.Duties
                     _rage.LogTrivialDebug("Making wreck persistent...");
                     //make the wreck persistent as the game likes to remove it suddenly making this duty crash :(
                     wreck.IsPersistent = true;
-                    
+
                     _rage.LogTrivialDebug("Going to wreck " + (wrecks.IndexOf(wreck) + 1) + " of " + wrecks.Count);
-                    var goToExecutor = _code == ResponseCode.Code2 ? ped.WalkTo(wreck) : ped.RunTo(wreck);
-                    
+                    var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(wreck) : Ped.RunTo(wreck);
+
                     goToExecutor
                         .WaitForAndExecute(taskExecutor =>
                         {
                             _rage.LogTrivialDebug("Completed walk to wreck for task " + taskExecutor);
-                            return AnimationUtil.IssueTicket(ped);
+                            return AnimationUtil.IssueTicket(Ped);
                         }, 30000)
                         .WaitForAndExecute(taskExecutor =>
                         {
                             _rage.LogTrivialDebug("Completed write ticket at wreck " + taskExecutor);
-                            ped.DeleteAttachments();
+                            Ped.DeleteAttachments();
                             _rage.LogTrivialDebug("Calling tow truck for " + wreck.Model.Name + "...");
                             Functions.RequestTowTruck(wreck, false);
-                            return AnimationUtil.TalkToRadio(ped);
+                            return AnimationUtil.TalkToRadio(Ped);
                         }, 5000)
                         .WaitForCompletion(3000);
                     _entityManager.RegisterDisposedWreck(wreck);
                 }
 
                 _rage.LogTrivialDebug("CleanWrecksDuty completed");
-                IsActive = false;
-                OnCompletion?.Invoke(this, EventArgs.Empty);
+                CompleteDuty();
             }, "CleanWrecksDuty.Execute");
-        }
-
-        /// <inheritdoc />
-        public void Abort()
-        {
-            _ped.ActivateDuty(new ReturnToVehicleDuty());
         }
 
         #region Functions

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using AreaControl.Duties;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
 using LSPD_First_Response.Mod.API;
@@ -36,22 +35,17 @@ namespace AreaControl.Instances
         public Ped Instance { get; }
 
         /// <summary>
-        /// Get the current duty of the ped.
-        /// </summary>
-        public IDuty CurrentDuty { get; private set; }
-
-        /// <summary>
         /// Get or set if this vehicle is busy.
         /// If not busy, this vehicle can be used for a task by the plugin.
         /// </summary>
         public bool IsBusy { get; internal set; }
-        
+
         /// <summary>
         /// Get or set if weapons are enabled on this ped.
         /// </summary>
         public bool WeaponsEnabled
         {
-            get { return _weaponsEnabled;}
+            get { return _weaponsEnabled; }
             set { SetWeaponState(value); }
         }
 
@@ -127,7 +121,7 @@ namespace AreaControl.Instances
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
-        
+
         /// <summary>
         /// Run to the given target.
         /// </summary>
@@ -184,19 +178,6 @@ namespace AreaControl.Instances
         }
 
         /// <summary>
-        /// Activates the given duty for the ped.
-        /// </summary>
-        /// <param name="duty">Set the duty to activate</param>
-        public void ActivateDuty(IDuty duty)
-        {
-            if (CurrentDuty != null && CurrentDuty.IsActive)
-                throw new ActiveDutyException("Ped has currently an active duty running and cannot be reassigned to a new duty");
-
-            CurrentDuty = duty;
-            CurrentDuty.Execute(this);
-        }
-
-        /// <summary>
         /// Free this ped and return the instance handle back to LSPDFR.
         /// </summary>
         public void ReturnToLspdfrDuty()
@@ -237,9 +218,10 @@ namespace AreaControl.Instances
 
         public override string ToString()
         {
-            return $"{nameof(Id)}: {Id},"  + Environment.NewLine +
-                   $"{nameof(CurrentDuty)}: {CurrentDuty}," + Environment.NewLine +
-                   $"{nameof(IsBusy)}: {IsBusy}";
+            return $"{nameof(Id)}: {Id}," + Environment.NewLine +
+                   $"{nameof(Instance)}: {Instance}," + Environment.NewLine +
+                   $"{nameof(IsBusy)}: {IsBusy}," + Environment.NewLine +
+                   $"{nameof(WeaponsEnabled)}: {WeaponsEnabled}";
         }
 
         private EventHandler TaskExecutorOnCompletion()

@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
@@ -14,14 +13,13 @@ namespace AreaControl.Duties
     /// Duty for cleaning dead bodies.
     /// This duty consist out of calling the EMS first. If one or more bodies couldn't be revived, they will call the coroner service.
     /// </summary>
-    public class CleanCorpsesDuty : IDuty
+    public class CleanCorpsesDuty : AbstractDuty
     {
         private const float SearchRange = 35f;
 
         private readonly Vector3 _position;
         private readonly ResponseCode _code;
         private readonly IRage _rage;
-        private ACPed _ped;
 
         internal CleanCorpsesDuty(Vector3 position, ResponseCode code)
         {
@@ -34,56 +32,47 @@ namespace AreaControl.Duties
         #region IDuty implementation
 
         /// <inheritdoc />
-        public bool IsAvailable => IsDeadBodyInRange();
+        public override bool IsAvailable => IsDeadBodyInRange();
 
         /// <inheritdoc />
-        public bool IsActive { get; private set; }
+        public override bool IsRepeatable => true;
 
         /// <inheritdoc />
-        public bool IsRepeatable => true;
+        public override bool IsMultipleInstancesAllowed => false;
 
         /// <inheritdoc />
-        public bool IsMultipleInstancesAllowed => false;
-
-        /// <inheritdoc />
-        public EventHandler OnCompletion { get; set; }
-
-        /// <inheritdoc />
-        public void Execute(ACPed ped)
+        public override void Execute()
         {
-            if (!IsAvailable)
-                return;
+            base.Execute();
 
-            IsActive = true;
-            _ped = ped;
             _rage.NewSafeFiber(() =>
             {
                 _rage.LogTrivialDebug("Executing CleanCorpsesDuty...");
                 var deathPed = GetFirstAvailableDeathPed();
-                var goToExecutor = _code == ResponseCode.Code2 ? ped.WalkTo(deathPed) : ped.RunTo(deathPed);
-                
+                var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(deathPed) : Ped.RunTo(deathPed);
+
                 goToExecutor
                     .WaitForAndExecute(executor =>
                     {
                         _rage.LogTrivialDebug("Completed task executor for walking to death ped " + executor);
-                        return ped.LookAt(deathPed);
+                        return Ped.LookAt(deathPed);
                     }, 30000)
                     .WaitForAndExecute(executor =>
                     {
                         _rage.LogTrivialDebug("Completed task executor for looking at ped " + executor);
-                        return AnimationUtil.TalkToRadio(ped);
+                        return AnimationUtil.TalkToRadio(Ped);
                     }, 3000)
                     .WaitForAndExecute(executor =>
                     {
                         _rage.LogTrivialDebug("Completed task executor talking to radio " + executor);
                         _rage.LogTrivialDebug("Calling coroner...");
                         Functions.CallCoroner(deathPed.Position, false);
-                        return AnimationUtil.Investigate(_ped);
+                        return AnimationUtil.Investigate(Ped);
                     }, 3000)
                     .WaitForAndExecute(executor =>
                     {
                         _rage.LogTrivialDebug("Completed animation executor for investigate " + executor);
-                        _ped.DeleteAttachments();
+                        Ped.DeleteAttachments();
 
                         while (IsDeadBodyInRange())
                         {
@@ -91,30 +80,14 @@ namespace AreaControl.Duties
                         }
 
                         _rage.LogTrivialDebug("CleanCorpsesDuty has been completed");
-                        IsActive = false;
-                        EndDuty();
+                        CompleteDuty();
                     }, 5000);
             }, "CleanCorpsesDuty.Execute");
-        }
-
-        /// <inheritdoc />
-        public void Abort()
-        {
-            if (!IsActive)
-                return;
-
-            _rage.LogTrivialDebug("Aborting CleanCorpsesDuty");
-            _ped.ActivateDuty(new ReturnToVehicleDuty());
         }
 
         #endregion
 
         #region Functions
-
-        private void EndDuty()
-        {
-            OnCompletion?.Invoke(this, EventArgs.Empty);
-        }
 
         private bool IsDeadBodyInRange()
         {

@@ -1,10 +1,9 @@
-using System;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 
 namespace AreaControl.Duties
 {
-    public class ReturnToVehicleDuty : IDuty
+    public class ReturnToVehicleDuty : AbstractDuty
     {
         private readonly IRage _rage;
 
@@ -15,44 +14,33 @@ namespace AreaControl.Duties
 
         /// <inheritdoc />
         /// Return to vehicle can always be executed
-        public bool IsAvailable => true;
+        public override bool IsAvailable => true;
 
         /// <inheritdoc />
-        public bool IsActive { get; private set; }
-        
-        /// <inheritdoc />
-        public bool IsRepeatable => true;
-        
-        /// <inheritdoc />
-        public bool IsMultipleInstancesAllowed => true;
+        public override bool IsRepeatable => true;
 
         /// <inheritdoc />
-        public EventHandler OnCompletion { get; set; }
+        public override bool IsMultipleInstancesAllowed => true;
 
         /// <inheritdoc />
-        public void Execute(ACPed ped)
+        public override void Execute()
         {
+            base.Execute();
             _rage.LogTrivialDebug("Executing ReturnToVehicleDuty...");
-            IsActive = true;
-           _rage.NewSafeFiber(() =>
-           {
-               ped.WeaponsEnabled = true;
-               ped
-                   .EnterLastVehicle(MovementSpeed.Walk)
-                   .WaitForAndExecute(() =>
-                   {
-                       _rage.LogTrivialDebug("ReturnToVehicleDuty completed");
-                       ped.ReturnToLspdfrDuty();
-                       IsActive = false;
-                       OnCompletion?.Invoke(this, EventArgs.Empty);
-                   }, 30000);
-           }, "ReturnToVehicleDuty.Execute");
-        }
 
-        /// <inheritdoc />
-        public void Abort()
-        {
-            //this duty cannot be aborted
+            _rage.NewSafeFiber(() =>
+            {
+                Ped.WeaponsEnabled = true;
+                Ped
+                    .EnterLastVehicle(MovementSpeed.Walk)
+                    .WaitForAndExecute(() =>
+                    {
+                        _rage.LogTrivialDebug("ReturnToVehicleDuty completed");
+                        Ped.ReturnToLspdfrDuty();
+
+                        CompleteDuty();
+                    }, 30000);
+            }, "ReturnToVehicleDuty.Execute");
         }
     }
 }
