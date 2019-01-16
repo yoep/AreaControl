@@ -44,7 +44,7 @@ namespace AreaControl.Instances
                 return controlledVehicle;
             }
 
-            var vehicle = FindAvailablePoliceVehicleInWorld(position, radius);
+            var vehicle = FindAvailablePoliceVehicleInWorld(position, radius, numberOfOccupantsToSpawn);
 
             return vehicle != null ? RegisterVehicle(vehicle) : CreateVehicleWithOccupants(GetStreetAt(spawnPosition), numberOfOccupantsToSpawn);
         }
@@ -127,11 +127,11 @@ namespace AreaControl.Instances
             }, "EntityManager");
         }
 
-        private Vehicle FindAvailablePoliceVehicleInWorld(Vector3 position, float radius)
+        private Vehicle FindAvailablePoliceVehicleInWorld(Vector3 position, float radius, int numberOfOccupantsToSpawn)
         {
             var vehicles = VehicleQuery.FindPoliceVehiclesWithin(position, radius);
 
-            return vehicles.FirstOrDefault(x => !IsVehicleAlreadyManaged(x));
+            return vehicles.FirstOrDefault(x => !IsVehicleAlreadyManaged(x) && x.Occupants.Length == numberOfOccupantsToSpawn);
         }
 
         private bool IsVehicleAlreadyManaged(Vehicle instance)
