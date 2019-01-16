@@ -37,7 +37,7 @@ namespace AreaControl.Duties
         public virtual void Execute()
         {
             if (State != DutyState.Ready)
-                throw new InvalidDutyStateException(State);
+                throw new InvalidDutyStateException("Duty cannot be executed because it's in an invalid state", State);
 
             State = DutyState.Active;
         }
@@ -56,7 +56,7 @@ namespace AreaControl.Duties
             return $"{nameof(IsAvailable)}: {IsAvailable}," + Environment.NewLine +
                    $"{nameof(IsRepeatable)}: {IsRepeatable}," + Environment.NewLine +
                    $"{nameof(IsMultipleInstancesAllowed)}: {IsMultipleInstancesAllowed}," + Environment.NewLine +
-                   $"{nameof(State)}: {State}," + Environment.NewLine +  
+                   $"{nameof(State)}: {State}," + Environment.NewLine +
                    $"{nameof(Ped)}: {Ped}," + Environment.NewLine +
                    $"{nameof(OnCompletion)}: {OnCompletion}";
         }

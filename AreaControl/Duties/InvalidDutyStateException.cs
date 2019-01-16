@@ -4,8 +4,8 @@ namespace AreaControl.Duties
 {
     public class InvalidDutyStateException : Exception
     {
-        public InvalidDutyStateException(DutyState state)
-            : base("Duty is in an invalid state, state: " + state)
+        public InvalidDutyStateException(string message, DutyState state)
+            : base(message + ",state: " + state)
         {
         }
     }

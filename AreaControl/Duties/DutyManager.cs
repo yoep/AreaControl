@@ -58,7 +58,9 @@ namespace AreaControl.Duties
             }
 
             _rage.LogTrivialDebug("Their are no available duties in the area of " + position);
-            return GetIdleDuty();
+            var idleDuty = GetIdleDuty();
+            RegisterDuty(ped, idleDuty);
+            return idleDuty;
         }
 
         /// <inheritdoc />

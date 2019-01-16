@@ -20,6 +20,7 @@ namespace AreaControl.Utils.Query
             return World
                 .GetEntities(position, radius, GetEntitiesFlags.ConsiderGroundVehicles)
                 .OfType<Vehicle>()
+                .Where(e => e.IsValid())
                 .Where(e => e.Driver != Game.LocalPlayer.Character && e.IsPoliceVehicle && !e.IsEmpty && e.IsDriveable)
                 .ToList();
         }

@@ -66,8 +66,18 @@ namespace AreaControl.Actions.CloseRoad
                     MathHelper.NormalizeHeading(MathHelper.ConvertDirectionToHeading(closestRoadToPlayer.Position - road.Position));
                 Rage.LogTrivialDebug("Found road to use " + road);
                 Rage.LogTrivialDebug("Road heading in regards to closest road " + roadHeadingToOriginal);
+                var lanesToBlock = road.Lanes
+                    .Where(x => Math.Abs(x.Heading - roadHeadingToOriginal) < LaneHeadingTolerance)
+                    .ToList();
+                Rage.LogTrivialDebug("Found " + lanesToBlock.Count + " lanes to block");
 
-                foreach (var lane in road.Lanes.Where(x => Math.Abs(x.Heading - roadHeadingToOriginal) < LaneHeadingTolerance))
+                if (!lanesToBlock.Any())
+                {
+                    lanesToBlock = road.Lanes.ToList();
+                    Rage.LogTrivialDebug("Using all lanes as no lanes were found to be used");
+                }
+                
+                foreach (var lane in lanesToBlock)
                 {
                     var placementHeading = lane.Heading + 90f;
                     var direction = MathHelper.ConvertHeadingToDirection(placementHeading);

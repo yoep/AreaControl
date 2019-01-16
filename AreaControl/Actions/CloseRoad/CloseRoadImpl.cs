@@ -70,7 +70,15 @@ namespace AreaControl.Actions.CloseRoad
             {
                 Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
                 var blockSlots = DetermineBlockSlots();
-                SpawnBlockSlots(blockSlots);
+
+                if (blockSlots.Count > 0)
+                {
+                    SpawnBlockSlots(blockSlots);
+                }
+                else
+                {
+                    Rage.LogTrivial("Unable to create any road block slots");
+                }
             }, "AreaControl.CloseRoad");
         }
 
