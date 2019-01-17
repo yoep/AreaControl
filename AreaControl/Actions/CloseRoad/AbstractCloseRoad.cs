@@ -57,10 +57,13 @@ namespace AreaControl.Actions.CloseRoad
 
         protected ICollection<BlockSlot> DetermineBlockSlots()
         {
-            var closestRoadToPlayer = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
             var blockSlots = new List<BlockSlot>();
+            var closestRoadToPlayer = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
+            var roads = closestRoadToPlayer.IsSingleDirection
+                ? GetRoadBehindGivenRoad(closestRoadToPlayer)
+                : GetRoadsAwayFromPlayer(closestRoadToPlayer);
 
-            foreach (var road in GetRoadsAwayFromPlayer(closestRoadToPlayer))
+            foreach (var road in roads)
             {
                 var roadHeadingToOriginal =
                     MathHelper.NormalizeHeading(MathHelper.ConvertDirectionToHeading(closestRoadToPlayer.Position - road.Position));
@@ -70,12 +73,6 @@ namespace AreaControl.Actions.CloseRoad
                     .Where(x => Math.Abs(x.Heading - roadHeadingToOriginal) < LaneHeadingTolerance)
                     .ToList();
                 Rage.LogTrivialDebug("Found " + lanesToBlock.Count + " lanes to block");
-
-                if (!lanesToBlock.Any())
-                {
-                    lanesToBlock = road.Lanes.ToList();
-                    Rage.LogTrivialDebug("Using all lanes as no lanes were found to be used");
-                }
 
                 foreach (var lane in lanesToBlock)
                 {
@@ -99,16 +96,46 @@ namespace AreaControl.Actions.CloseRoad
         private IEnumerable<Road> GetRoadsAwayFromPlayer(Road closestRoadToPlayer)
         {
             var originalHeading = closestRoadToPlayer.Lanes.First().Heading;
-            var oppositeHeading = -originalHeading;
+            var oppositeHeading = RoadUtil.OppositeHeading(originalHeading);
             var originalDirection = MathHelper.ConvertHeadingToDirection(originalHeading);
             var oppositeDirection = MathHelper.ConvertHeadingToDirection(oppositeHeading);
-            var roads = new List<Road> {DetermineClosestRoadTo(closestRoadToPlayer.Position + oppositeDirection * DistanceFromPlayer)};
 
-            // only add an additional block if the road is not a single direction road
-            if (!closestRoadToPlayer.IsSingleDirection)
-                roads.Add(DetermineClosestRoadTo(closestRoadToPlayer.Position + originalDirection * DistanceFromPlayer));
+            return new List<Road>
+            {
+                DetermineClosestRoadTo(closestRoadToPlayer.Position + oppositeDirection * DistanceFromPlayer),
+                DetermineClosestRoadTo(closestRoadToPlayer.Position + originalDirection * DistanceFromPlayer)
+            };
+        }
 
-            return roads;
+        private IEnumerable<Road> GetRoadBehindGivenRoad(Road closestRoadToPlayer)
+        {
+            var oppositeHeading = RoadUtil.OppositeHeading(GetLaneClosestToPlayer(closestRoadToPlayer).Heading);
+            var oppositeDirection = MathHelper.ConvertHeadingToDirection(oppositeHeading);
+
+            return new List<Road>
+            {
+                DetermineClosestRoadTo(closestRoadToPlayer.Position + oppositeDirection * DistanceFromPlayer)
+            };
+        }
+
+        private Road.Lane GetLaneClosestToPlayer(Road road)
+        {
+            var playerPosition = Game.LocalPlayer.Character.Position;
+            var distanceClosestLane = 9999f;
+            Road.Lane closestLane = null;
+
+            foreach (var lane in road.Lanes)
+            {
+                var laneDistance = Vector3.Distance2D(lane.RightSide, playerPosition);
+
+                if (laneDistance > distanceClosestLane)
+                    continue;
+
+                closestLane = lane;
+                distanceClosestLane = laneDistance;
+            }
+
+            return closestLane;
         }
     }
 }
