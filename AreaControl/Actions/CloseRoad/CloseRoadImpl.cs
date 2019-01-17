@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Menu;
+using AreaControl.Settings;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
@@ -12,7 +14,7 @@ using RAGENativeUI.Elements;
 namespace AreaControl.Actions.CloseRoad
 {
     [IoC.Primary]
-    public class CloseRoadImpl : AbstractCloseRoad
+    public class CloseRoadImpl : AbstractCloseRoad, IPreviewSupport
     {
         private const float ScanRadius = 250f;
         private const float BlockHeadingTolerance = 30f;
@@ -21,14 +23,23 @@ namespace AreaControl.Actions.CloseRoad
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
         private readonly IDutyManager _dutyManager;
+        private readonly ISettingsManager _settingsManager;
 
-        public CloseRoadImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager, IDutyManager dutyManager)
+        private ICollection<BlockSlot> _blockSlots;
+
+        #region Constructors
+
+        public CloseRoadImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager, IDutyManager dutyManager,
+            ISettingsManager settingsManager)
             : base(rage)
         {
             _entityManager = entityManager;
             _responseManager = responseManager;
             _dutyManager = dutyManager;
+            _settingsManager = settingsManager;
         }
+
+        #endregion
 
         #region IMenuComponent implementation
 
@@ -49,6 +60,69 @@ namespace AreaControl.Actions.CloseRoad
             {
                 CloseRoad();
             }
+        }
+
+        /// <inheritdoc />
+        public override void OnMenuHighlighted(IMenu sender)
+        {
+            if (_settingsManager.RedirectTrafficSettings.ShowPreview && !IsActive)
+                Rage.NewSafeFiber(() =>
+                {
+                    while (sender.IsShown && MenuItem.Selected && !IsActive)
+                    {
+                        var blockSlots = DetermineBlockSlots();
+                        var blockSlot = blockSlots.First();
+                        var bufferedBlockSlot = _blockSlots?.First();
+
+                        if (blockSlot.Position != bufferedBlockSlot?.Position || !IsPreviewActive)
+                        {
+                            DeletePreview();
+                            _blockSlots = blockSlots;
+                            CreatePreview();
+                        }
+
+                        GameFiber.Sleep(500);
+                    }
+
+                    DeletePreview();
+                }, "CloseRoadImpl.OnMenuHighlighted");
+        }
+
+        #endregion
+
+        #region IPreviewSupport implementation
+
+        /// <inheritdoc />
+        public bool IsPreviewActive { get; private set; }
+
+        /// <inheritdoc />
+        public void CreatePreview()
+        {
+            Rage.NewSafeFiber(() =>
+            {
+                IsPreviewActive = true;
+                foreach (var slot in _blockSlots)
+                {
+                    slot.CreatePreview();
+                }
+            }, "CloseRoadImpl.CreatePreview");
+        }
+
+        /// <inheritdoc />
+        public void DeletePreview()
+        {
+            IsPreviewActive = false;
+            
+            if (_blockSlots == null || _blockSlots.Count == 0)
+                return;
+
+            Rage.NewSafeFiber(() =>
+            {
+                foreach (var slot in _blockSlots)
+                {
+                    slot.DeletePreview();
+                }
+            }, "CloseRoadImpl.DeletePreview");
         }
 
         #endregion

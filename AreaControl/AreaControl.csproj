@@ -104,6 +104,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AbstractionLayer\IRage.cs" />
     <Compile Include="AbstractionLayer\RageImpl.cs" />
+    <Compile Include="Settings\CloseRoadSettings.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
     <Compile Include="Settings\RedirectTrafficSettings.cs" />

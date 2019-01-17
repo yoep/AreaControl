@@ -41,6 +41,7 @@ namespace AreaControl.Duties
                     Ped = ped
                 };
                 _dutyListeners.Add(listener);
+                _rage.LogTrivialDebug("Registering a new duty listener for " + ped);
                 return listener;
             }
         }

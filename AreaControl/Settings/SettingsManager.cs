@@ -22,6 +22,9 @@ namespace AreaControl.Settings
 
         /// <inheritdoc />
         public RedirectTrafficSettings RedirectTrafficSettings { get; private set; }
+        
+        /// <inheritdoc />
+        public CloseRoadSettings CloseRoadSettings { get; private set; }
 
         [IoC.PostConstruct]
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
@@ -29,9 +32,12 @@ namespace AreaControl.Settings
         {
             try
             {
+                _rage.LogTrivial(System.IO.File.Exists(File) ? "Loading configuration file" : "Configuration file not found, using defaults instead");
+
                 var settingsFile = new InitializationFile(File);
 
                 ReadGeneralSettings(settingsFile);
+                ReadCloseRoadSettings(settingsFile);
                 ReadRedirectTrafficSettings(settingsFile);
             }
             catch (Exception ex)
@@ -54,6 +60,14 @@ namespace AreaControl.Settings
             RedirectTrafficSettings = new RedirectTrafficSettings
             {
                 ShowPreview = file.ReadBoolean("Redirect Traffic", "ShowPreview", true)
+            };
+        }
+
+        private void ReadCloseRoadSettings(InitializationFile file)
+        {
+            CloseRoadSettings = new CloseRoadSettings
+            {
+                ShowPreview = file.ReadBoolean("Close Road", "ShowPreview", true)
             };
         }
 

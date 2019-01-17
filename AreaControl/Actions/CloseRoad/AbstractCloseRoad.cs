@@ -39,9 +39,9 @@ namespace AreaControl.Actions.CloseRoad
 
         /// <inheritdoc />
         public abstract void OnMenuActivation(IMenu sender);
-        
+
         /// <inheritdoc />
-        public void OnMenuHighlighted(IMenu sender)
+        public virtual void OnMenuHighlighted(IMenu sender)
         {
             //do nothing
         }
@@ -76,13 +76,13 @@ namespace AreaControl.Actions.CloseRoad
                     lanesToBlock = road.Lanes.ToList();
                     Rage.LogTrivialDebug("Using all lanes as no lanes were found to be used");
                 }
-                
+
                 foreach (var lane in lanesToBlock)
                 {
                     var placementHeading = lane.Heading + 90f;
                     var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
                     var placementPosition = lane.RightSide + direction * 2f;
-                    
+
                     blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
                 }
             }
