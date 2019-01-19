@@ -26,7 +26,6 @@ namespace AreaControl.Utils
         public static Object CreateSmallBlankCone(Vector3 position)
         {
             var instance = new Object(new Model("prop_mp_cone_03"), position);
-            instance.MakePersistent();
             PlaceCorrectlyOnGround(instance);
             return instance;
         }
@@ -34,7 +33,6 @@ namespace AreaControl.Utils
         public static Object CreateSmallConeWithStripes(Vector3 position)
         {
             var instance = new Object(new Model("prop_mp_cone_02"), position);
-            instance.MakePersistent();
             PlaceCorrectlyOnGround(instance);
             return instance;
         }
@@ -42,7 +40,6 @@ namespace AreaControl.Utils
         public static Object CreateBigConeWithStripes(Vector3 position)
         {
             var instance = new Object(new Model("prop_mp_cone_01"), position);
-            instance.MakePersistent();
             PlaceCorrectlyOnGround(instance);
             return instance;
         }
@@ -50,7 +47,6 @@ namespace AreaControl.Utils
         public static Object CreateLargeThinConeWithStripes(Vector3 position)
         {
             var instance = new Object(new Model("prop_mp_cone_04"), position);
-            instance.MakePersistent();
             PlaceCorrectlyOnGround(instance);
             return instance;
         }
@@ -72,9 +68,7 @@ namespace AreaControl.Utils
             if (!instance.IsValid())
                 return;
 
-            instance.IsVisible = isVisible;
-            instance.NeedsCollision = isVisible;
-            instance.IsCollisionEnabled = isVisible;
+            instance.Opacity = isVisible ? 1f : 0f;
         }
 
         public static void Remove(Object entity)

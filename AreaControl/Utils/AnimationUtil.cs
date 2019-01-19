@@ -63,8 +63,8 @@ namespace AreaControl.Utils
             var executor = ped.PlayAnimation("pickup_object", "putdown_low", AnimationFlags.None);
             executor.OnCompletion += (sender, args) =>
             {
-                ped.DeleteAttachments();
                 PropUtil.SetVisibility(entity, true);
+                ped.DeleteAttachments();
             };
             return executor;
         }
