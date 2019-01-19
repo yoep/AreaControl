@@ -135,9 +135,11 @@ namespace AreaControl.Actions.RedirectTraffic
             _rage.NewSafeFiber(() =>
             {
                 DeletePreview();
-                Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
+                Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
+                    Game.LocalPlayer.Character.Position);
                 var redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
 
+                Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
                 var spawnPosition = GetSpawnPosition(redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
 
@@ -183,12 +185,15 @@ namespace AreaControl.Actions.RedirectTraffic
 
         private void PlaceCones(ACPed ped, RedirectSlot redirectSlot)
         {
+            if (!_settingsManager.RedirectTrafficSettings.PlaceCones)
+                return;
+
             foreach (var cone in redirectSlot.Cones)
             {
                 var positionBehindCone = cone.Position + MathHelper.ConvertHeadingToDirection(cone.Heading) * 0.5f;
                 var walkToExecutor = _responseManager.ResponseCode == ResponseCode.Code2
-                    ? ped.WalkTo(positionBehindCone, cone.Heading)
-                    : ped.RunTo(positionBehindCone, cone.Heading);
+                    ? ped.WalkTo(positionBehindCone, RoadUtil.OppositeHeading(cone.Heading))
+                    : ped.RunTo(positionBehindCone, RoadUtil.OppositeHeading(cone.Heading));
                 var animationExecutor = walkToExecutor
                     .WaitForAndExecute(executor =>
                     {

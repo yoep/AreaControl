@@ -26,7 +26,9 @@ namespace AreaControl.Utils
         public static AnimationTaskExecutor RedirectTraffic(ACPed ped)
         {
             ped.Attach(PropUtil.CreateWand(), PlacementType.RightHand);
-            return ped.PlayAnimation("amb@world_human_car_park_attendant@male@base", "base", AnimationFlags.Loop);
+            var taskExecutor = ped.PlayAnimation("amb@world_human_car_park_attendant@male@base", "base", AnimationFlags.Loop);
+            taskExecutor.OnCompletion += (sender, args) => ped.DeleteAttachments();
+            return taskExecutor;
         }
 
         /// <summary>
@@ -53,13 +55,16 @@ namespace AreaControl.Utils
         /// <returns>Returns the animation executor.</returns>
         public static AnimationTaskExecutor PlaceDownObject(ACPed ped, Object entity)
         {
-            var clonedEntity = new Object(entity.Model, entity.Position) {IsVisible = false};
-            ped.Attach(entity, PlacementType.RightHand);
+            var clonedEntity = new Object(entity.Model, entity.Position);
+
+            PropUtil.SetVisibility(entity, false);
+            ped.Attach(clonedEntity, PlacementType.RightHand);
+            
             var executor = ped.PlayAnimation("pickup_object", "putdown_low", AnimationFlags.None);
             executor.OnCompletion += (sender, args) =>
             {
                 ped.DeleteAttachments();
-                clonedEntity.IsVisible = true;
+                PropUtil.SetVisibility(entity, true);
             };
             return executor;
         }

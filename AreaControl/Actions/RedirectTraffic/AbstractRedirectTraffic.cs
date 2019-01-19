@@ -41,12 +41,9 @@ namespace AreaControl.Actions.RedirectTraffic
 
             //first lane = right side, last lane = left side
             var closestLane = GetClosestLaneToPlayer(playerPosition, closestRoad);
-
             var moveDirection = MathHelper.ConvertHeadingToDirection(RoadUtil.OppositeHeading(closestLane.Heading));
-            var road = RoadUtil.GetClosestRoad(closestRoad.Position + moveDirection * DistanceFromPlayer, RoadType.All);
-            var lane = GetClosestLaneToPlayer(playerPosition, road);
 
-            return new RedirectSlot(lane.RightSide, lane.Heading);
+            return new RedirectSlot(closestLane.RightSide + moveDirection * DistanceFromPlayer, closestLane.Heading);
         }
 
         private Road.Lane GetClosestLaneToPlayer(Vector3 playerPosition, Road road)

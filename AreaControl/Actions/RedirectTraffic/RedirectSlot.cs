@@ -86,14 +86,14 @@ namespace AreaControl.Actions.RedirectTraffic
         {
             var directionLeftOfVehicle = MathHelper.ConvertHeadingToDirection(Heading + 90f);
             var moveHeading = PedHeading;
-            var lastPosition = Position + directionLeftOfVehicle * 2f;
+            var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(moveHeading);
+            var positionLeftOfVehicle = Position + directionLeftOfVehicle * 2f;
+            var secondCone = positionLeftOfVehicle + directionBehindVehicle * 2f;
+            var thirdCone = secondCone + MathHelper.ConvertHeadingToDirection(moveHeading + 40f) * 1.5f;
 
-            for (var i = 0; i < 3; i++)
-            {
-                _cones.Add(new Cone(lastPosition, moveHeading));
-                moveHeading *= 1.075f;
-                lastPosition = lastPosition + MathHelper.ConvertHeadingToDirection(moveHeading) * 2f;
-            }
+            _cones.Add(new Cone(positionLeftOfVehicle, moveHeading));
+            _cones.Add(new Cone(secondCone, moveHeading));
+            _cones.Add(new Cone(thirdCone, moveHeading));
         }
 
         public class Cone : IPreviewSupport

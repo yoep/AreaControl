@@ -1,5 +1,4 @@
 using AreaControl.AbstractionLayer;
-using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
@@ -51,6 +50,7 @@ namespace AreaControl.Duties
 
                 _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
                 _animationTaskExecutor = AnimationUtil.RedirectTraffic(Ped);
+                _animationTaskExecutor.OnCompletion += (sender, args) => _rage.LogTrivialDebug("Completed redirect traffic animation with: " + sender);
             }, "RedirectTrafficDuty.Execute");
         }
 

@@ -30,6 +30,10 @@ namespace AreaControl.Utils
             NativeFunction.Natives.DETACH_ENTITY(attachment, false, false);
         }
         
+        /// <summary>
+        /// Remove the given entity from the game world.
+        /// </summary>
+        /// <param name="entity">Set the entity to remove.</param>
         public static void Remove(Entity entity)
         {
             Assert.NotNull(entity, "entity cannot be null");

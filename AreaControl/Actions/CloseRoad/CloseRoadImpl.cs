@@ -112,7 +112,7 @@ namespace AreaControl.Actions.CloseRoad
         public void DeletePreview()
         {
             IsPreviewActive = false;
-            
+
             if (_blockSlots == null || _blockSlots.Count == 0)
                 return;
 
@@ -142,7 +142,8 @@ namespace AreaControl.Actions.CloseRoad
             MenuItem.Text = AreaControl.ActionOpenRoad;
             Rage.NewSafeFiber(() =>
             {
-                Functions.PlayScannerAudio("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE " + _responseManager.ResponseCodeAudio);
+                Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
+                    Game.LocalPlayer.Character.Position);
                 var blockSlots = DetermineBlockSlots();
 
                 if (blockSlots.Count > 0)
@@ -160,6 +161,7 @@ namespace AreaControl.Actions.CloseRoad
         {
             var i = 0;
 
+            Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
             Rage.LogTrivialDebug("Spawning " + blockSlots.Count + " block slot(s) for close road function");
             foreach (var slot in blockSlots)
             {

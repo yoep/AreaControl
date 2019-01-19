@@ -26,6 +26,7 @@ namespace AreaControl.Utils
         public static Object CreateSmallBlankCone(Vector3 position)
         {
             var instance = new Object(new Model("prop_mp_cone_03"), position);
+            instance.MakePersistent();
             PlaceCorrectlyOnGround(instance);
             return instance;
         }
@@ -33,6 +34,7 @@ namespace AreaControl.Utils
         public static Object CreateSmallConeWithStripes(Vector3 position)
         {
             var instance = new Object(new Model("prop_mp_cone_02"), position);
+            instance.MakePersistent();
             PlaceCorrectlyOnGround(instance);
             return instance;
         }
@@ -40,6 +42,7 @@ namespace AreaControl.Utils
         public static Object CreateBigConeWithStripes(Vector3 position)
         {
             var instance = new Object(new Model("prop_mp_cone_01"), position);
+            instance.MakePersistent();
             PlaceCorrectlyOnGround(instance);
             return instance;
         }
@@ -47,6 +50,7 @@ namespace AreaControl.Utils
         public static Object CreateLargeThinConeWithStripes(Vector3 position)
         {
             var instance = new Object(new Model("prop_mp_cone_04"), position);
+            instance.MakePersistent();
             PlaceCorrectlyOnGround(instance);
             return instance;
         }
@@ -60,6 +64,17 @@ namespace AreaControl.Utils
         {
             Assert.NotNull(instance, "instance cannot be null");
             return NativeFunction.Natives.PLACE_OBJECT_ON_GROUND_PROPERLY<bool>(instance);
+        }
+
+        public static void SetVisibility(Object instance, bool isVisible)
+        {
+            Assert.NotNull(instance, "instance cannot be null");
+            if (!instance.IsValid())
+                return;
+
+            instance.IsVisible = isVisible;
+            instance.NeedsCollision = isVisible;
+            instance.IsCollisionEnabled = isVisible;
         }
 
         public static void Remove(Object entity)

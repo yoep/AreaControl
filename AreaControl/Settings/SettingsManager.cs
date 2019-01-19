@@ -9,6 +9,8 @@ namespace AreaControl.Settings
     public class SettingsManager : ISettingsManager
     {
         private const string File = @"./Plugins/LSPDFR/AreaControl.ini";
+        private const string RedirectTrafficGroupName = "Redirect Traffic";
+        private const string CloseRoadGroupName = "Close Road";
 
         private readonly IRage _rage;
 
@@ -59,7 +61,8 @@ namespace AreaControl.Settings
         {
             RedirectTrafficSettings = new RedirectTrafficSettings
             {
-                ShowPreview = file.ReadBoolean("Redirect Traffic", "ShowPreview", true)
+                ShowPreview = file.ReadBoolean(RedirectTrafficGroupName, "ShowPreview", true),
+                PlaceCones = file.ReadBoolean(RedirectTrafficGroupName, "PlaceCones", true)
             };
         }
 
@@ -67,7 +70,7 @@ namespace AreaControl.Settings
         {
             CloseRoadSettings = new CloseRoadSettings
             {
-                ShowPreview = file.ReadBoolean("Close Road", "ShowPreview", true)
+                ShowPreview = file.ReadBoolean(CloseRoadGroupName, "ShowPreview", true)
             };
         }
 

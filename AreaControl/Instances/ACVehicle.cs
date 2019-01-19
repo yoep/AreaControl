@@ -90,7 +90,7 @@ namespace AreaControl.Instances
         /// </summary>
         public void DeleteBlip()
         {
-            if (_blip != null)
+            if (_blip != null && _blip.IsValid())
                 _blip.Delete();
         }
 
