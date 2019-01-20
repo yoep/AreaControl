@@ -181,7 +181,7 @@ namespace AreaControl.Actions.CloseRoad
                     Game.LocalPlayer.Character.Position);
                 var blockSlots = DetermineBlockSlots(GetDistanceFromOriginalSlot());
 
-                GameFiber.Sleep(2000);
+                GameFiber.Sleep(5000);
                 if (blockSlots.Count > 0)
                 {
                     SpawnBlockSlots(blockSlots);
@@ -272,12 +272,16 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignDutiesToDriver(ACPed ped, BlockSlot slot)
         {
-            foreach (var barrier in slot.Barriers)
+            if (_settingsManager.CloseRoadSettings.PlaceBarriers)
             {
-                _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtil.CreatePoliceDoNotCrossBarrier));
-            }
+                foreach (var barrier in slot.Barriers)
+                {
+                    _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtil.CreatePoliceDoNotCrossBarrier));
+                }
 
-            _dutyManager.RegisterDuty(ped, new PlaceObjectsDuty(_placedObjects, _responseManager.ResponseCode, false));
+                _dutyManager.RegisterDuty(ped, new PlaceObjectsDuty(_placedObjects, _responseManager.ResponseCode, false));
+            }
+            
             _dutyManager.RegisterDuty(ped, new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode));
         }
 

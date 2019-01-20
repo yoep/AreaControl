@@ -8,6 +8,7 @@ You can request the road to be closed, which will call backup units to close and
 Closes the road closest to the player & cleans the road area from wrecks and death bodies (integration with Arrest Manager).
 
 - Calls backup vehicles for closing the road (securing the area & redirecting the traffic)
+- Auto places barriers for closing the road (optional)
 - Auto call coroner service for death bodies (animated)
 - Auto call tow trucks for wrecks (animated)
 - Reopen the closed road

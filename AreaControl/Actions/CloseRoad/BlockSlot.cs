@@ -16,7 +16,7 @@ namespace AreaControl.Actions.CloseRoad
             OriginalRoadHeading = heading;
             Position = position;
             Heading = heading - 55f;
-            PedHeading = (heading + 90) % 360;
+            PedHeading = (heading + 90f) % 360;
             PedPosition = position + MathHelper.ConvertHeadingToDirection(PedHeading) * 4f;
 
             CreateBarriers();
@@ -93,7 +93,7 @@ namespace AreaControl.Actions.CloseRoad
         private void CreateBarriers()
         {
             var position = PedPosition + MathHelper.ConvertHeadingToDirection(PedHeading) * 1f;
-            var moveDirection = MathHelper.ConvertHeadingToDirection(PedHeading + 90f);
+            var moveDirection = MathHelper.ConvertHeadingToDirection((PedHeading + 90f) % 360);
 
             _barriers.Add(new Barrier(position + moveDirection * 1.5f, PedHeading));
             _barriers.Add(new Barrier(position - moveDirection * 1.5f, PedHeading));

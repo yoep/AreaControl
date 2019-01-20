@@ -165,7 +165,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
                 var redirectSlot = _redirectSlot ?? DetermineRedirectSlot(distanceFromOriginalSlot);
 
-                GameFiber.Sleep(3500);
+                GameFiber.Sleep(5000);
                 Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
                 var spawnPosition = GetSpawnPosition(redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);

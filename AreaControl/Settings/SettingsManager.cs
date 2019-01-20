@@ -70,7 +70,8 @@ namespace AreaControl.Settings
         {
             CloseRoadSettings = new CloseRoadSettings
             {
-                ShowPreview = file.ReadBoolean(CloseRoadGroupName, "ShowPreview", true)
+                ShowPreview = file.ReadBoolean(CloseRoadGroupName, "ShowPreview", true),
+                PlaceBarriers = file.ReadBoolean(RedirectTrafficGroupName, "PlaceBarriers", true)
             };
         }
 
