@@ -14,6 +14,7 @@ namespace AreaControl
         public const string RoadPreviewRemove = "Remove road preview " + DebugIndicatorText;
 
         public const string RedirectTraffic = "Redirect traffic";
+        public const string RedirectTrafficDescription = "Distance to place the redirect traffic";
         public const string RedirectTrafficRemove = "Stop redirecting traffic";
         public const string RedirectTrafficPreview = "Redirect traffic preview " + DebugIndicatorText;
         public const string RedirectTrafficPreviewRemove = "Remove redirect traffic preview " + DebugIndicatorText;

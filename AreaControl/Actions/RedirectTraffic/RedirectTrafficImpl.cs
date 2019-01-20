@@ -8,6 +8,7 @@ using AreaControl.Settings;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
+using RAGENativeUI;
 using RAGENativeUI.Elements;
 using Object = Rage.Object;
 
@@ -45,7 +46,20 @@ namespace AreaControl.Actions.RedirectTraffic
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.RedirectTraffic);
+        public override UIMenuItem MenuItem { get; } = new UIMenuListItem(AreaControl.RedirectTraffic, AreaControl.RedirectTrafficDescription,
+            new List<IDisplayItem>
+            {
+                new DisplayItem(-20f, "1"),
+                new DisplayItem(-15f, "2"),
+                new DisplayItem(-10f, "3"),
+                new DisplayItem(-5f, "4"),
+                new DisplayItem(0f, "5"),
+                new DisplayItem(5f, "6"),
+                new DisplayItem(10f, "7"),
+                new DisplayItem(15f, "8"),
+                new DisplayItem(20f, "9"),
+                new DisplayItem(25f, "10")
+            });
 
         /// <inheritdoc />
         public override bool IsVisible => true;
@@ -68,8 +82,11 @@ namespace AreaControl.Actions.RedirectTraffic
             if (_settingsManager.RedirectTrafficSettings.ShowPreview && !IsActive)
                 _rage.NewSafeFiber(() =>
                 {
+                    ((UIMenuListItem) MenuItem).Index = 4;
+                    
                     while (sender.IsShown && MenuItem.Selected && !IsActive)
                     {
+                        var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
                         var redirectSlot = DetermineRedirectSlot();
 
                         if (redirectSlot.Position != _redirectSlot?.Position || !IsPreviewActive)
@@ -115,6 +132,8 @@ namespace AreaControl.Actions.RedirectTraffic
 
         #endregion
 
+        #region Functions
+
         private void RemoveRedirectTraffic()
         {
             MenuItem.Text = AreaControl.RedirectTraffic;
@@ -137,6 +156,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 DeletePreview();
                 Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
                     Game.LocalPlayer.Character.Position);
+                var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
                 var redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
 
                 Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
@@ -225,5 +245,12 @@ namespace AreaControl.Actions.RedirectTraffic
             if (headingDifference > VehicleHeadingTolerance)
                 vehicle.Instance.Heading = redirectSlot.Heading;
         }
+
+        private float GetDistanceFromOriginalSlot()
+        {
+            return (float) ((UIMenuListItem) MenuItem).SelectedValue;
+        }
+
+        #endregion
     }
 }

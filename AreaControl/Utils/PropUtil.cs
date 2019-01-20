@@ -11,9 +11,15 @@ namespace AreaControl.Utils
             return new Object(model, Vector3.Zero);
         }
 
-        public static Object CreateNotebook()
+        public static Object CreateOpenNotebook()
         {
             var model = new Model("prop_notepad_01");
+            return new Object(model, Vector3.Zero);
+        }
+
+        public static Object CreateNotebook()
+        {
+            var model = new Model("prop_notepad_02");
             return new Object(model, Vector3.Zero);
         }
 

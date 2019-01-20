@@ -67,7 +67,7 @@ namespace AreaControl.Duties
                         _rage.LogTrivialDebug("Calling coroner...");
                         Functions.CallCoroner(deathPed.Position, false);
                         return AnimationUtil.Investigate(Ped);
-                    }, 3000)
+                    }, 10000)
                     .WaitForAndExecute(executor =>
                     {
                         _rage.LogTrivialDebug("Completed animation executor for investigate " + executor);
