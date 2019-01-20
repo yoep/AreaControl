@@ -12,7 +12,7 @@ namespace AreaControl.Actions.CloseRoad
 {
     public abstract class AbstractCloseRoad : ICloseRoad
     {
-        private const float DistanceFromPlayer = 25f;
+        private const float DistanceFromPlayer = 15f;
         private const float LaneHeadingTolerance = 40f;
 
         protected readonly IRage Rage;
@@ -55,7 +55,7 @@ namespace AreaControl.Actions.CloseRoad
 
         #endregion
 
-        protected ICollection<BlockSlot> DetermineBlockSlots()
+        protected ICollection<BlockSlot> DetermineBlockSlots(float distanceFromOriginalSlot)
         {
             var blockSlots = new List<BlockSlot>();
             var closestRoadToPlayer = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
@@ -77,8 +77,8 @@ namespace AreaControl.Actions.CloseRoad
                 foreach (var lane in lanesToBlock)
                 {
                     var placementHeading = lane.Heading + 90f;
-                    var direction = MathHelper.ConvertHeadingToDirection(placementHeading);
-                    var placementPosition = lane.RightSide + direction * 2f;
+                    var laneRightSide = lane.RightSide + MathHelper.ConvertHeadingToDirection(lane.Heading) * distanceFromOriginalSlot;
+                    var placementPosition = laneRightSide + MathHelper.ConvertHeadingToDirection(placementHeading) * 2f;
 
                     blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
                 }

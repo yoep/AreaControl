@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
@@ -9,6 +10,7 @@ using AreaControl.Settings;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
+using RAGENativeUI;
 using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.CloseRoad
@@ -44,7 +46,20 @@ namespace AreaControl.Actions.CloseRoad
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ActionCloseRoad);
+        public override UIMenuItem MenuItem { get; } = new UIMenuListItem(AreaControl.ActionCloseRoad, AreaControl.ActionCloseRoadDescription,
+            new List<IDisplayItem>
+            {
+                new DisplayItem(-20f, "-4"),
+                new DisplayItem(-15f, "-3"),
+                new DisplayItem(-10f, "-2"),
+                new DisplayItem(-5f, "-1"),
+                new DisplayItem(0f, "0"),
+                new DisplayItem(5f, "+1"),
+                new DisplayItem(10f, "+2"),
+                new DisplayItem(15f, "+3"),
+                new DisplayItem(20f, "+4"),
+                new DisplayItem(25f, "+5")
+            });
 
         /// <inheritdoc />
         public override bool IsVisible => true;
@@ -70,18 +85,25 @@ namespace AreaControl.Actions.CloseRoad
                 {
                     while (sender.IsShown && MenuItem.Selected && !IsActive)
                     {
-                        var blockSlots = DetermineBlockSlots();
+                        var blockSlots = DetermineBlockSlots(GetDistanceFromOriginalSlot());
                         var blockSlot = blockSlots.First();
                         var bufferedBlockSlot = _blockSlots?.First();
 
                         if (blockSlot.Position != bufferedBlockSlot?.Position || !IsPreviewActive)
                         {
-                            DeletePreview();
+                            if (_blockSlots != null)
+                            {
+                                foreach (var slot in _blockSlots)
+                                {
+                                    slot.DeletePreview();
+                                }
+                            }
+                            
                             _blockSlots = blockSlots;
                             CreatePreview();
                         }
 
-                        GameFiber.Sleep(500);
+                        GameFiber.Sleep(250);
                     }
 
                     DeletePreview();
@@ -127,6 +149,15 @@ namespace AreaControl.Actions.CloseRoad
 
         #endregion
 
+        #region Functions
+
+        [IoC.PostConstruct]
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        private void Init()
+        {
+            ((UIMenuListItem) MenuItem).Index = 4;
+        }
+
         private void OpenRoad()
         {
             MenuItem.Text = AreaControl.ActionCloseRoad;
@@ -144,8 +175,9 @@ namespace AreaControl.Actions.CloseRoad
             {
                 Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
                     Game.LocalPlayer.Character.Position);
-                var blockSlots = DetermineBlockSlots();
+                var blockSlots = DetermineBlockSlots(GetDistanceFromOriginalSlot());
 
+                GameFiber.Sleep(2000);
                 if (blockSlots.Count > 0)
                 {
                     SpawnBlockSlots(blockSlots);
@@ -274,10 +306,17 @@ namespace AreaControl.Actions.CloseRoad
         {
             _dutyManager[ped].OnDutyAvailable += (sender, args) => ActivateNonIdleDuty(ped, args.AvailableDuty);
         }
+        
+        private float GetDistanceFromOriginalSlot()
+        {
+            return (float) ((UIMenuListItem) MenuItem).SelectedValue;
+        }
 
         private static Road GetPositionBehindSlot(BlockSlot slot, int index)
         {
             return RoadUtil.GetClosestRoad(slot.Position + MathHelper.ConvertHeadingToDirection(slot.PedHeading) * (80f * index), RoadType.All);
         }
+
+        #endregion
     }
 }

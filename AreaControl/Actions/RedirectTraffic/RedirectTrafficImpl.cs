@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
@@ -49,16 +50,16 @@ namespace AreaControl.Actions.RedirectTraffic
         public override UIMenuItem MenuItem { get; } = new UIMenuListItem(AreaControl.RedirectTraffic, AreaControl.RedirectTrafficDescription,
             new List<IDisplayItem>
             {
-                new DisplayItem(-20f, "1"),
-                new DisplayItem(-15f, "2"),
-                new DisplayItem(-10f, "3"),
-                new DisplayItem(-5f, "4"),
-                new DisplayItem(0f, "5"),
-                new DisplayItem(5f, "6"),
-                new DisplayItem(10f, "7"),
-                new DisplayItem(15f, "8"),
-                new DisplayItem(20f, "9"),
-                new DisplayItem(25f, "10")
+                new DisplayItem(-20f, "-4"),
+                new DisplayItem(-15f, "-3"),
+                new DisplayItem(-10f, "-2"),
+                new DisplayItem(-5f, "-1"),
+                new DisplayItem(0f, "0"),
+                new DisplayItem(5f, "+1"),
+                new DisplayItem(10f, "+2"),
+                new DisplayItem(15f, "+3"),
+                new DisplayItem(20f, "+4"),
+                new DisplayItem(25f, "+5")
             });
 
         /// <inheritdoc />
@@ -82,8 +83,6 @@ namespace AreaControl.Actions.RedirectTraffic
             if (_settingsManager.RedirectTrafficSettings.ShowPreview && !IsActive)
                 _rage.NewSafeFiber(() =>
                 {
-                    ((UIMenuListItem) MenuItem).Index = 4;
-                    
                     while (sender.IsShown && MenuItem.Selected && !IsActive)
                     {
                         var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
@@ -134,6 +133,13 @@ namespace AreaControl.Actions.RedirectTraffic
 
         #region Functions
 
+        [IoC.PostConstruct]
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        private void Init()
+        {
+            ((UIMenuListItem) MenuItem).Index = 4;
+        }
+
         private void RemoveRedirectTraffic()
         {
             MenuItem.Text = AreaControl.RedirectTraffic;
@@ -159,6 +165,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
                 var redirectSlot = _redirectSlot ?? DetermineRedirectSlot(distanceFromOriginalSlot);
 
+                GameFiber.Sleep(2000);
                 Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
                 var spawnPosition = GetSpawnPosition(redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
