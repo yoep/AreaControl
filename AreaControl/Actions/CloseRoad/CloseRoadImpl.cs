@@ -26,6 +26,7 @@ namespace AreaControl.Actions.CloseRoad
         private readonly IResponseManager _responseManager;
         private readonly IDutyManager _dutyManager;
         private readonly ISettingsManager _settingsManager;
+        private readonly List<PlaceObjectsDuty.PlaceObject> _placedObjects = new List<PlaceObjectsDuty.PlaceObject>();
 
         private ICollection<BlockSlot> _blockSlots;
 
@@ -49,6 +50,7 @@ namespace AreaControl.Actions.CloseRoad
         public override UIMenuItem MenuItem { get; } = new UIMenuListItem(AreaControl.ActionCloseRoad, AreaControl.ActionCloseRoadDescription,
             new List<IDisplayItem>
             {
+                new DisplayItem(-25f, "-5"),
                 new DisplayItem(-20f, "-4"),
                 new DisplayItem(-15f, "-3"),
                 new DisplayItem(-10f, "-2"),
@@ -98,7 +100,7 @@ namespace AreaControl.Actions.CloseRoad
                                     slot.DeletePreview();
                                 }
                             }
-                            
+
                             _blockSlots = blockSlots;
                             CreatePreview();
                         }
@@ -155,7 +157,7 @@ namespace AreaControl.Actions.CloseRoad
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private void Init()
         {
-            ((UIMenuListItem) MenuItem).Index = 4;
+            ((UIMenuListItem) MenuItem).Index = 5;
         }
 
         private void OpenRoad()
@@ -164,6 +166,8 @@ namespace AreaControl.Actions.CloseRoad
             Functions.PlayScannerAudio("WE_ARE_CODE_4");
             _dutyManager.DismissDuties();
             _entityManager.Dismiss();
+            _placedObjects.ForEach(x => PropUtil.Remove(x.Instance));
+            _placedObjects.Clear();
             IsActive = false;
         }
 
@@ -208,7 +212,7 @@ namespace AreaControl.Actions.CloseRoad
                         Rage.LogTrivialDebug("Using vehicle " + vehicle + " for block slot " + index);
 
                         MoveToSlot(vehicle, slot);
-                        AssignRedirectTrafficDutyToDriver(vehicle, slot);
+                        AssignDutiesToDriver(vehicle.Driver, slot);
                         AssignAvailableDutiesToPassengers(vehicle);
                     }, "BlockSlot#" + i);
             }
@@ -228,6 +232,7 @@ namespace AreaControl.Actions.CloseRoad
                 .DriveToPosition(slot.Position, initialDrivingSpeed, initialDrivingFlags, 35f)
                 .WaitForCompletion();
             Rage.LogTrivialDebug("Vehicle arrived in the area of block slot " + slot);
+            slot.ClearSlotFromTraffic();
             vehicle.EnableEmergencyLights();
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(slot.Position, 10f, VehicleDrivingFlags.Emergency, 2f)
@@ -265,15 +270,15 @@ namespace AreaControl.Actions.CloseRoad
                 vehicle.Instance.Position = expectedPosition;
         }
 
-        private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, BlockSlot slot)
+        private void AssignDutiesToDriver(ACPed ped, BlockSlot slot)
         {
-            var driver = vehicle.Driver;
-            var trafficDuty = new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode)
+            foreach (var barrier in slot.Barriers)
             {
-                Ped = driver
-            };
-            _dutyManager.RegisterDuty(driver, trafficDuty);
-            trafficDuty.Execute();
+                _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtil.CreatePoliceDoNotCrossBarrier));
+            }
+
+            _dutyManager.RegisterDuty(ped, new PlaceObjectsDuty(_placedObjects, _responseManager.ResponseCode, false));
+            _dutyManager.RegisterDuty(ped, new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode));
         }
 
         private void AssignAvailableDutiesToPassengers(ACVehicle vehicle)
@@ -292,21 +297,19 @@ namespace AreaControl.Actions.CloseRoad
             else
             {
                 nextAvailableDuty.OnCompletion += (sender, args) => RegisterDutyListenerForIdlePed(ped);
-                nextAvailableDuty.Execute();
             }
         }
 
         private void ActivateNonIdleDuty(ACPed ped, IDuty duty)
         {
             duty.OnCompletion += (sender, args) => AssignNextAvailableDutyToPed(ped);
-            duty.Execute();
         }
 
         private void RegisterDutyListenerForIdlePed(ACPed ped)
         {
             _dutyManager[ped].OnDutyAvailable += (sender, args) => ActivateNonIdleDuty(ped, args.AvailableDuty);
         }
-        
+
         private float GetDistanceFromOriginalSlot()
         {
             return (float) ((UIMenuListItem) MenuItem).SelectedValue;

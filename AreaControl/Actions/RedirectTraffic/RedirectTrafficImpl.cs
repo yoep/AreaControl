@@ -11,14 +11,13 @@ using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI;
 using RAGENativeUI.Elements;
-using Object = Rage.Object;
 
 namespace AreaControl.Actions.RedirectTraffic
 {
     public class RedirectTrafficImpl : AbstractRedirectTraffic, IPreviewSupport
     {
         private const float ScanRadius = 250f;
-        private const float VehiclePositionTolerance = 2f;
+        private const float VehiclePositionTolerance = 0.5f;
         private const float VehicleHeadingTolerance = 20f;
 
         private readonly IRage _rage;
@@ -27,7 +26,7 @@ namespace AreaControl.Actions.RedirectTraffic
         private readonly IDutyManager _dutyManager;
         private readonly ISettingsManager _settingsManager;
 
-        private readonly List<Object> _cones = new List<Object>();
+        private readonly List<PlaceObjectsDuty.PlaceObject> _placedObjects = new List<PlaceObjectsDuty.PlaceObject>();
         private RedirectSlot _redirectSlot;
 
         #region Constructor
@@ -50,6 +49,7 @@ namespace AreaControl.Actions.RedirectTraffic
         public override UIMenuItem MenuItem { get; } = new UIMenuListItem(AreaControl.RedirectTraffic, AreaControl.RedirectTrafficDescription,
             new List<IDisplayItem>
             {
+                new DisplayItem(-25f, "-5"),
                 new DisplayItem(-20f, "-4"),
                 new DisplayItem(-15f, "-3"),
                 new DisplayItem(-10f, "-2"),
@@ -137,7 +137,7 @@ namespace AreaControl.Actions.RedirectTraffic
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private void Init()
         {
-            ((UIMenuListItem) MenuItem).Index = 4;
+            ((UIMenuListItem) MenuItem).Index = 5;
         }
 
         private void RemoveRedirectTraffic()
@@ -148,7 +148,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 Functions.PlayScannerAudio("WE_ARE_CODE_4");
                 _dutyManager.DismissDuties();
                 _entityManager.Dismiss();
-                _cones.ForEach(PropUtil.Remove);
+                _placedObjects.ForEach(x => PropUtil.Remove(x.Instance));
                 IsActive = false;
             }, "RedirectTrafficImpl.RemoveRedirectTraffic");
         }
@@ -165,7 +165,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
                 var redirectSlot = _redirectSlot ?? DetermineRedirectSlot(distanceFromOriginalSlot);
 
-                GameFiber.Sleep(2000);
+                GameFiber.Sleep(3500);
                 Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
                 var spawnPosition = GetSpawnPosition(redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
@@ -191,6 +191,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 .WaitForCompletion();
             _rage.LogTrivialDebug("Vehicle arrived in the area of redirect traffic slot " + redirectSlot);
             vehicle.EnableEmergencyLights();
+            redirectSlot.ClearSlotFromTraffic();
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(redirectSlot.Position, 10f, VehicleDrivingFlags.Emergency, 1f)
                 .WaitForCompletion(30000);
@@ -205,9 +206,7 @@ namespace AreaControl.Actions.RedirectTraffic
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, RedirectSlot redirectSlot)
         {
             var driver = vehicle.Driver;
-            var trafficDuty = new RedirectTrafficDuty(redirectSlot.PedPosition, redirectSlot.PedHeading, _responseManager.ResponseCode);
-            _dutyManager.RegisterDuty(driver, trafficDuty);
-            trafficDuty.Execute();
+            _dutyManager.RegisterDuty(driver, new RedirectTrafficDuty(redirectSlot.PedPosition, redirectSlot.PedHeading, _responseManager.ResponseCode));
         }
 
         private void PlaceCones(ACPed ped, RedirectSlot redirectSlot)
@@ -217,21 +216,11 @@ namespace AreaControl.Actions.RedirectTraffic
 
             foreach (var cone in redirectSlot.Cones)
             {
-                var positionBehindCone = cone.Position + MathHelper.ConvertHeadingToDirection(cone.Heading) * 0.5f;
-                var walkToExecutor = _responseManager.ResponseCode == ResponseCode.Code2
-                    ? ped.WalkTo(positionBehindCone, RoadUtil.OppositeHeading(cone.Heading))
-                    : ped.RunTo(positionBehindCone, RoadUtil.OppositeHeading(cone.Heading));
-                var animationExecutor = walkToExecutor
-                    .WaitForAndExecute(executor =>
-                    {
-                        _rage.LogTrivialDebug("Completed walk to cone for " + executor);
-                        var coneProp = PropUtil.CreateSmallConeWithStripes(cone.Position);
-                        _cones.Add(coneProp);
-                        return AnimationUtil.PlaceDownObject(ped, coneProp);
-                    }, 20000)
-                    .WaitForCompletion(2000);
-                _rage.LogTrivialDebug("Completed place cone animation for " + animationExecutor);
+                _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(cone.Position, 0f, 
+                    (pos, heading) => PropUtil.CreateSmallConeWithStripes(pos)));
             }
+
+            _dutyManager.RegisterDuty(ped, new PlaceObjectsDuty(_placedObjects, _responseManager.ResponseCode, true));
         }
 
         private static Vector3 GetSpawnPosition(RedirectSlot redirectSlot)

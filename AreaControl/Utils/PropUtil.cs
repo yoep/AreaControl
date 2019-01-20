@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Rage;
 using Rage.Native;
 
 namespace AreaControl.Utils
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public static class PropUtil
     {
         public static Object CreateWand()
@@ -60,6 +62,23 @@ namespace AreaControl.Utils
         public static Object CreateBarrier(Vector3 position)
         {
             return new Object(new Model("prop_ld_barrier_01"), position);
+        }
+        
+        public static Object CreateWorkerBarrierArrowRight(Vector3 position)
+        {
+            return new Object(new Model("prop_mp_arrow_barrier_01"), position);
+        }
+        
+        public static Object CreatePoliceDoNotCrossBarrier(Vector3 position)
+        {
+            return CreatePoliceDoNotCrossBarrier(position, 0f);
+        }
+        
+        public static Object CreatePoliceDoNotCrossBarrier(Vector3 position, float heading)
+        {
+            var barrier = new Object(new Model("prop_barrier_work05"), position);
+            PlaceCorrectlyOnGround(barrier);
+            return barrier;
         }
 
         public static bool PlaceCorrectlyOnGround(Object instance)

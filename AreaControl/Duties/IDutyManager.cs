@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using AreaControl.Instances;
 
 namespace AreaControl.Duties
 {
+    [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
     public interface IDutyManager
     {
         /// <summary>

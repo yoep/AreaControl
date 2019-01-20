@@ -75,6 +75,11 @@ namespace AreaControl.Actions.RedirectTraffic
 
         #endregion
 
+        public void ClearSlotFromTraffic()
+        {
+            EntityUtil.CleanArea(Position, 5f);
+        }
+
         public override string ToString()
         {
             return
@@ -89,7 +94,7 @@ namespace AreaControl.Actions.RedirectTraffic
             var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(moveHeading);
             var positionLeftOfVehicle = Position + directionLeftOfVehicle * 2f;
             var secondCone = positionLeftOfVehicle + directionBehindVehicle * 2f;
-            var thirdCone = secondCone + MathHelper.ConvertHeadingToDirection(moveHeading + 40f) * 1.5f;
+            var thirdCone = secondCone + MathHelper.ConvertHeadingToDirection(moveHeading + 40f) * 2f;
 
             _cones.Add(new Cone(positionLeftOfVehicle, moveHeading));
             _cones.Add(new Cone(secondCone, moveHeading));

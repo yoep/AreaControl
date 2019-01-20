@@ -211,6 +211,19 @@ namespace AreaControl.Instances
             _attachments.Clear();
         }
 
+        /// <summary>
+        /// Detach all attachments from this ped.
+        /// </summary>
+        public void DetachAttachments()
+        {
+            foreach (var attachment in _attachments.Where(x => x.IsValid()))
+            {
+                EntityUtil.DetachEntity(attachment);
+            }
+
+            _attachments.Clear();
+        }
+
         public void CruiseWithVehicle()
         {
             Instance.Tasks.CruiseWithVehicle(30f);

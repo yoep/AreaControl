@@ -1,6 +1,5 @@
 using System;
 using AreaControl.Instances;
-using Rage;
 
 namespace AreaControl.Duties
 {
@@ -40,7 +39,8 @@ namespace AreaControl.Duties
         ACPed Ped { get; set; }
 
         /// <summary>
-        /// Execute this duty on the given ped.
+        /// Execute this duty on the <see cref="Ped"/>.
+        /// This method should only be invoked by the <see cref="DutyManager"/> to prevent multi duties running at the same time on the ped.
         /// </summary>
         void Execute();
 

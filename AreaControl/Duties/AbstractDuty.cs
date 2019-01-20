@@ -33,6 +33,11 @@ namespace AreaControl.Duties
             }
         }
 
+        /// <summary>
+        /// Get if this duty has been aborted.
+        /// </summary>
+        protected bool IsAborted => State == DutyState.Aborted;
+
         /// <inheritdoc />
         public virtual void Execute()
         {
@@ -40,6 +45,7 @@ namespace AreaControl.Duties
                 throw new InvalidDutyStateException("Duty cannot be executed because it's in an invalid state", State);
 
             State = DutyState.Active;
+            Ped.IsBusy = true;
         }
 
         /// <inheritdoc />
@@ -49,23 +55,27 @@ namespace AreaControl.Duties
                 return;
 
             State = DutyState.Aborted;
+            Ped.IsBusy = false;
         }
 
         public override string ToString()
         {
-            return $"{nameof(IsAvailable)}: {IsAvailable}," + Environment.NewLine +
+            return $"{GetType().Name}" + Environment.NewLine +
+                   $"{nameof(IsAvailable)}: {IsAvailable}," + Environment.NewLine +
                    $"{nameof(IsRepeatable)}: {IsRepeatable}," + Environment.NewLine +
                    $"{nameof(IsMultipleInstancesAllowed)}: {IsMultipleInstancesAllowed}," + Environment.NewLine +
-                   $"{nameof(State)}: {State}," + Environment.NewLine +
-                   $"{nameof(Ped)}: {Ped}," + Environment.NewLine +
-                   $"{nameof(OnCompletion)}: {OnCompletion}";
+                   $"{nameof(State)}: {State}" + Environment.NewLine +
+                   $"--- {nameof(Ped)} ---" + Environment.NewLine +
+                   Ped + Environment.NewLine +
+                   "---";
         }
 
         protected virtual void CompleteDuty()
         {
-            if (State != DutyState.Ready)
+            if (State != DutyState.Active)
                 return;
 
+            Ped.IsBusy = false;
             State = DutyState.Completed;
             OnCompletion?.Invoke(this, EventArgs.Empty);
         }

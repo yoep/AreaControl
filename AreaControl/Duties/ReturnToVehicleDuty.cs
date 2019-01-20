@@ -36,8 +36,6 @@ namespace AreaControl.Duties
                     .WaitForAndExecute(() =>
                     {
                         _rage.LogTrivialDebug("ReturnToVehicleDuty completed");
-                        Ped.ReturnToLspdfrDuty();
-
                         CompleteDuty();
                     }, 30000);
             }, "ReturnToVehicleDuty.Execute");

@@ -52,19 +52,29 @@ namespace AreaControl.Utils
         /// </summary>
         /// <param name="ped">Set the ped that executes the animation.</param>
         /// <param name="entity">Set the entity to place down.</param>
+        /// <param name="placeFromHand">Set if the must be showed in the hand of the ped.</param>
         /// <returns>Returns the animation executor.</returns>
-        public static AnimationTaskExecutor PlaceDownObject(ACPed ped, Object entity)
+        public static AnimationTaskExecutor PlaceDownObject(ACPed ped, Object entity, bool placeFromHand)
         {
-            var clonedEntity = new Object(entity.Model, entity.Position);
+            var originalPosition = new Vector3(entity.Position.X, entity.Position.Y, entity.Position.Z);
+            entity.MakePersistent();
+            entity.Position = Vector3.Zero;
 
-            PropUtil.SetVisibility(entity, false);
-            ped.Attach(clonedEntity, PlacementType.RightHand);
-            
-            var executor = ped.PlayAnimation("pickup_object", "putdown_low", AnimationFlags.None);
-            executor.OnCompletion += (sender, args) =>
+            if (placeFromHand)
             {
-                PropUtil.SetVisibility(entity, true);
-                ped.DeleteAttachments();
+                ped.Attach(entity, PlacementType.RightHand);
+            }
+
+            var executor = ped.PlayAnimation("pickup_object", "putdown_low", AnimationFlags.None);
+            executor.OnCompletionOrAborted += (sender, args) =>
+            {
+                ped.DetachAttachments();
+
+                if (!entity.IsValid())
+                    return;
+                
+                entity.Position = originalPosition;
+                PropUtil.PlaceCorrectlyOnGround(entity);
             };
             return executor;
         }

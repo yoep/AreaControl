@@ -43,14 +43,7 @@ namespace AreaControl.Duties
             _rage.NewSafeFiber(() =>
             {
                 Ped.WeaponsEnabled = false;
-                var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(_position, _heading) : Ped.RunTo(_position, _heading);
-                var taskExecutor = goToExecutor
-                    .WaitForCompletion(20000);
-                _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
-
-                _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
-                _animationTaskExecutor = AnimationUtil.RedirectTraffic(Ped);
-                _animationTaskExecutor.OnCompletion += (sender, args) => _rage.LogTrivialDebug("Completed redirect traffic animation with: " + sender);
+                PlayRedirectTrafficAnimation();
             }, "RedirectTrafficDuty.Execute");
         }
 
@@ -67,6 +60,21 @@ namespace AreaControl.Duties
                 _rage.LogTrivialDebug("Deleting attachments from redirect officer ped...");
                 Ped.DeleteAttachments();
             }, "RedirectTrafficDuty.Abort");
+        }
+
+        private void PlayRedirectTrafficAnimation()
+        {
+            var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(_position, _heading) : Ped.RunTo(_position, _heading);
+            var taskExecutor = goToExecutor
+                .WaitForCompletion(20000);
+            _rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
+            _rage.LogTrivialDebug("Starting to play redirect traffic animation...");
+            _animationTaskExecutor = AnimationUtil.RedirectTraffic(Ped);
+            _animationTaskExecutor.OnCompletion += (sender, args) =>
+            {
+                if (Ped.Instance.IsValid())
+                    PlayRedirectTrafficAnimation();
+            };
         }
     }
 }

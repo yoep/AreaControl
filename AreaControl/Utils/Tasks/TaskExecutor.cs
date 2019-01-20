@@ -47,6 +47,12 @@ namespace AreaControl.Utils.Tasks
         public EventHandler OnCompletion { get; set; }
 
         /// <summary>
+        /// Get the event handler for when this task executor is completed or aborted.
+        /// You can register a new event here that will be triggered when the state changes to COMPLETED or ABORTED.
+        /// </summary>
+        public EventHandler OnCompletionOrAborted { get; set; }
+
+        /// <summary>
         /// Check if this task has been completed.
         /// </summary>
         public bool IsCompleted { get; protected set; }
@@ -186,6 +192,8 @@ namespace AreaControl.Utils.Tasks
 
                     if (!IsCompleted | !IsAborted)
                         GameFiber.Sleep(50);
+                    else
+                        OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);
                 }
             });
         }

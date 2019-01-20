@@ -99,19 +99,31 @@ namespace AreaControl.Duties
 
             duty.Ped = ped;
             pedDuties.Add(duty);
+            _rage.LogTrivialDebug("Registered duty " + duty.GetType().Name + " for ped " + ped);
+
+            if (!HasActiveDuty(ped))
+            {
+                _rage.LogTrivialDebug("Ped has no activate duty, directly executing registered duty");
+                ActivateNextDutyOnPed(ped);
+            }
         }
 
         /// <inheritdoc />
         public void DismissDuties()
         {
-            foreach (var duties in _duties.Values)
+            foreach (var pedDuties in _duties)
             {
+                var duties = pedDuties.Value;
+                
                 foreach (var duty in duties.Where(x => x.State == DutyState.Active))
                 {
                     duty.Abort();
                 }
 
                 duties.Clear();
+                var dismissDuty = new ReturnToVehicleDuty();
+                dismissDuty.OnCompletion += (sender, args) => pedDuties.Key.ReturnToLspdfrDuty();
+                RegisterDuty(pedDuties.Key, dismissDuty);
             }
 
             _dutyListeners.Clear();
@@ -157,6 +169,12 @@ namespace AreaControl.Duties
                         dutyListener.OnDutyAvailable.Invoke(this, new DutyAvailableEventArgs(availableDuty));
                     }
 
+                    foreach (var ped in _duties.Keys)
+                    {
+                        if (HasDutyAvailable(ped))
+                            ActivateNextDutyOnPed(ped);
+                    }
+
                     GameFiber.Sleep(500);
                 }
             }, "DutyManager");
@@ -193,6 +211,38 @@ namespace AreaControl.Duties
             };
         }
 
+        private void ActivateNextDutyOnPed(ACPed ped)
+        {
+            if (HasActiveDuty(ped))
+                return;
+
+            var duty = _duties[ped].FirstOrDefault(x => x.State == DutyState.Ready);
+
+            if (duty == null)
+            {
+                _rage.LogTrivialDebug("Cannot activate next duty on ped as no duties with state READY are available for " + ped);
+                return;
+            }
+
+            duty.OnCompletion += (sender, args) =>
+            {
+                _rage.LogTrivialDebug("Completed duty (and activating next available duty) " + sender);
+                ActivateNextDutyOnPed(ped);
+            };
+            _rage.LogTrivialDebug("Activating next duty " + duty);
+            duty.Execute();
+        }
+
+        private bool HasActiveDuty(ACPed ped)
+        {
+            return _duties[ped].Any(x => x.State == DutyState.Active);
+        }
+
+        private bool HasDutyAvailable(ACPed ped)
+        {
+            return _duties[ped].Any(x => x.State == DutyState.Ready);
+        }
+
         private static IDuty GetIdleDuty()
         {
             return new ReturnToVehicleDuty();
@@ -200,7 +250,7 @@ namespace AreaControl.Duties
 
         #endregion
 
-        public class DutyListener : IDutyListener
+        private class DutyListener : IDutyListener
         {
             /// <inheritdoc />
             public ACPed Ped { get; internal set; }

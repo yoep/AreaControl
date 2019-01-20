@@ -35,22 +35,33 @@ namespace AreaControl.Utils.Tasks
         {
             if (IsCompleted)
                 return;
-            
+
+            IsAborted = true;
+
             foreach (var entity in ExecutorEntities)
             {
                 TaskUtil.StopAnimation(entity.Ped, AnimationDictionary.Name, AnimationName);
             }
-
-            IsAborted = true;
         }
 
         protected override void Init()
         {
             GameFiber.StartNew(() =>
             {
-                RageTask.WaitForCompletion();
-                IsCompleted = true;
-                OnCompletion?.Invoke(this, EventArgs.Empty);
+                GameFiber.Yield();
+                
+                while (RageTask.Ped.IsValid() && RageTask.IsPlaying && !IsAborted)
+                {
+                    GameFiber.Yield();
+                }
+
+                if (!IsAborted)
+                {
+                    IsCompleted = true;
+                    OnCompletion?.Invoke(this, EventArgs.Empty);
+                }
+
+                OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);
             });
         }
     }

@@ -79,6 +79,7 @@
     <Compile Include="Duties\IDutyListener.cs" />
     <Compile Include="Duties\IDutyManager.cs" />
     <Compile Include="Duties\InvalidDutyStateException.cs" />
+    <Compile Include="Duties\PlaceObjectsDuty.cs" />
     <Compile Include="Duties\RedirectTrafficDuty.cs" />
     <Compile Include="Duties\ReturnToVehicleDuty.cs" />
     <Compile Include="EntryPoint.cs" />

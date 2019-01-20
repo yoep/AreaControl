@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AreaControl.Instances;
 using AreaControl.Utils;
 using Rage;
@@ -7,16 +8,24 @@ namespace AreaControl.Actions.CloseRoad
 {
     public class BlockSlot : IPreviewSupport
     {
-        private Vehicle _vehiclePreview;
-        private Ped _pedPreview;
+        private readonly List<Barrier> _barriers = new List<Barrier>();
+        private readonly List<Entity> _previewObjects = new List<Entity>();
 
         public BlockSlot(Vector3 position, float heading)
         {
+            OriginalRoadHeading = heading;
             Position = position;
             Heading = heading - 55f;
-            PedHeading = heading + 90f;
+            PedHeading = (heading + 90) % 360;
             PedPosition = position + MathHelper.ConvertHeadingToDirection(PedHeading) * 4f;
+
+            CreateBarriers();
         }
+
+        /// <summary>
+        /// Get the heading of the block slot.
+        /// </summary>
+        public float OriginalRoadHeading { get; }
 
         /// <summary>
         /// Get the position of the block slot.
@@ -24,30 +33,38 @@ namespace AreaControl.Actions.CloseRoad
         public Vector3 Position { get; }
 
         /// <summary>
-        /// Get the position of the traffic ped.
-        /// </summary>
-        public Vector3 PedPosition { get; }
-
-        /// <summary>
         /// Get the heading of the block slot.
         /// </summary>
         public float Heading { get; }
+
+        /// <summary>
+        /// Get the position of the traffic ped.
+        /// </summary>
+        public Vector3 PedPosition { get; }
 
         /// <summary>
         /// Get the heading of the traffic ped.
         /// </summary>
         public float PedHeading { get; }
 
+        /// <summary>
+        /// Get the barriers for this road block slot.
+        /// </summary>
+        public IReadOnlyList<Barrier> Barriers => _barriers.AsReadOnly();
+
+        #region IPreviewSupport
+
         /// <inheritdoc />
-        public bool IsPreviewActive => _vehiclePreview != null;
+        public bool IsPreviewActive => _previewObjects.Count > 0;
 
         /// <inheritdoc />
         public void CreatePreview()
         {
-            _vehiclePreview = new Vehicle("POLICE", Position, Heading);
-            _pedPreview = new Ped(new Model("s_m_y_cop_01"), PedPosition, PedHeading);
-            PreviewUtil.TransformToPreview(_vehiclePreview);
-            PreviewUtil.TransformToPreview(_pedPreview);
+            _previewObjects.Add(new Vehicle("POLICE", Position, Heading));
+            _previewObjects.Add(new Ped(new Model("s_m_y_cop_01"), PedPosition, PedHeading));
+            _barriers.ForEach(x => _previewObjects.Add(PropUtil.CreatePoliceDoNotCrossBarrier(x.Position, x.Heading)));
+
+            _previewObjects.ForEach(PreviewUtil.TransformToPreview);
         }
 
         /// <inheritdoc />
@@ -56,11 +73,33 @@ namespace AreaControl.Actions.CloseRoad
             if (!IsPreviewActive)
                 return;
 
-            _vehiclePreview.Delete();
-            _vehiclePreview = null;
-            _pedPreview.Delete();
-            _pedPreview = null;
+            _previewObjects.ForEach(EntityUtil.Remove);
+            _previewObjects.Clear();
         }
+
+        #endregion
+
+        #region Methods
+
+        public void ClearSlotFromTraffic()
+        {
+            EntityUtil.CleanArea(Position, 5f);
+        }
+
+        #endregion
+
+        #region Functions
+
+        private void CreateBarriers()
+        {
+            var position = PedPosition + MathHelper.ConvertHeadingToDirection(PedHeading) * 1f;
+            var moveDirection = MathHelper.ConvertHeadingToDirection(PedHeading + 90f);
+
+            _barriers.Add(new Barrier(position + moveDirection * 1.5f, PedHeading));
+            _barriers.Add(new Barrier(position - moveDirection * 1.5f, PedHeading));
+        }
+
+        #endregion
 
         public override string ToString()
         {
@@ -68,6 +107,19 @@ namespace AreaControl.Actions.CloseRoad
                    $"{nameof(Heading)}: {Heading}, " + Environment.NewLine +
                    $"{nameof(PedPosition)}: {PedPosition}, " + Environment.NewLine +
                    $"{nameof(PedHeading)}: {PedHeading}";
+        }
+
+        public class Barrier
+        {
+            public Barrier(Vector3 position, float heading)
+            {
+                Position = position;
+                Heading = heading;
+            }
+
+            public Vector3 Position { get; }
+
+            public float Heading { get; }
         }
     }
 }
