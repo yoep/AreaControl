@@ -87,16 +87,16 @@ namespace AreaControl.Actions.RedirectTraffic
                     while (sender.IsShown && MenuItem.Selected && !IsActive)
                     {
                         var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
-                        var redirectSlot = DetermineRedirectSlot();
+                        var redirectSlot = DetermineRedirectSlot(distanceFromOriginalSlot);
 
                         if (redirectSlot.Position != _redirectSlot?.Position || !IsPreviewActive)
                         {
-                            DeletePreview();
+                            _redirectSlot?.DeletePreview();
                             _redirectSlot = redirectSlot;
                             CreatePreview();
                         }
 
-                        GameFiber.Sleep(500);
+                        GameFiber.Sleep(250);
                     }
 
                     DeletePreview();
@@ -115,8 +115,8 @@ namespace AreaControl.Actions.RedirectTraffic
         {
             _rage.NewSafeFiber(() =>
             {
-                IsPreviewActive = true;
                 _redirectSlot?.CreatePreview();
+                IsPreviewActive = true;
             }, "RedirectTrafficImpl.CreatePreview");
         }
 
@@ -125,8 +125,8 @@ namespace AreaControl.Actions.RedirectTraffic
         {
             _rage.NewSafeFiber(() =>
             {
-                IsPreviewActive = false;
                 _redirectSlot?.DeletePreview();
+                IsPreviewActive = false;
             }, "RedirectTrafficImpl.DeletePreview");
         }
 
@@ -157,7 +157,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
                     Game.LocalPlayer.Character.Position);
                 var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
-                var redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
+                var redirectSlot = _redirectSlot ?? DetermineRedirectSlot(distanceFromOriginalSlot);
 
                 Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
                 var spawnPosition = GetSpawnPosition(redirectSlot);
