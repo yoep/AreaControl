@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\CleanArea\CleanAreaImpl.cs" />
+    <Compile Include="Actions\CleanArea\ICleanArea.cs" />
     <Compile Include="Actions\CloseRoad\AbstractCloseRoad.cs" />
     <Compile Include="Actions\CloseRoad\BlockSlot.cs" />
     <Compile Include="Actions\CloseRoad\CloseRoadImpl.cs" />

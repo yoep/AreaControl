@@ -76,11 +76,10 @@ namespace AreaControl.Actions.CloseRoad
 
                 foreach (var lane in lanesToBlock)
                 {
-                    var placementHeading = lane.Heading + 90f;
                     var laneRightSide = lane.RightSide + MathHelper.ConvertHeadingToDirection(lane.Heading) * distanceFromOriginalSlot;
-                    var placementPosition = laneRightSide + MathHelper.ConvertHeadingToDirection(placementHeading) * 2f;
+                    var placementPosition = laneRightSide + MathHelper.ConvertHeadingToDirection(lane.Heading + 90f) * 2f;
 
-                    blockSlots.Add(new BlockSlot(placementPosition, placementHeading));
+                    blockSlots.Add(new BlockSlot(placementPosition, lane.Heading));
                 }
             }
 

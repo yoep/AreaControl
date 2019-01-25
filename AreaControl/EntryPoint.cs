@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
+using AreaControl.Actions.CleanArea;
 using AreaControl.Actions.CloseRoad;
 using AreaControl.Actions.RedirectTraffic;
 using AreaControl.Debug;
@@ -28,13 +29,13 @@ namespace AreaControl
             {
                 Main.Initialize();
                 rage.LogTrivial("initialized");
-                rage.DisplayNotification("has been loaded");
+                rage.DisplayPluginNotification("has been loaded");
             }
             catch (Exception ex)
             {
                 rage.LogTrivial("*** An unknown error occurred and the plugin has stopped working ***");
                 rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
-                rage.DisplayNotification("failed to initialize, check logs for more info");
+                rage.DisplayPluginNotification("failed to initialize, check logs for more info");
             }
         }
 
@@ -53,6 +54,7 @@ namespace AreaControl
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
                 .RegisterSingleton<IDutyManager>(typeof(DutyManager))
                 .RegisterSingleton<ISettingsManager>(typeof(SettingsManager))
+                .Register<ICleanArea>(typeof(CleanAreaImpl))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl))
                 .Register<IRedirectTraffic>(typeof(RedirectTrafficImpl));
         }

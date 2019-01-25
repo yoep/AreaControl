@@ -19,6 +19,8 @@ namespace AreaControl
         public const string RedirectTrafficRemove = "Stop redirecting traffic";
         public const string RedirectTrafficPreview = "Redirect traffic preview " + DebugIndicatorText;
         public const string RedirectTrafficPreviewRemove = "Remove redirect traffic preview " + DebugIndicatorText;
+        
+        public const string ClearArea = "Clear surrounding area";
 
         private const string DebugIndicatorText = "[DEBUG]";
     }

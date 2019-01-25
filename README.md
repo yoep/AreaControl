@@ -4,6 +4,12 @@ You can request the road to be closed, which will call backup units to close and
 
 ## Features
 
+### Clear surrounding area
+Use cops in the area for cleaning wrecks and death bodies in the surrounding area of the player (integration with Arrest Manager).
+
+- Auto call coroner service for death bodies
+- Auto call tow trucks for wrecks
+
 ### Close Road
 Closes the road closest to the player & cleans the road area from wrecks and death bodies (integration with Arrest Manager).
 
@@ -22,6 +28,7 @@ Redirects the traffic from the side of the road. This will make it safer for you
 ## Planned Features
 
 - Police Smart Radio integration
+- Road block
 
 ### Close Road
 - Auto call EMS when closing the road and death bodies are present

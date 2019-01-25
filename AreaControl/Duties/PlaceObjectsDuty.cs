@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
 using AreaControl.Utils;
 using Rage;
-using Object = Rage.Object;
 
 namespace AreaControl.Duties
 {
@@ -15,9 +13,9 @@ namespace AreaControl.Duties
         private readonly IRage _rage;
         private readonly bool _placeFromHand;
 
-        public PlaceObjectsDuty(List<PlaceObject> objects, ResponseCode responseCode, bool placeFromHand)
+        public PlaceObjectsDuty(long id, IEnumerable<PlaceObject> objects, ResponseCode responseCode, bool placeFromHand)
         {
-            _objects = objects;
+            _objects = new List<PlaceObject>(objects);
             _responseCode = responseCode;
             _placeFromHand = placeFromHand;
             _rage = IoC.Instance.GetInstance<IRage>();
@@ -32,7 +30,7 @@ namespace AreaControl.Duties
         public override bool IsRepeatable => true;
 
         /// <inheritdoc />
-        public override bool IsMultipleInstancesAllowed => false;
+        public override bool IsMultipleInstancesAllowed => true;
 
         #endregion
 
@@ -84,7 +82,7 @@ namespace AreaControl.Duties
         {
             private Object _instance;
 
-            public PlaceObject(Vector3 position, float heading, Func<Vector3, float, Object> spawnInstance)
+            public PlaceObject(Vector3 position, float heading, System.Func<Vector3, float, Object> spawnInstance)
             {
                 SpawnInstance = spawnInstance;
                 Position = position;
@@ -115,7 +113,7 @@ namespace AreaControl.Duties
                 }
             }
 
-            private Func<Vector3, float, Object> SpawnInstance { get; }
+            private System.Func<Vector3, float, Object> SpawnInstance { get; }
         }
     }
 }

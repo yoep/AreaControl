@@ -15,18 +15,31 @@ namespace AreaControl.Duties
         IDutyListener this[ACPed ped] { get; }
 
         /// <summary>
-        /// Get the next available duty in the area if found.
-        /// Otherwise, get the idle duty.
-        /// The returned duty is automatically registered as a duty for the ped.
+        /// Get the next available duty in the area of the ped if found.
         /// </summary>
         /// <param name="ped">Set the ped to get the next available duty for.</param>
         /// <returns>Returns the next available duty if available, else null.</returns>
+        IDuty NextAvailableDuty(ACPed ped);
+
+        /// <summary>
+        /// Get the next available duty in the area if found.
+        /// Otherwise, get the default idle duty (<see cref="ReturnToVehicleDuty"/>).
+        /// The returned duty is automatically registered as a duty for the ped.
+        /// </summary>
+        /// <param name="ped">Set the ped to get the next available duty for.</param>
+        /// <returns>Returns the next available duty if available, else <see cref="ReturnToVehicleDuty"/>.</returns>
         IDuty NextAvailableOrIdleDuty(ACPed ped);
 
         /// <summary>
         /// Get a list of all registered duties.
         /// </summary>
         IReadOnlyList<IDuty> RegisteredDuties { get; }
+
+        /// <summary>
+        /// Get the next unique duty id.
+        /// </summary>
+        /// <returns>Returns the next duty id.</returns>
+        long GetNextDutyId();
 
         /// <summary>
         /// Register the duty in the <see cref="IDutyManager"/>.

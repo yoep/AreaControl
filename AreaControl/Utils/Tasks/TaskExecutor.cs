@@ -181,7 +181,7 @@ namespace AreaControl.Utils.Tasks
                             //ignore this one as Rage will determine the state
                             break;
                         default:
-                            throw new NotImplementedException("The TaskIdentificationType has not bee implemented yet");
+                            throw new NotImplementedException("The TaskIdentificationType has not been implemented yet");
                     }
 
                     if (ExecutorEntities.All(x => x.CompletedTask))

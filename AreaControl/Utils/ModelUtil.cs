@@ -10,30 +10,44 @@ namespace AreaControl.Utils
     {
         private static readonly Random Random = new Random();
 
-        private static readonly List<string> CityPedModels = new List<string>
+        #region Constants
+
+        internal static readonly List<string> CityPedModels = new List<string>
         {
             "s_m_y_cop_01",
             "s_f_y_cop_01"
         };
 
-        private static readonly List<string> CountyPedModels = new List<string>
+        internal static readonly List<string> CountyPedModels = new List<string>
         {
             "s_f_y_sheriff_01",
             "s_m_y_sheriff_01"
         };
 
-        private static readonly List<string> CityVehicleModels = new List<string>
+        internal static readonly List<string> StatePedModels = new List<string>
+        {
+            "s_m_y_hwaycop_01"
+        };
+
+        internal static readonly List<string> CityVehicleModels = new List<string>
         {
             "POLICE",
             "POLICE2",
             "POLICE3"
         };
 
-        private static readonly List<string> CountyVehicleModels = new List<string>
+        internal static readonly List<string> CountyVehicleModels = new List<string>
         {
             "SHERIFF",
             "SHERIFF2"
         };
+
+        internal static readonly List<string> StateVehicleModels = new List<string>
+        {
+            "POLICE3"
+        };
+
+        #endregion
 
         /// <summary>
         /// Get a local ped model for the given position.

@@ -24,6 +24,14 @@ namespace AreaControl.Instances
         ACVehicle FindManagedVehicle(Vehicle instance);
 
         /// <summary>
+        /// Find <see cref="Ped"/>'s within the given range of the position.
+        /// </summary>
+        /// <param name="position">Set the position to search around.</param>
+        /// <param name="radius">Set the radius to search within.</param>
+        /// <returns>Returns a list of managed peds within the given area if found, else an empty list.</returns>
+        IReadOnlyList<ACPed> FindPedsWithin(Vector3 position, float radius);
+
+        /// <summary>
         /// Get all current managed vehicles from this entity manager.
         /// </summary>
         /// <returns>Returns the list of managed vehicles.</returns>

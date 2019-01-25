@@ -12,7 +12,7 @@ namespace AreaControl.Duties
 {
     public class CleanWrecksDuty : AbstractDuty
     {
-        private const float SearchRange = 35f;
+        private const float SearchRange = 50f;
         private const string SpeedoModelName = "SPEEDO";
 
         private readonly Vector3 _position;
@@ -20,8 +20,9 @@ namespace AreaControl.Duties
         private readonly IEntityManager _entityManager;
         private readonly ResponseCode _code;
 
-        internal CleanWrecksDuty(Vector3 position, IEntityManager entityManager, ResponseCode code)
+        internal CleanWrecksDuty(long id, Vector3 position, IEntityManager entityManager, ResponseCode code)
         {
+            Id = id;
             _position = position;
             _entityManager = entityManager;
             _code = code;

@@ -138,13 +138,13 @@ namespace AreaControl.Menu
             catch (MenuException ex)
             {
                 _rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
-                _rage.DisplayNotification("could not invoke menu item, see log files for more info");
+                _rage.DisplayPluginNotification("could not invoke menu item, see log files for more info");
             }
             catch (Exception ex)
             {
                 _rage.LogTrivial("*** An unexpected error occurred while activating the menu item ***" +
                                  Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
-                _rage.DisplayNotification("an unexpected error occurred while invoking the menu action");
+                _rage.DisplayPluginNotification("an unexpected error occurred while invoking the menu action");
             }
         }
 

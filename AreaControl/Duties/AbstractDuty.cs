@@ -8,6 +8,9 @@ namespace AreaControl.Duties
         private ACPed _ped;
 
         /// <inheritdoc />
+        public long Id { get; protected set; }
+
+        /// <inheritdoc />
         public abstract bool IsAvailable { get; }
 
         /// <inheritdoc />
@@ -61,6 +64,7 @@ namespace AreaControl.Duties
         public override string ToString()
         {
             return $"{GetType().Name}" + Environment.NewLine +
+                   $"{nameof(Id)}: {Id}," + Environment.NewLine +
                    $"{nameof(IsAvailable)}: {IsAvailable}," + Environment.NewLine +
                    $"{nameof(IsRepeatable)}: {IsRepeatable}," + Environment.NewLine +
                    $"{nameof(IsMultipleInstancesAllowed)}: {IsMultipleInstancesAllowed}," + Environment.NewLine +

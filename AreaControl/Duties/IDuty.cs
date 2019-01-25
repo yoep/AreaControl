@@ -6,6 +6,11 @@ namespace AreaControl.Duties
     public interface IDuty
     {
         /// <summary>
+        /// Get the unique id of this duty.
+        /// </summary>
+        long Id { get; }
+        
+        /// <summary>
         /// Get if this duty is available to be executed.
         /// Some duties are always available and can be executed, while others need a certain condition to be present within their area
         /// (e.g. death bodies or wrecks in the area).

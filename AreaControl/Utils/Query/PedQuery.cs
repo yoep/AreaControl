@@ -17,10 +17,31 @@ namespace AreaControl.Utils.Query
         {
             Assert.NotNull(position, "position cannot be null");
             Assert.IsPositive(radius, "radius cannot be a negative number");
-            
+
             return World
                 .GetEntities(position, radius, GetEntitiesFlags.ConsiderHumanPeds | GetEntitiesFlags.ExcludePlayerPed)
                 .OfType<Ped>()
+                .ToList();
+        }
+
+        /// <summary>
+        /// Find cop ped's around the given position.
+        /// The player ped is excluded from this search.
+        /// </summary>
+        /// <param name="position">Set the position to search around.</param>
+        /// <param name="radius">Set the radius to search within.</param>
+        /// <returns>Returns a list of found cop ped's within the range.</returns>
+        public static List<Ped> FindCopsWithin(Vector3 position, float radius)
+        {
+            Assert.NotNull(position, "position cannot be null");
+            Assert.IsPositive(radius, "radius cannot be a negative number");
+
+            return World
+                .GetEntities(position, radius, GetEntitiesFlags.ConsiderHumanPeds | GetEntitiesFlags.ExcludePlayerPed)
+                .OfType<Ped>()
+                .Where(x => x.IsValid())
+                .Where(x => ModelUtil.CityPedModels.Contains(x.Model.Name) || ModelUtil.CountyPedModels.Contains(x.Model.Name) ||
+                            ModelUtil.StatePedModels.Contains(x.Model.Name))
                 .ToList();
         }
     }

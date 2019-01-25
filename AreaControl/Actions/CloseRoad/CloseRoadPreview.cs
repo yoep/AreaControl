@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using AreaControl.AbstractionLayer;
-using AreaControl.Instances;
 using AreaControl.Menu;
-using Rage;
 using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.CloseRoad

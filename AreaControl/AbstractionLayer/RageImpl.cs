@@ -8,16 +8,24 @@ namespace AreaControl.AbstractionLayer
     public class RageImpl : IRage
     {
         /// <inheritdoc />
-        public void DisplayNotification(string message)
+        public void DisplayPluginNotification(string message)
         {
             Game.DisplayNotification("~b~" + AreaControl.Name + " ~s~" + message.Trim());
         }
 
+        /// <inheritdoc />
+        public void DisplayNotification(string message)
+        {
+            Game.DisplayNotification(message.Trim());
+        }
+
+        /// <inheritdoc />
         public void LogTrivial(string message)
         {
             Game.LogTrivial("[" + AreaControl.Name + "]: " + message.Trim());
         }
 
+        /// <inheritdoc />
         public void LogTrivialDebug(string message)
         {
             Game.LogTrivialDebug("[" + AreaControl.Name + "]: " + message.Trim());
@@ -44,7 +52,7 @@ namespace AreaControl.AbstractionLayer
                 {
                     LogTrivial("*** An unexpected error occurred in '" + name + "' thread ***" +
                                Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
-                    DisplayNotification("~r~" + name + " thread has stopped working, see logs for more info");
+                    DisplayPluginNotification("~r~" + name + " thread has stopped working, see logs for more info");
                 }
             }, name);
         }

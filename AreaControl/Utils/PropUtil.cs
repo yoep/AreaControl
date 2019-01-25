@@ -76,7 +76,7 @@ namespace AreaControl.Utils
         
         public static Object CreatePoliceDoNotCrossBarrier(Vector3 position, float heading)
         {
-            var barrier = new Object(new Model("prop_barrier_work05"), position);
+            var barrier = new Object(new Model("prop_barrier_work05"), position, heading);
             PlaceCorrectlyOnGround(barrier);
             return barrier;
         }

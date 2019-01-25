@@ -56,6 +56,28 @@ namespace AreaControl.Instances
         }
 
         /// <inheritdoc />
+        public IReadOnlyList<ACPed> FindPedsWithin(Vector3 position, float radius)
+        {
+            var peds = new List<ACPed>();
+
+            //find managed peds
+            peds.AddRange(_managedPeds.Where(x => IsPedWithinRadius(position, radius, x)));
+
+            //find game world peds
+            var worldPeds = PedQuery.FindCopsWithin(position, radius)
+                .Where(x => x.IsValid() && x.IsAlive)
+                .Where(x => !IsPedAlreadyManaged(x))
+                .ToList();
+
+            foreach (var worldPed in worldPeds)
+            {
+                peds.Add(RegisterPed(worldPed));
+            }
+
+            return peds;
+        }
+
+        /// <inheritdoc />
         public IReadOnlyList<ACVehicle> GetAllManagedVehicles()
         {
             return _managedVehicles.AsReadOnly();
@@ -139,6 +161,11 @@ namespace AreaControl.Instances
             return _managedVehicles.Any(x => x.Instance == instance);
         }
 
+        private bool IsPedAlreadyManaged(Ped instance)
+        {
+            return _managedPeds.Any(x => x.Instance == instance);
+        }
+
         private ACVehicle FindAvailableManagedVehicle(Vector3 position, float radius)
         {
             _rage.LogTrivialDebug("Searching for managed vehicle at position " + position);
@@ -150,7 +177,7 @@ namespace AreaControl.Instances
 
         private ACVehicle RegisterVehicle(Vehicle vehicle)
         {
-            var registeredVehicle = new ACVehicle(vehicle, GetNextId());
+            var registeredVehicle = new ACVehicle(vehicle, ++_lastInstanceId);
             var driver = vehicle.Driver;
 
             _rage.LogTrivialDebug("Registering a new vehicle in entity manager " + registeredVehicle);
@@ -175,7 +202,7 @@ namespace AreaControl.Instances
 
         private ACPed RegisterPed(Ped ped)
         {
-            var registeredPed = new ACPed(ped, GetNextId());
+            var registeredPed = new ACPed(ped, ++_lastInstanceId);
 
             _managedPeds.Add(registeredPed);
             Functions.SetPedAsCop(ped);
@@ -184,15 +211,14 @@ namespace AreaControl.Instances
             return registeredPed;
         }
 
-        private long GetNextId()
-        {
-            _lastInstanceId++;
-            return _lastInstanceId;
-        }
-
         private static bool IsVehicleWithinRadius(Vector3 position, float radius, ACVehicle vehicle)
         {
-            return vehicle.Instance.DistanceTo(position) <= radius;
+            return Vector3.Distance2D(position, vehicle.Instance.Position) <= radius;
+        }
+
+        private static bool IsPedWithinRadius(Vector3 position, float radius, ACPed ped)
+        {
+            return Vector3.Distance2D(position, ped.Instance.Position) <= radius;
         }
 
         private static Vector3 GetStreetWithinRadius(Vector3 position, float radius)

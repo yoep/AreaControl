@@ -216,11 +216,12 @@ namespace AreaControl.Actions.RedirectTraffic
 
             foreach (var cone in redirectSlot.Cones)
             {
-                _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(cone.Position, 0f, 
+                _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(cone.Position, 0f,
                     (pos, heading) => PropUtil.CreateSmallConeWithStripes(pos)));
             }
 
-            _dutyManager.RegisterDuty(ped, new PlaceObjectsDuty(_placedObjects, _responseManager.ResponseCode, true));
+            _dutyManager.RegisterDuty(ped, 
+                new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, true));
         }
 
         private static Vector3 GetSpawnPosition(RedirectSlot redirectSlot)

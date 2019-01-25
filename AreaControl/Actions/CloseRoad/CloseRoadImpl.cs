@@ -213,7 +213,7 @@ namespace AreaControl.Actions.CloseRoad
 
                         MoveToSlot(vehicle, slot);
                         AssignDutiesToDriver(vehicle.Driver, slot);
-                        AssignAvailableDutiesToPassengers(vehicle);
+                        AssignAvailableDutiesToPassengers(vehicle, slot);
                     }, "BlockSlot#" + i);
             }
         }
@@ -272,22 +272,33 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignDutiesToDriver(ACPed ped, BlockSlot slot)
         {
-            if (_settingsManager.CloseRoadSettings.PlaceBarriers)
-            {
-                foreach (var barrier in slot.Barriers)
-                {
-                    _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtil.CreatePoliceDoNotCrossBarrier));
-                }
-
-                _dutyManager.RegisterDuty(ped, new PlaceObjectsDuty(_placedObjects, _responseManager.ResponseCode, false));
-            }
-            
             _dutyManager.RegisterDuty(ped, new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode));
         }
 
-        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle)
+        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, BlockSlot slot)
         {
-            vehicle.Passengers.ForEach(AssignNextAvailableDutyToPed);
+            var passengers = vehicle.Passengers;
+            var firstPassenger = passengers.FirstOrDefault();
+
+            if (firstPassenger != null)
+                AssignPlaceBarriersDuty(slot, firstPassenger);
+
+            passengers.ForEach(AssignNextAvailableDutyToPed);
+        }
+
+        private void AssignPlaceBarriersDuty(BlockSlot slot, ACPed firstPassenger)
+        {
+            if (!_settingsManager.CloseRoadSettings.PlaceBarriers)
+                return;
+
+            foreach (var barrier in slot.Barriers)
+            {
+                _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtil.CreatePoliceDoNotCrossBarrier));
+            }
+
+            var placeObjectsDuty = new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, false);
+            Rage.LogTrivialDebug("Created place barriers duty " + placeObjectsDuty);
+            _dutyManager.RegisterDuty(firstPassenger, placeObjectsDuty);
         }
 
         private void AssignNextAvailableDutyToPed(ACPed ped)

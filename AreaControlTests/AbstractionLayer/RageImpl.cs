@@ -5,6 +5,11 @@ namespace AreaControlTests.AbstractionLayer
 {
     public class RageImpl : IRage
     {
+        public void DisplayPluginNotification(string message)
+        {
+            Console.WriteLine("[DisplayPluginNotification]: " + message);
+        }
+
         public void DisplayNotification(string message)
         {
             Console.WriteLine("[DisplayNotification]: " + message);

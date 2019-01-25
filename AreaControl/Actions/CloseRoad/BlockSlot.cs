@@ -11,12 +11,12 @@ namespace AreaControl.Actions.CloseRoad
         private readonly List<Barrier> _barriers = new List<Barrier>();
         private readonly List<Entity> _previewObjects = new List<Entity>();
 
-        public BlockSlot(Vector3 position, float heading)
+        public BlockSlot(Vector3 position, float laneHeading)
         {
-            OriginalRoadHeading = heading;
+            OriginalRoadHeading = laneHeading;
             Position = position;
-            Heading = heading - 55f;
-            PedHeading = (heading + 90f) % 360;
+            Heading = (laneHeading + 30f) % 360;
+            PedHeading = RoadUtil.OppositeHeading(laneHeading);
             PedPosition = position + MathHelper.ConvertHeadingToDirection(PedHeading) * 4f;
 
             CreateBarriers();
@@ -92,11 +92,12 @@ namespace AreaControl.Actions.CloseRoad
 
         private void CreateBarriers()
         {
-            var position = PedPosition + MathHelper.ConvertHeadingToDirection(PedHeading) * 1f;
-            var moveDirection = MathHelper.ConvertHeadingToDirection((PedHeading + 90f) % 360);
+            var barrierHeading = RoadUtil.OppositeHeading(OriginalRoadHeading);
+            var position = PedPosition + MathHelper.ConvertHeadingToDirection(barrierHeading) * 1f;
+            var moveDirection = MathHelper.ConvertHeadingToDirection((barrierHeading + 90f) % 360);
 
-            _barriers.Add(new Barrier(position + moveDirection * 1.5f, PedHeading));
-            _barriers.Add(new Barrier(position - moveDirection * 1.5f, PedHeading));
+            _barriers.Add(new Barrier(position + moveDirection * 1.5f, barrierHeading));
+            _barriers.Add(new Barrier(position - moveDirection * 1.5f, barrierHeading));
         }
 
         #endregion

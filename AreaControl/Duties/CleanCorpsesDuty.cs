@@ -14,18 +14,31 @@ namespace AreaControl.Duties
     /// </summary>
     public class CleanCorpsesDuty : AbstractDuty
     {
-        private const float SearchRange = 35f;
+        private const float SearchRange = 50f;
 
         private readonly Vector3 _position;
         private readonly ResponseCode _code;
         private readonly IRage _rage;
+        private readonly float _scanRadius;
 
-        internal CleanCorpsesDuty(Vector3 position, ResponseCode code)
+        internal CleanCorpsesDuty(long id, Vector3 position, ResponseCode code)
         {
             Assert.NotNull(position, "position cannot be null");
+            Id = id;
             _position = position;
             _code = code;
             _rage = IoC.Instance.GetInstance<IRage>();
+            _scanRadius = SearchRange;
+        }
+        
+        internal CleanCorpsesDuty(long id, Vector3 position, ResponseCode code, float scanRadius)
+        {
+            Assert.NotNull(position, "position cannot be null");
+            Id = id;
+            _position = position;
+            _code = code;
+            _rage = IoC.Instance.GetInstance<IRage>();
+            _scanRadius = scanRadius;
         }
 
         #region IDuty implementation
@@ -90,12 +103,12 @@ namespace AreaControl.Duties
 
         private bool IsDeadBodyInRange()
         {
-            return PedQuery.FindWithin(_position, SearchRange).Any(x => x.IsValid() && x.IsDead);
+            return PedQuery.FindWithin(_position, _scanRadius).Any(x => x.IsValid() && x.IsDead);
         }
 
         private Ped GetFirstAvailableDeathPed()
         {
-            return PedQuery.FindWithin(_position, SearchRange).FirstOrDefault(x => x.IsValid() && x.IsDead);
+            return PedQuery.FindWithin(_position, _scanRadius).FirstOrDefault(x => x.IsValid() && x.IsDead);
         }
 
         #endregion

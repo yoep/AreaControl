@@ -29,7 +29,7 @@ namespace AreaControl.Debug
         {
             var road = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
             _rage.LogTrivial("Nearest road info: " + road);
-            _rage.DisplayNotification("see console or log file for info about the closest road");
+            _rage.DisplayPluginNotification("see console or log file for info about the closest road");
         }
         
         /// <inheritdoc />

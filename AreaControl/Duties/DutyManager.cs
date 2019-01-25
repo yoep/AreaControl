@@ -17,6 +17,7 @@ namespace AreaControl.Duties
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
         private bool _isActive = true;
+        private long _lastDutyId;
 
         #region Constructors
 
@@ -47,18 +48,30 @@ namespace AreaControl.Duties
         }
 
         /// <inheritdoc />
-        public IDuty NextAvailableOrIdleDuty(ACPed ped)
+        public IDuty NextAvailableDuty(ACPed ped)
         {
+            Assert.NotNull(ped, "ped cannot be null");
             var position = ped.Instance.Position;
             var nextAvailableDuty = GetNextAvailableDuty(position);
 
             if (nextAvailableDuty != null)
             {
                 RegisterDuty(ped, nextAvailableDuty);
-                return nextAvailableDuty;
             }
 
-            _rage.LogTrivialDebug("Their are no available duties in the area of " + position);
+            return nextAvailableDuty;
+        }
+
+        /// <inheritdoc />
+        public IDuty NextAvailableOrIdleDuty(ACPed ped)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            var nextAvailableDuty = NextAvailableDuty(ped);
+
+            if (nextAvailableDuty != null)
+                return nextAvailableDuty;
+
+            _rage.LogTrivialDebug("Their are no available duties in the area of " + ped.Instance.Position);
             var idleDuty = GetIdleDuty();
             RegisterDuty(ped, idleDuty);
             return idleDuty;
@@ -78,6 +91,12 @@ namespace AreaControl.Duties
 
                 return duties;
             }
+        }
+
+        /// <inheritdoc />
+        public long GetNextDutyId()
+        {
+            return ++_lastDutyId;
         }
 
         /// <inheritdoc />
@@ -114,7 +133,7 @@ namespace AreaControl.Duties
             foreach (var pedDuties in _duties)
             {
                 var duties = pedDuties.Value;
-                
+
                 foreach (var duty in duties.Where(x => x.State == DutyState.Active))
                 {
                     duty.Abort();
@@ -206,8 +225,8 @@ namespace AreaControl.Duties
         {
             return new List<IDuty>
             {
-                new CleanCorpsesDuty(position, _responseManager.ResponseCode),
-                new CleanWrecksDuty(position, _entityManager, _responseManager.ResponseCode)
+                new CleanCorpsesDuty(++_lastDutyId, position, _responseManager.ResponseCode),
+                new CleanWrecksDuty(++_lastDutyId, position, _entityManager, _responseManager.ResponseCode)
             };
         }
 
