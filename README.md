@@ -5,7 +5,7 @@ You can request the road to be closed, which will call backup units to close and
 ## Features
 
 ### Clear surrounding area
-Use cops in the area for cleaning wrecks and death bodies in the surrounding area of the player (integration with Arrest Manager).
+Use nearby cops for cleaning wrecks and death bodies in the surrounding area of the player (integration with Arrest Manager).
 
 - Auto call coroner service for death bodies
 - Auto call tow trucks for wrecks
@@ -15,8 +15,8 @@ Closes the road closest to the player & cleans the road area from wrecks and dea
 
 - Calls backup vehicles for closing the road (securing the area & redirecting the traffic)
 - Auto places barriers for closing the road (optional)
-- Auto call coroner service for death bodies (animated)
-- Auto call tow trucks for wrecks (animated)
+- Auto call coroner service for death bodies
+- Auto call tow trucks for wrecks
 - Reopen the closed road
 
 ### Redirect Traffic
@@ -24,6 +24,13 @@ Redirects the traffic from the side of the road. This will make it safer for you
 
 - Call one backup vehicle which will redirect the traffic
 - Auto places cones for redirecting the traffic (optional)
+
+### Slow Down Traffic
+Busy streets (such as highways) will be slowed down by one or more backup unit(s) which will drive from a distance behind the player to the player.
+
+- Call backup unit(s) for slowing down the traffic
+- Slows down the traffic in the direction of the player
+- Units will resume duty when reaching the player
 
 ## Planned Features
 
@@ -40,4 +47,4 @@ Redirects the traffic from the side of the road. This will make it safer for you
 - [Arrest Manager](https://www.lcpdfr.com/files/file/8107-arrest-manager-grab-peds-more-jail-points-prisoner-transport-more/)
 
 ## Suggestions
-**Area Control** is in early development, so feel free to make suggestion or ask for new features.
+**Area Control** is in early development, so feel free to make suggestions or ask for new features.

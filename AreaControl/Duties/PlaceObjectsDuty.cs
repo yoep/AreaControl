@@ -44,10 +44,11 @@ namespace AreaControl.Duties
             {
                 foreach (var placeObject in _objects)
                 {
-                    var positionBehindCone = placeObject.Position + MathHelper.ConvertHeadingToDirection(placeObject.Heading) * 0.8f;
+                    var headingBehindObject = RoadUtil.OppositeHeading(placeObject.Heading);
+                    var positionBehindCone = placeObject.Position + MathHelper.ConvertHeadingToDirection(headingBehindObject) * 0.8f;
                     var walkToExecutor = _responseCode == ResponseCode.Code2
-                        ? Ped.WalkTo(positionBehindCone, RoadUtil.OppositeHeading(placeObject.Heading))
-                        : Ped.RunTo(positionBehindCone, RoadUtil.OppositeHeading(placeObject.Heading));
+                        ? Ped.WalkTo(positionBehindCone, placeObject.Heading)
+                        : Ped.RunTo(positionBehindCone, placeObject.Heading);
 
                     if (IsAborted)
                         break;
@@ -88,12 +89,12 @@ namespace AreaControl.Duties
                 Position = position;
                 Heading = heading;
             }
-            
+
             /// <summary>
             /// Get the position of the object to spawn.
             /// </summary>
             public Vector3 Position { get; }
-            
+
             /// <summary>
             /// Get the heading of the object to spawn.
             /// </summary>

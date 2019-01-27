@@ -177,8 +177,10 @@ namespace AreaControl.Actions.CloseRoad
             MenuItem.Text = AreaControl.ActionOpenRoad;
             Rage.NewSafeFiber(() =>
             {
+                var position = Game.LocalPlayer.Character.Position;
+                Rage.DisplayNotification("Requesting dispatch to ~b~close nearby road~s~ " + World.GetStreetName(position) + "...");
                 Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
-                    Game.LocalPlayer.Character.Position);
+                    position);
                 var blockSlots = DetermineBlockSlots(GetDistanceFromOriginalSlot());
 
                 GameFiber.Sleep(5000);

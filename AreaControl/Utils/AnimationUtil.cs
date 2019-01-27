@@ -6,6 +6,9 @@ namespace AreaControl.Utils
 {
     public static class AnimationUtil
     {
+        private const string PlaceDownObjectDictionary = "pickup_object";
+        private const string PlaceDownObjectAnimation = "putdown_low";
+
         /// <summary>
         /// Attach props for animation and play the issue ticket.
         /// </summary>
@@ -56,6 +59,13 @@ namespace AreaControl.Utils
         /// <returns>Returns the animation executor.</returns>
         public static AnimationTaskExecutor PlaceDownObject(ACPed ped, Object entity, bool placeFromHand)
         {
+            if (!entity.IsValid())
+                return AnimationTaskExecutorBuilder.Builder()
+                    .AnimationDictionary(PlaceDownObjectDictionary)
+                    .AnimationName(PlaceDownObjectAnimation)
+                    .IsAborted(true)
+                    .Build();
+            
             var originalPosition = new Vector3(entity.Position.X, entity.Position.Y, entity.Position.Z);
             entity.MakePersistent();
             entity.Position = Vector3.Zero;
@@ -65,7 +75,7 @@ namespace AreaControl.Utils
                 ped.Attach(entity, PlacementType.RightHand);
             }
 
-            var executor = ped.PlayAnimation("pickup_object", "putdown_low", AnimationFlags.None);
+            var executor = ped.PlayAnimation(PlaceDownObjectDictionary, PlaceDownObjectAnimation, AnimationFlags.None);
             executor.OnCompletionOrAborted += (sender, args) =>
             {
                 ped.DetachAttachments();

@@ -160,8 +160,10 @@ namespace AreaControl.Actions.RedirectTraffic
             _rage.NewSafeFiber(() =>
             {
                 DeletePreview();
+                var position = Game.LocalPlayer.Character.Position;
+                _rage.DisplayNotification("Requesting dispatch to ~b~redirect traffic~s~...");
                 Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
-                    Game.LocalPlayer.Character.Position);
+                    position);
                 var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
                 var redirectSlot = _redirectSlot ?? DetermineRedirectSlot(distanceFromOriginalSlot);
 

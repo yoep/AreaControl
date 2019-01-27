@@ -7,12 +7,13 @@ namespace AreaControl.Utils.Tasks
     public class AnimationTaskExecutor : TaskExecutor
     {
         internal AnimationTaskExecutor(TaskIdentificationType identificationType, TaskId taskId, TaskHash taskHash,
-            IEnumerable<ExecutorEntity> executorEntities, AnimationDictionary animationDictionary, string animationName, AnimationTask rageTask)
+            IEnumerable<ExecutorEntity> executorEntities, AnimationDictionary animationDictionary, string animationName, AnimationTask rageTask, bool isAborted)
             : base(identificationType, taskId, taskHash, executorEntities)
         {
             AnimationDictionary = animationDictionary;
             AnimationName = animationName;
             RageTask = rageTask;
+            IsAborted = isAborted;
         }
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace AreaControl.Utils.Tasks
             {
                 GameFiber.Yield();
 
-                while (RageTask.Ped.IsValid() && RageTask.IsPlaying && !IsAborted)
+                while (!IsAborted && RageTask.Ped.IsValid() && RageTask.IsPlaying)
                 {
                     GameFiber.Yield();
                 }
@@ -75,6 +76,7 @@ namespace AreaControl.Utils.Tasks
         private AnimationDictionary _animationDictionary;
         private AnimationTask _rageAnimationTask;
         private string _animationName;
+        private bool _isAborted;
 
         private AnimationTaskExecutorBuilder()
         {
@@ -103,6 +105,12 @@ namespace AreaControl.Utils.Tasks
             return this;
         }
 
+        public AnimationTaskExecutorBuilder IsAborted(bool value)
+        {
+            _isAborted = value;
+            return this;
+        }
+
         public AnimationTaskExecutor Build()
         {
             Assert.NotNull(_identificationType, "identification type has not been set");
@@ -112,7 +120,7 @@ namespace AreaControl.Utils.Tasks
             Assert.NotNull(_rageAnimationTask, "rageAnimationTask has not been set");
 
             return new AnimationTaskExecutor(_identificationType, _taskId, _taskHash, ConvertExecutorEntities(), _animationDictionary, _animationName,
-                _rageAnimationTask);
+                _rageAnimationTask, _isAborted);
         }
     }
 }
