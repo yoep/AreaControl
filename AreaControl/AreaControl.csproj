@@ -78,6 +78,7 @@
     <Compile Include="Duties\DutyAvailableEventArgs.cs" />
     <Compile Include="Duties\DutyManager.cs" />
     <Compile Include="Duties\DutyState.cs" />
+    <Compile Include="Duties\DutyType.cs" />
     <Compile Include="Duties\IDuty.cs" />
     <Compile Include="Duties\IDutyListener.cs" />
     <Compile Include="Duties\IDutyManager.cs" />
@@ -139,6 +140,9 @@
     <Content Include="AreaControl.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Actions\SlowDownTraffic" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

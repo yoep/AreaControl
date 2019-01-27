@@ -18,8 +18,9 @@ namespace AreaControl.Duties
         /// Get the next available duty in the area of the ped if found.
         /// </summary>
         /// <param name="ped">Set the ped to get the next available duty for.</param>
+        /// <param name="dutyTypes">Set the list of duties to choose from.</param>
         /// <returns>Returns the next available duty if available, else null.</returns>
-        IDuty NextAvailableDuty(ACPed ped);
+        IDuty NextAvailableDuty(ACPed ped, IEnumerable<DutyType> dutyTypes);
 
         /// <summary>
         /// Get the next available duty in the area if found.
@@ -27,8 +28,9 @@ namespace AreaControl.Duties
         /// The returned duty is automatically registered as a duty for the ped.
         /// </summary>
         /// <param name="ped">Set the ped to get the next available duty for.</param>
+        /// <param name="dutyTypes">Set the list of duties to choose from.</param>
         /// <returns>Returns the next available duty if available, else <see cref="ReturnToVehicleDuty"/>.</returns>
-        IDuty NextAvailableOrIdleDuty(ACPed ped);
+        IDuty NextAvailableOrIdleDuty(ACPed ped, IEnumerable<DutyType> dutyTypes);
 
         /// <summary>
         /// Get a list of all registered duties.

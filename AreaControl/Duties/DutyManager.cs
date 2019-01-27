@@ -48,11 +48,11 @@ namespace AreaControl.Duties
         }
 
         /// <inheritdoc />
-        public IDuty NextAvailableDuty(ACPed ped)
+        public IDuty NextAvailableDuty(ACPed ped, IEnumerable<DutyType> dutyTypes)
         {
             Assert.NotNull(ped, "ped cannot be null");
             var position = ped.Instance.Position;
-            var nextAvailableDuty = GetNextAvailableDuty(position);
+            var nextAvailableDuty = GetNextAvailableDuty(position, dutyTypes);
 
             if (nextAvailableDuty != null)
             {
@@ -63,10 +63,10 @@ namespace AreaControl.Duties
         }
 
         /// <inheritdoc />
-        public IDuty NextAvailableOrIdleDuty(ACPed ped)
+        public IDuty NextAvailableOrIdleDuty(ACPed ped, IEnumerable<DutyType> dutyTypes)
         {
             Assert.NotNull(ped, "ped cannot be null");
-            var nextAvailableDuty = NextAvailableDuty(ped);
+            var nextAvailableDuty = NextAvailableDuty(ped, dutyTypes);
 
             if (nextAvailableDuty != null)
                 return nextAvailableDuty;
@@ -177,7 +177,7 @@ namespace AreaControl.Duties
                         if (!pedInstance.IsValid())
                             continue;
 
-                        var availableDuty = GetNextAvailableDuty(pedInstance.Position);
+                        var availableDuty = GetNextAvailableDuty(pedInstance.Position, dutyListener.DutyTypes);
 
                         if (availableDuty == null || dutyListener.OnDutyAvailable == null)
                             continue;
@@ -199,9 +199,26 @@ namespace AreaControl.Duties
             }, "DutyManager");
         }
 
-        private IDuty GetNextAvailableDuty(Vector3 position)
+        private IDuty GetNextAvailableDuty(Vector3 position, IEnumerable<DutyType> dutyTypes)
         {
-            return GetDuties(position).FirstOrDefault(x => x.IsAvailable && IsInstantiationAllowed(x));
+            var duties = new List<IDuty>();
+
+            foreach (var dutyType in dutyTypes)
+            {
+                switch (dutyType)
+                {
+                    case DutyType.CleanCorpses:
+                        duties.Add(new CleanCorpsesDuty(++_lastDutyId, position, _responseManager.ResponseCode));
+                        break;
+                    case DutyType.CleanWrecks:
+                        duties.Add(new CleanWrecksDuty(++_lastDutyId, position, _entityManager, _responseManager.ResponseCode));
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(dutyTypes), "Duty type " + dutyType + " has not yet been added to GetNextAvailableDuty");
+                }
+            }
+
+            return duties.FirstOrDefault(x => x.IsAvailable && IsInstantiationAllowed(x));
         }
 
         private bool IsInstantiationAllowed(IDuty duty)
@@ -219,15 +236,6 @@ namespace AreaControl.Duties
         private bool HasAlreadyBeenInstantiatedBefore(IDuty duty)
         {
             return RegisteredDuties.Any(x => x.GetType() == duty.GetType());
-        }
-
-        private IEnumerable<IDuty> GetDuties(Vector3 position)
-        {
-            return new List<IDuty>
-            {
-                new CleanCorpsesDuty(++_lastDutyId, position, _responseManager.ResponseCode),
-                new CleanWrecksDuty(++_lastDutyId, position, _entityManager, _responseManager.ResponseCode)
-            };
         }
 
         private void ActivateNextDutyOnPed(ACPed ped)
@@ -273,6 +281,9 @@ namespace AreaControl.Duties
         {
             /// <inheritdoc />
             public ACPed Ped { get; internal set; }
+
+            /// <inheritdoc />
+            public IList<DutyType> DutyTypes { get; } = new List<DutyType>();
 
             /// <inheritdoc />
             public EventHandler<DutyAvailableEventArgs> OnDutyAvailable { get; set; }

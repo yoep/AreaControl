@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
@@ -66,7 +67,11 @@ namespace AreaControl.Actions.CleanArea
 
                 foreach (var ped in peds)
                 {
-                    var duty = _dutyManager.NextAvailableDuty(ped);
+                    var duty = _dutyManager.NextAvailableDuty(ped, new List<DutyType>
+                    {
+                        DutyType.CleanCorpses,
+                        DutyType.CleanWrecks
+                    });
 
                     if (duty != null)
                     {

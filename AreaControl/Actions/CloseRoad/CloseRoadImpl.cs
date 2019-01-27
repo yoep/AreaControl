@@ -301,7 +301,7 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignNextAvailableDutyToPed(ACPed ped)
         {
-            var nextAvailableDuty = _dutyManager.NextAvailableOrIdleDuty(ped);
+            var nextAvailableDuty = _dutyManager.NextAvailableOrIdleDuty(ped, GetDutyTypes());
 
             if (nextAvailableDuty.GetType() != typeof(ReturnToVehicleDuty))
             {
@@ -320,12 +320,27 @@ namespace AreaControl.Actions.CloseRoad
 
         private void RegisterDutyListenerForIdlePed(ACPed ped)
         {
-            _dutyManager[ped].OnDutyAvailable += (sender, args) => ActivateNonIdleDuty(ped, args.AvailableDuty);
+            var dutyListener = _dutyManager[ped];
+            dutyListener.DutyTypes.Add(DutyType.CleanCorpses);
+            dutyListener.DutyTypes.Add(DutyType.CleanWrecks);
+            dutyListener.OnDutyAvailable += (sender, args) => ActivateNonIdleDuty(ped, args.AvailableDuty);
         }
 
         private float GetDistanceFromOriginalSlot()
         {
             return (float) ((UIMenuListItem) MenuItem).SelectedValue;
+        }
+
+        private IEnumerable<DutyType> GetDutyTypes()
+        {
+            var duties = new List<DutyType>();
+
+            if (_settingsManager.CloseRoadSettings.AutoCleanBodies)
+                duties.Add(DutyType.CleanCorpses);
+            if (_settingsManager.CloseRoadSettings.AutoCleanWrecks)
+                duties.Add(DutyType.CleanWrecks);
+
+            return duties;
         }
 
         private static Road GetPositionBehindSlot(BlockSlot slot, int index)

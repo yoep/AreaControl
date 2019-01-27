@@ -15,8 +15,8 @@ Closes the road closest to the player & cleans the road area from wrecks and dea
 
 - Calls backup vehicles for closing the road (securing the area & redirecting the traffic)
 - Auto places barriers for closing the road (optional)
-- Auto call coroner service for death bodies
-- Auto call tow trucks for wrecks
+- Auto call coroner service for death bodies (optional)
+- Auto call tow trucks for wrecks (optional)
 - Reopen the closed road
 
 ### Redirect Traffic
@@ -36,9 +36,8 @@ Busy streets (such as highways) will be slowed down by one or more backup unit(s
 
 - Police Smart Radio integration
 - Road block
-
-### Close Road
-- Auto call EMS when closing the road and death bodies are present
+- Close Road
+    - Auto call EMS when closing the road and death bodies are present
 
 ## Dependencies
 - [RAGE Plugin Hook](http://ragepluginhook.net/)

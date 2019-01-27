@@ -71,7 +71,9 @@ namespace AreaControl.Settings
             CloseRoadSettings = new CloseRoadSettings
             {
                 ShowPreview = file.ReadBoolean(CloseRoadGroupName, "ShowPreview", true),
-                PlaceBarriers = file.ReadBoolean(RedirectTrafficGroupName, "PlaceBarriers", true)
+                PlaceBarriers = file.ReadBoolean(RedirectTrafficGroupName, "PlaceBarriers", true),
+                AutoCleanBodies = file.ReadBoolean(RedirectTrafficGroupName, "AutoCleanBodies", true),
+                AutoCleanWrecks = file.ReadBoolean(RedirectTrafficGroupName, "AutoCleanWrecks", true)
             };
         }
 
