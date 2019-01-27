@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
-using AreaControl.Utils;
 using Rage;
-using Object = Rage.Object;
 
 namespace AreaControl.Instances
 {
     public class Road : IPreviewSupport
     {
-        private readonly List<Object> _previewObjects = new List<Object>();
-
         #region Constructors
 
         internal Road(Vector3 position, Vector3 rightSide, Vector3 leftSide, IReadOnlyList<Lane> lanes, int numberOfLanes1, int numberOfLanes2,
@@ -87,15 +84,25 @@ namespace AreaControl.Instances
         #region IPreviewSupport implementation
 
         /// <inheritdoc />
-        public bool IsPreviewActive => _previewObjects.Count > 0;
+        public bool IsPreviewActive { get; private set; }
 
         /// <inheritdoc />
         public void CreatePreview()
         {
-            _previewObjects.Add(PropUtil.CreateLargeThinConeWithStripes(Position));
-            _previewObjects.Add(PropUtil.CreateLargeThinConeWithStripes(RightSide));
-            _previewObjects.Add(PropUtil.CreateLargeThinConeWithStripes(LeftSide));
-            _previewObjects.ForEach(PreviewUtil.TransformToPreview);
+            if (IsPreviewActive)
+                return;
+
+            IsPreviewActive = true;
+            GameFiber.StartNew(() =>
+            {
+                while (IsPreviewActive)
+                {
+                    Rage.Debug.DrawSphere(Position, 1f, Color.White);
+                    Rage.Debug.DrawSphere(RightSide, 1f, Color.Blue);
+                    Rage.Debug.DrawSphere(LeftSide, 1f, Color.Green);
+                    GameFiber.Yield();
+                }
+            });
             foreach (var lane in Lanes)
             {
                 lane.CreatePreview();
@@ -105,8 +112,10 @@ namespace AreaControl.Instances
         /// <inheritdoc />
         public void DeletePreview()
         {
-            _previewObjects.ForEach(PropUtil.Remove);
-            _previewObjects.Clear();
+            if (!IsPreviewActive)
+                return;
+
+            IsPreviewActive = false;
             foreach (var lane in Lanes)
             {
                 lane.DeletePreview();
@@ -140,7 +149,7 @@ namespace AreaControl.Instances
         /// </summary>
         public class Lane : IPreviewSupport
         {
-            private readonly List<Object> _previewObjects = new List<Object>();
+            #region Constructors
 
             public Lane(int number, float heading, Vector3 rightSide, Vector3 leftSide, Vector3 nodePosition, float width)
             {
@@ -150,7 +159,12 @@ namespace AreaControl.Instances
                 LeftSide = leftSide;
                 NodePosition = nodePosition;
                 Width = width;
+                Position = CalculatePosition();
             }
+
+            #endregion
+
+            #region Properties
 
             /// <summary>
             /// Get the unique lane number.
@@ -163,6 +177,11 @@ namespace AreaControl.Instances
             public float Heading { get; }
 
             /// <summary>
+            /// Get the middle position of the lane.
+            /// </summary>
+            public Vector3 Position { get; }
+
+            /// <summary>
             /// Get the right side start position of the lane.
             /// </summary>
             public Vector3 RightSide { get; }
@@ -171,19 +190,23 @@ namespace AreaControl.Instances
             /// Get the left side start position of the lane.
             /// </summary>
             public Vector3 LeftSide { get; }
-            
+
             /// <summary>
             /// Get the position of the node that was used for determining the heading of this lane.
             /// </summary>
             public Vector3 NodePosition { get; }
-            
+
             /// <summary>
             /// Get the width of the lane.
             /// </summary>
             public float Width { get; }
 
+            #endregion
+
+            #region IPreviewSupport
+
             /// <inheritdoc />
-            public bool IsPreviewActive => _previewObjects.Count > 0;
+            public bool IsPreviewActive { get; private set; }
 
             /// <inheritdoc />
             public void CreatePreview()
@@ -191,13 +214,23 @@ namespace AreaControl.Instances
                 if (IsPreviewActive)
                     return;
 
-                var offsetDirection = MathHelper.ConvertHeadingToDirection(Heading);
+                IsPreviewActive = true;
+                GameFiber.StartNew(() =>
+                {
+                    var direction = MathHelper.ConvertHeadingToDirection(Heading);
+                    var rightSideStart = FloatAboveGround(RightSide + direction * (2f * Number));
+                    var rightSideEnd = FloatAboveGround(RightSide + direction * (2f * Number + 2f));
+                    var leftSideStart = FloatAboveGround(LeftSide + direction * (2f * Number));
+                    var leftSideEnd = FloatAboveGround(LeftSide + direction * (2f * Number + 2f));
 
-                _previewObjects.Add(PropUtil.CreateSmallBlankCone(LeftSide + offsetDirection * (2f * Number)));
-                _previewObjects.Add(PropUtil.CreateSmallConeWithStripes(RightSide + offsetDirection * (2f * Number)));
-                _previewObjects.Add(PropUtil.CreateBigConeWithStripes(RightSide + offsetDirection * (2f * Number + 2f)));
-                
-                _previewObjects.ForEach(PreviewUtil.TransformToPreview);
+                    while (IsPreviewActive)
+                    {
+                        Rage.Debug.DrawArrow(FloatAboveGround(Position), direction, Rotator.Zero, Width, Color.Red);
+                        Rage.Debug.DrawLine(rightSideStart, rightSideEnd, Color.Blue);
+                        Rage.Debug.DrawLine(leftSideStart, leftSideEnd, Color.Green);
+                        GameFiber.Yield();
+                    }
+                });
             }
 
             /// <inheritdoc />
@@ -206,9 +239,10 @@ namespace AreaControl.Instances
                 if (!IsPreviewActive)
                     return;
 
-                _previewObjects.ForEach(PropUtil.Remove);
-                _previewObjects.Clear();
+                IsPreviewActive = false;
             }
+
+            #endregion
 
             public override string ToString()
             {
@@ -219,6 +253,19 @@ namespace AreaControl.Instances
                        $"{nameof(NodePosition)}: {NodePosition}," + Environment.NewLine +
                        $"{nameof(Width)}: {Width}," + Environment.NewLine +
                        $"{nameof(IsPreviewActive)}: {IsPreviewActive}" + Environment.NewLine;
+            }
+
+            private Vector3 CalculatePosition()
+            {
+                var moveHeading = MathHelper.NormalizeHeading(Heading + 90f);
+                var moveDirection = MathHelper.ConvertHeadingToDirection(moveHeading);
+
+                return RightSide + moveDirection * (Width / 2);
+            }
+
+            private Vector3 FloatAboveGround(Vector3 position)
+            {
+                return position + Vector3.WorldUp * 0.25f;
             }
         }
     }

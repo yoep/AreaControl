@@ -272,21 +272,17 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignDutiesToDriver(ACPed ped, BlockSlot slot)
         {
+            AssignPlaceBarriersDuty(ped, slot);
             _dutyManager.RegisterDuty(ped, new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode));
         }
 
         private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, BlockSlot slot)
         {
             var passengers = vehicle.Passengers;
-            var firstPassenger = passengers.FirstOrDefault();
-
-            if (firstPassenger != null)
-                AssignPlaceBarriersDuty(slot, firstPassenger);
-
             passengers.ForEach(AssignNextAvailableDutyToPed);
         }
 
-        private void AssignPlaceBarriersDuty(BlockSlot slot, ACPed firstPassenger)
+        private void AssignPlaceBarriersDuty(ACPed ped, BlockSlot slot)
         {
             if (!_settingsManager.CloseRoadSettings.PlaceBarriers)
                 return;
@@ -298,7 +294,7 @@ namespace AreaControl.Actions.CloseRoad
 
             var placeObjectsDuty = new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, false);
             Rage.LogTrivialDebug("Created place barriers duty " + placeObjectsDuty);
-            _dutyManager.RegisterDuty(firstPassenger, placeObjectsDuty);
+            _dutyManager.RegisterDuty(ped, placeObjectsDuty);
         }
 
         private void AssignNextAvailableDutyToPed(ACPed ped)
