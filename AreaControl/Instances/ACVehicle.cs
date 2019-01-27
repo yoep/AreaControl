@@ -15,14 +15,26 @@ namespace AreaControl.Instances
     {
         private Blip _blip;
 
+        #region Constructors
+
         public ACVehicle(Vehicle instance, long id)
         {
             Instance = instance;
             Id = id;
         }
 
+        #endregion
+
+        #region Properties
+
         /// <inheritdoc />
         public long Id { get; }
+
+        /// <inheritdoc />
+        public bool IsValid => Instance != null && Instance.IsValid();
+
+        /// <inheritdoc />
+        public bool IsInvalid => !IsValid;
 
         /// <summary>
         /// Get the GTA V vehicle instance.
@@ -72,6 +84,8 @@ namespace AreaControl.Instances
         /// Get if this vehicle is wandering around.
         /// </summary>
         public bool IsWandering { get; private set; }
+
+        #endregion
 
         /// <summary>
         /// Create a blip in the map for this vehicle.
@@ -162,7 +176,7 @@ namespace AreaControl.Instances
         /// </summary>
         public void Wander()
         {
-            if (Driver == null || !Driver.Instance.IsValid() || Instance.Driver != Driver.Instance)
+            if (Driver == null || !Driver.IsValid || Instance.Driver != Driver.Instance)
                 return;
 
             Driver.CruiseWithVehicle();

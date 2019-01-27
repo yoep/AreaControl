@@ -47,6 +47,12 @@ namespace AreaControl.Utils.Tasks
         public EventHandler OnCompletion { get; set; }
 
         /// <summary>
+        /// Get the event handler for when this task executor is aborted.
+        /// You can register a new event here that will be triggered when the state changes to ABORTED.
+        /// </summary>
+        public EventHandler OnAborted { get; set; }
+
+        /// <summary>
         /// Get the event handler for when this task executor is completed or aborted.
         /// You can register a new event here that will be triggered when the state changes to COMPLETED or ABORTED.
         /// </summary>
@@ -148,7 +154,6 @@ namespace AreaControl.Utils.Tasks
             if (IsCompleted)
                 return;
 
-            //TODO: implement
             IsAborted = true;
         }
 
@@ -185,16 +190,17 @@ namespace AreaControl.Utils.Tasks
                     }
 
                     if (ExecutorEntities.All(x => x.CompletedTask))
-                    {
                         IsCompleted = true;
-                        OnCompletion?.Invoke(this, EventArgs.Empty);
-                    }
 
-                    if (!IsCompleted | !IsAborted)
-                        GameFiber.Sleep(50);
-                    else
-                        OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);
+                    GameFiber.Sleep(50);
                 }
+
+                if (IsCompleted)
+                    OnCompletion?.Invoke(this, EventArgs.Empty);
+                if (IsAborted)
+                    OnAborted?.Invoke(this, EventArgs.Empty);
+
+                OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);
             });
         }
 

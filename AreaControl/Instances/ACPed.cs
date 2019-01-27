@@ -17,8 +17,9 @@ namespace AreaControl.Instances
     public class ACPed : IACEntity
     {
         private readonly List<Entity> _attachments = new List<Entity>();
-        private VehicleSeat _lastSeat;
         private bool _weaponsEnabled;
+
+        #region Constructors
 
         public ACPed(Ped instance, long id)
         {
@@ -26,8 +27,18 @@ namespace AreaControl.Instances
             Id = id;
         }
 
+        #endregion
+
+        #region Properties
+
         /// <inheritdoc />
         public long Id { get; }
+
+        /// <inheritdoc />
+        public bool IsValid => Instance != null && Instance.IsValid();
+
+        /// <inheritdoc />
+        public bool IsInvalid => !IsValid;
 
         /// <summary>
         /// Get the GTA V Ped instance.
@@ -53,6 +64,15 @@ namespace AreaControl.Instances
         /// Get the last vehicle of this ped.
         /// </summary>
         public ACVehicle LastVehicle { get; private set; }
+        
+        /// <summary>
+        /// Get the last vehicle seat of this ped.
+        /// </summary>
+        public VehicleSeat LastVehicleSeat { get; private set; }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Warp this ped into a vehicle.
@@ -65,7 +85,7 @@ namespace AreaControl.Instances
 
             LastVehicle = vehicle;
             IsBusy = true;
-            _lastSeat = seat;
+            LastVehicleSeat = seat;
             Instance.WarpIntoVehicle(vehicle.Instance, (int) seat);
         }
 
@@ -157,7 +177,7 @@ namespace AreaControl.Instances
         public TaskExecutor EnterLastVehicle(MovementSpeed speed)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.EnterVehicle(Instance, LastVehicle.Instance, _lastSeat, speed);
+            var taskExecutor = TaskUtil.EnterVehicle(Instance, LastVehicle.Instance, LastVehicleSeat, speed);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -182,6 +202,9 @@ namespace AreaControl.Instances
         /// </summary>
         public void ReturnToLspdfrDuty()
         {
+            if (IsInvalid)
+                return;
+
             IsBusy = false;
             DeleteAttachments();
             Functions.SetPedAsCop(Instance);
@@ -228,6 +251,8 @@ namespace AreaControl.Instances
         {
             Instance.Tasks.CruiseWithVehicle(30f);
         }
+
+        #endregion
 
         public override string ToString()
         {

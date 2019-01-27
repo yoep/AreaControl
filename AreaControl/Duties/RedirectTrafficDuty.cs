@@ -72,7 +72,7 @@ namespace AreaControl.Duties
             _animationTaskExecutor = AnimationUtil.RedirectTraffic(Ped);
             _animationTaskExecutor.OnCompletion += (sender, args) =>
             {
-                if (Ped.Instance.IsValid())
+                if (Ped.IsValid)
                     PlayRedirectTrafficAnimation();
             };
         }

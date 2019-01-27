@@ -49,7 +49,7 @@ namespace AreaControl.Utils.Tasks
             GameFiber.StartNew(() =>
             {
                 GameFiber.Yield();
-                
+
                 while (RageTask.Ped.IsValid() && RageTask.IsPlaying && !IsAborted)
                 {
                     GameFiber.Yield();
@@ -59,6 +59,10 @@ namespace AreaControl.Utils.Tasks
                 {
                     IsCompleted = true;
                     OnCompletion?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                {
+                    OnAborted?.Invoke(this, EventArgs.Empty);
                 }
 
                 OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);

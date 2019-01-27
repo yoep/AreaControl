@@ -31,13 +31,14 @@ namespace AreaControl.Duties
             _rage.NewSafeFiber(() =>
             {
                 Ped.WeaponsEnabled = true;
-                Ped
-                    .EnterLastVehicle(MovementSpeed.Walk)
-                    .WaitForAndExecute(() =>
-                    {
-                        _rage.LogTrivialDebug("ReturnToVehicleDuty completed");
-                        CompleteDuty();
-                    }, 30000);
+                var enterLastVehicleTask = Ped.EnterLastVehicle(MovementSpeed.Walk);
+
+                enterLastVehicleTask.OnAborted += (sender, args) => Ped.WarpIntoVehicle(Ped.LastVehicle, Ped.LastVehicleSeat);
+                enterLastVehicleTask.WaitForAndExecute(() =>
+                {
+                    _rage.LogTrivialDebug("ReturnToVehicleDuty completed");
+                    CompleteDuty();
+                }, 30000);
             }, "ReturnToVehicleDuty.Execute");
         }
     }

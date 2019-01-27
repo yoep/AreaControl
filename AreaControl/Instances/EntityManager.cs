@@ -136,8 +136,8 @@ namespace AreaControl.Instances
             {
                 while (_isActive)
                 {
-                    var vehiclesToBeRemoved = _managedVehicles.Where(x => !x.Instance.IsValid()).ToList();
-                    var pedsToBeRemoved = _managedPeds.Where(x => !x.Instance.IsValid()).ToList();
+                    var vehiclesToBeRemoved = _managedVehicles.Where(x => !x.IsValid).ToList();
+                    var pedsToBeRemoved = _managedPeds.Where(x => !x.IsValid).ToList();
                     var disposedWrecksToBeRemoved = _disposedWrecks.Where(x => !x.IsValid()).ToList();
 
                     vehiclesToBeRemoved.ForEach(x => _managedVehicles.Remove(x));
@@ -170,7 +170,7 @@ namespace AreaControl.Instances
         {
             _rage.LogTrivialDebug("Searching for managed vehicle at position " + position);
             return _managedVehicles
-                .Where(e => e.Instance.IsValid())
+                .Where(e => e.IsValid)
                 .Where(e => IsVehicleWithinRadius(position, radius, e))
                 .FirstOrDefault(e => !e.IsBusy);
         }
