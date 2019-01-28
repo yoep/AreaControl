@@ -5,6 +5,7 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Actions.CleanArea;
 using AreaControl.Actions.CloseRoad;
 using AreaControl.Actions.RedirectTraffic;
+using AreaControl.Actions.SlowDownTraffic;
 using AreaControl.Debug;
 using AreaControl.Duties;
 using AreaControl.Instances;
@@ -27,6 +28,8 @@ namespace AreaControl
 
             try
             {
+                AttachDebugger();
+                
                 Main.Initialize();
                 rage.LogTrivial("initialized");
                 rage.DisplayPluginNotification("has been loaded");
@@ -56,7 +59,8 @@ namespace AreaControl
                 .RegisterSingleton<ISettingsManager>(typeof(SettingsManager))
                 .Register<ICleanArea>(typeof(CleanAreaImpl))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl))
-                .Register<IRedirectTraffic>(typeof(RedirectTrafficImpl));
+                .Register<IRedirectTraffic>(typeof(RedirectTrafficImpl))
+                .Register<ISlowDownTraffic>(typeof(SlowDownTrafficImpl));
         }
 
         [Conditional("DEBUG")]
@@ -67,6 +71,12 @@ namespace AreaControl
                 .Register<IMenuComponent>(typeof(RoadInfo))
                 .Register<IMenuComponent>(typeof(RoadPreview))
                 .Register<IMenuComponent>(typeof(RedirectTrafficPreview));
+        }
+
+        [Conditional("DEBUG")]
+        private static void AttachDebugger()
+        {
+            Rage.Debug.AttachAndBreak();
         }
     }
 }

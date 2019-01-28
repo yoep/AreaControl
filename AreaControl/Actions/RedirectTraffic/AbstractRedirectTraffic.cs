@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Utils;
@@ -21,7 +23,7 @@ namespace AreaControl.Actions.RedirectTraffic
 
         /// <inheritdoc />
         public abstract void OnMenuActivation(IMenu sender);
-        
+
         /// <inheritdoc />
         public virtual void OnMenuHighlighted(IMenu sender)
         {
@@ -32,35 +34,33 @@ namespace AreaControl.Actions.RedirectTraffic
 
         #endregion
 
-        protected RedirectSlot DetermineRedirectSlot(float distanceFromPlayer)
+        protected static RedirectSlot DetermineRedirectSlot(float distanceFromPlayer)
         {
             var playerPosition = Game.LocalPlayer.Character.Position;
             var closestRoad = RoadUtil.GetClosestRoad(playerPosition, RoadType.All);
 
             //first lane = right side, last lane = left side
-            var closestLane = GetClosestLaneToPlayer(playerPosition, closestRoad);
+            var closestLane = RoadUtil.GetClosestLane(closestRoad, playerPosition);
             var moveDirection = MathHelper.ConvertHeadingToDirection(RoadUtil.OppositeHeading(closestLane.Heading));
+            var isLeftSideOfRoad = MultipleLanesInSameDirection(closestRoad, closestLane) && IsClosestToLeftLane(closestRoad, closestLane);
+            var lanePosition = isLeftSideOfRoad ? closestLane.LeftSide : closestLane.RightSide;
 
-            return new RedirectSlot(closestLane.RightSide + moveDirection * distanceFromPlayer, closestLane.Heading);
+            return new RedirectSlot(lanePosition + moveDirection * distanceFromPlayer, closestLane.Heading, isLeftSideOfRoad);
         }
 
-        private Road.Lane GetClosestLaneToPlayer(Vector3 playerPosition, Road road)
+        private static bool IsClosestToLeftLane(Road road, Road.Lane lane)
         {
-            Road.Lane closestLane = null;
-            var closestLaneDistance = 9999f;
+            var distanceRightSide = Vector3.Distance2D(road.RightSide, lane.Position);
+            var distanceLeftSide = Vector3.Distance2D(road.LeftSide, lane.Position);
 
-            foreach (var lane in road.Lanes)
-            {
-                var laneDistanceFromPlayer = Vector3.Distance2D(playerPosition, lane.RightSide);
+            return distanceLeftSide < distanceRightSide;
+        }
 
-                if (laneDistanceFromPlayer > closestLaneDistance)
-                    continue;
-
-                closestLane = lane;
-                closestLaneDistance = laneDistanceFromPlayer;
-            }
-
-            return closestLane;
+        private static bool MultipleLanesInSameDirection(Road road, Road.Lane lane)
+        {
+            return road.Lanes
+                .Where(x => x != lane)
+                .Any(x => Math.Abs(lane.Heading - x.Heading) < 1f);
         }
     }
 }

@@ -11,12 +11,13 @@ namespace AreaControl.Actions.RedirectTraffic
         private readonly List<Entity> _previewObjects = new List<Entity>();
         private readonly List<Cone> _cones = new List<Cone>();
 
-        public RedirectSlot(Vector3 position, float heading)
+        public RedirectSlot(Vector3 position, float heading, bool placeConesOnRightSide)
         {
             Position = position;
             Heading = heading;
             PedHeading = RoadUtil.OppositeHeading(Heading);
             PedPosition = Position + MathHelper.ConvertHeadingToDirection(PedHeading) * PedDistanceFromVehicle;
+            PlaceConesRightSide = placeConesOnRightSide;
             CreateCones();
         }
 
@@ -39,6 +40,11 @@ namespace AreaControl.Actions.RedirectTraffic
         /// Get the heading of the ped for the redirect slot.
         /// </summary>
         public float PedHeading { get; }
+        
+        /// <summary>
+        /// Get if the cones should be placed on the right side of the vehicle.
+        /// </summary>
+        public bool PlaceConesRightSide { get; }
 
         /// <summary>
         /// Get the cones to place for this redirect traffic slot.
@@ -89,12 +95,14 @@ namespace AreaControl.Actions.RedirectTraffic
 
         private void CreateCones()
         {
-            var directionLeftOfVehicle = MathHelper.ConvertHeadingToDirection(Heading + 90f);
+            var headingToMove = PlaceConesRightSide ? -90f : 90f;
+            var headingThirdCone = PlaceConesRightSide ? -40f : 40f;
+            var directionLeftOfVehicle = MathHelper.ConvertHeadingToDirection(Heading + headingToMove);
             var moveHeading = PedHeading;
             var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(moveHeading);
             var positionLeftOfVehicle = Position + directionLeftOfVehicle * 2f;
             var secondCone = positionLeftOfVehicle + directionBehindVehicle * 2f;
-            var thirdCone = secondCone + MathHelper.ConvertHeadingToDirection(moveHeading + 40f) * 2f;
+            var thirdCone = secondCone + MathHelper.ConvertHeadingToDirection(moveHeading + headingThirdCone) * 2f;
 
             _cones.Add(new Cone(positionLeftOfVehicle, moveHeading));
             _cones.Add(new Cone(secondCone, moveHeading));

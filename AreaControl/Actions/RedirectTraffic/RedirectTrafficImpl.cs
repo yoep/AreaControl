@@ -19,6 +19,7 @@ namespace AreaControl.Actions.RedirectTraffic
         private const float ScanRadius = 250f;
         private const float VehiclePositionTolerance = 0.5f;
         private const float VehicleHeadingTolerance = 20f;
+        private const string DispatchAudio = "WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION";
 
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
@@ -161,14 +162,14 @@ namespace AreaControl.Actions.RedirectTraffic
             {
                 DeletePreview();
                 var position = Game.LocalPlayer.Character.Position;
-                _rage.DisplayNotification("Requesting dispatch to ~b~redirect traffic~s~...");
-                Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
-                    position);
                 var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
                 var redirectSlot = _redirectSlot ?? DetermineRedirectSlot(distanceFromOriginalSlot);
 
+                _rage.DisplayNotification("Requesting dispatch to ~b~redirect traffic~s~...");
+                Functions.PlayScannerAudioUsingPosition(DispatchAudio + " " + _responseManager.ResponseCodeAudio, position);
                 GameFiber.Sleep(5000);
                 Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
+
                 var spawnPosition = GetSpawnPosition(redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
 
@@ -222,7 +223,7 @@ namespace AreaControl.Actions.RedirectTraffic
                     (pos, heading) => PropUtil.CreateSmallConeWithStripes(pos)));
             }
 
-            _dutyManager.RegisterDuty(ped, 
+            _dutyManager.RegisterDuty(ped,
                 new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, true));
         }
 

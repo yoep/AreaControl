@@ -40,9 +40,14 @@ namespace AreaControl.Utils.Query
                 .GetEntities(position, radius, GetEntitiesFlags.ConsiderHumanPeds | GetEntitiesFlags.ExcludePlayerPed)
                 .OfType<Ped>()
                 .Where(x => x.IsValid())
-                .Where(x => ModelUtil.CityPedModels.Contains(x.Model.Name) || ModelUtil.CountyPedModels.Contains(x.Model.Name) ||
-                            ModelUtil.StatePedModels.Contains(x.Model.Name))
+                .Where(x => ModelUtil.CityPedModels.Contains(GetUnifiedModelName(x)) || ModelUtil.CountyPedModels.Contains(GetUnifiedModelName(x)) ||
+                            ModelUtil.StatePedModels.Contains(GetUnifiedModelName(x)))
                 .ToList();
+        }
+
+        private static string GetUnifiedModelName(Ped instance)
+        {
+            return instance.Model.Name.ToLower();
         }
     }
 }

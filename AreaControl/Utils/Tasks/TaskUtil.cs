@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AreaControl.Instances;
 using Rage;
@@ -6,6 +7,7 @@ using Rage.Native;
 
 namespace AreaControl.Utils.Tasks
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public static class TaskUtil
     {
         /// <summary>
@@ -104,10 +106,35 @@ namespace AreaControl.Utils.Tasks
             Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(vehicle, "vehicle cannot be null");
             NativeFunction.Natives.TASK_ENTER_VEHICLE(ped, vehicle, -1, (int) seat, speed.Value, 1, 0);
-            
+
             return TaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Id)
                 .TaskId(TaskId.CTaskEnterVehicleSeat)
+                .ExecutorEntities(new List<Ped> {ped})
+                .Build();
+        }
+
+        /// <summary>
+        /// Drive the vehicle to the given position.
+        /// </summary>
+        /// <param name="ped">Set the driver.</param>
+        /// <param name="vehicle">Set the vehicle to drive.</param>
+        /// <param name="position">Set the target position.</param>
+        /// <param name="speed">Set the speed to drive at.</param>
+        /// <param name="drivingFlags">Set the driving style flags.</param>
+        /// <param name="acceptedDistance">Set the accepted distance from the target position.</param>
+        /// <returns>Returns the task executor for this task.</returns>
+        public static TaskExecutor DriveToPosition(Ped ped, Vehicle vehicle, Vector3 position, float speed, VehicleDrivingFlags drivingFlags,
+            float acceptedDistance)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.NotNull(vehicle, "vehicle cannot be null");
+            NativeFunction.Natives.TASK_VEHICLE_DRIVE_TO_COORD(ped, vehicle, position.X, position.Y, position.Z, speed, 1f, vehicle.Model.Hash,
+                (uint) drivingFlags, acceptedDistance, true);
+
+            return TaskExecutorBuilder.Builder()
+                .IdentificationType(TaskIdentificationType.Hash)
+                .TaskHash(TaskHash.TASK_VEHICLE_DRIVE_TO_COORD)
                 .ExecutorEntities(new List<Ped> {ped})
                 .Build();
         }

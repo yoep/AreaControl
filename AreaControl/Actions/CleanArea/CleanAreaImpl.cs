@@ -55,17 +55,19 @@ namespace AreaControl.Actions.CleanArea
         {
             _rage.NewSafeFiber(() =>
             {
-                var peds = _entityManager.FindPedsWithin(Game.LocalPlayer.Character.Position, SearchPedRadius)
+                var allCops = _entityManager.FindPedsWithin(Game.LocalPlayer.Character.Position, SearchPedRadius);
+                var availableCops = allCops
                     .Where(x => !x.IsBusy)
                     .ToList();
+                _rage.LogTrivialDebug("There are " + allCops.Count + " cops within the clean area");
 
-                if (peds.Count == 0)
+                if (availableCops.Count == 0)
                 {
                     _rage.DisplayNotification("~b~Clear surrounding area~r~\nNo available cops within the surrounding area");
                     return;
                 }
 
-                foreach (var ped in peds)
+                foreach (var ped in availableCops)
                 {
                     var duty = _dutyManager.NextAvailableDuty(ped, new List<DutyType>
                     {

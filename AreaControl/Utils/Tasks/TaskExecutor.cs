@@ -69,6 +69,11 @@ namespace AreaControl.Utils.Tasks
         public bool IsAborted { get; protected set; }
 
         /// <summary>
+        /// Check if the this task executor is running.
+        /// </summary>
+        public bool IsRunning => !IsCompleted && !IsAborted;
+
+        /// <summary>
         /// Get the parent executor that invoked this task executor.
         /// </summary>
         public TaskExecutor Parent { get; private set; }

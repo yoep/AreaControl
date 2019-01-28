@@ -35,6 +35,33 @@ namespace AreaControl.Utils
         }
 
         /// <summary>
+        /// Get the lane closest to the given point.
+        /// </summary>
+        /// <param name="road">Set the road to get the closest lane of.</param>
+        /// <param name="closestToPoint">Set the point.</param>
+        /// <returns>Returns the closest lane of the road in regards to the given point.</returns>
+        public static Road.Lane GetClosestLane(Road road, Vector3 closestToPoint)
+        {
+            Assert.NotNull(road,"road cannot be null");
+            Assert.NotNull(closestToPoint,"closestToPoint cannot be null");
+            var distanceClosestLane = 9999f;
+            Road.Lane closestLane = null;
+
+            foreach (var lane in road.Lanes)
+            {
+                var laneDistance = Vector3.Distance2D(lane.RightSide, closestToPoint);
+
+                if (laneDistance > distanceClosestLane)
+                    continue;
+
+                closestLane = lane;
+                distanceClosestLane = laneDistance;
+            }
+
+            return closestLane;
+        }
+
+        /// <summary>
         /// Get nearby roads near the given position.
         /// </summary>
         /// <param name="position">Set the position to use as reference.</param>
@@ -59,7 +86,7 @@ namespace AreaControl.Utils
                 DiscoverRoad(road2, numberOfLanes1, numberOfLanes2, junctionIndication)
             };
         }
-        
+
         /// <summary>
         /// Get the opposite heading of the given heading.
         /// </summary>

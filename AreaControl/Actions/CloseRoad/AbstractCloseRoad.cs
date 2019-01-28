@@ -108,33 +108,14 @@ namespace AreaControl.Actions.CloseRoad
 
         private IEnumerable<Road> GetRoadBehindGivenRoad(Road closestRoadToPlayer)
         {
-            var oppositeHeading = RoadUtil.OppositeHeading(GetLaneClosestToPlayer(closestRoadToPlayer).Heading);
+            var position = Game.LocalPlayer.Character.Position;
+            var oppositeHeading = RoadUtil.OppositeHeading(RoadUtil.GetClosestLane(closestRoadToPlayer, position).Heading);
             var oppositeDirection = MathHelper.ConvertHeadingToDirection(oppositeHeading);
 
             return new List<Road>
             {
                 DetermineClosestRoadTo(closestRoadToPlayer.Position + oppositeDirection * DistanceFromPlayer)
             };
-        }
-
-        private Road.Lane GetLaneClosestToPlayer(Road road)
-        {
-            var playerPosition = Game.LocalPlayer.Character.Position;
-            var distanceClosestLane = 9999f;
-            Road.Lane closestLane = null;
-
-            foreach (var lane in road.Lanes)
-            {
-                var laneDistance = Vector3.Distance2D(lane.RightSide, playerPosition);
-
-                if (laneDistance > distanceClosestLane)
-                    continue;
-
-                closestLane = lane;
-                distanceClosestLane = laneDistance;
-            }
-
-            return closestLane;
         }
     }
 }

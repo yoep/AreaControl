@@ -87,6 +87,8 @@ namespace AreaControl.Instances
 
         #endregion
 
+        #region Methods
+
         /// <summary>
         /// Create a blip in the map for this vehicle.
         /// </summary>
@@ -114,9 +116,24 @@ namespace AreaControl.Instances
         /// </summary>
         public TaskExecutor Empty()
         {
-            IsWandering = false;
-            Occupants.ForEach(x => x.IsBusy = true);
+            ChangeStateToBusy();
             var executor = TaskUtil.EmptyVehicle(Instance);
+            executor.OnCompletion += (sender, args) => Occupants.ForEach(x => x.IsBusy = false);
+            return executor;
+        }
+
+        /// <summary>
+        /// Drive to the given position.
+        /// </summary>
+        /// <param name="position">Set the target position.</param>
+        /// <param name="speed">Set the driving speed.</param>
+        /// <param name="drivingFlags">Set the driving style.</param>
+        /// <param name="acceptedDistance">Set the accepted distance from the target position.</param>
+        /// <returns>Returns the task executor.</returns>
+        public TaskExecutor DriveToPosition(Vector3 position, float speed, VehicleDrivingFlags drivingFlags, float acceptedDistance)
+        {
+            ChangeStateToBusy();
+            var executor = TaskUtil.DriveToPosition(Driver.Instance, Instance, position, speed, drivingFlags, acceptedDistance);
             executor.OnCompletion += (sender, args) => Occupants.ForEach(x => x.IsBusy = false);
             return executor;
         }
@@ -179,9 +196,10 @@ namespace AreaControl.Instances
             if (Driver == null || !Driver.IsValid || Instance.Driver != Driver.Instance)
                 return;
 
-            Driver.CruiseWithVehicle();
+            DeleteBlip();
             IsWandering = true;
             Occupants.ForEach(x => x.IsBusy = false);
+            Driver.CruiseWithVehicle();
         }
 
         /// <summary>
@@ -202,6 +220,16 @@ namespace AreaControl.Instances
                    FormatDriver();
         }
 
+        #endregion
+
+        #region Functions
+
+        private void ChangeStateToBusy()
+        {
+            IsWandering = false;
+            Occupants.ForEach(x => x.IsBusy = true);
+        }
+
         private string FormatDriver()
         {
             if (Driver == null)
@@ -211,5 +239,7 @@ namespace AreaControl.Instances
                    Driver + Environment.NewLine +
                    "---";
         }
+
+        #endregion
     }
 }
