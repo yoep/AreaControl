@@ -183,6 +183,19 @@ namespace AreaControl.Instances
         }
 
         /// <summary>
+        /// Leave the current vehicle.
+        /// </summary>
+        /// <param name="leaveVehicleFlags">Set the task flags.</param>
+        /// <returns>Returns the task executor for this task.</returns>
+        public TaskExecutor LeaveVehicle(LeaveVehicleFlags leaveVehicleFlags)
+        {
+            IsBusy = true;
+            var taskExecutor = TaskUtil.LeaveVehicle(Instance, Instance.LastVehicle, leaveVehicleFlags);
+            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            return taskExecutor;
+        }
+
+        /// <summary>
         /// Play the given animation on this ped.
         /// </summary>
         /// <param name="animationDictionary">Set the animation dictionary.</param>

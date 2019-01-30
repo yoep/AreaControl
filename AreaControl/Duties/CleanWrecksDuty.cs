@@ -13,7 +13,13 @@ namespace AreaControl.Duties
     public class CleanWrecksDuty : AbstractDuty
     {
         private const float SearchRange = 50f;
-        private const string SpeedoModelName = "SPEEDO";
+        
+        private static readonly List<string> ModelsBannedFromCleaning = new List<string>
+        {
+            "SPEEDO",
+            "AMBULANCE",
+            "FIRETRUCK"
+        };
 
         private readonly Vector3 _position;
         private readonly IRage _rage;
@@ -93,13 +99,14 @@ namespace AreaControl.Duties
                 .FindVehiclesWithin(_position, SearchRange)
                 .Where(x => !_entityManager.GetAllDisposedWrecks().Contains(x))
                 .Where(IsWreck)
-                .Where(x => !IsSpeedoModel(x))
+                .Where(x => !IsBannedModel(x))
                 .ToList();
         }
 
-        private static bool IsSpeedoModel(IRenderable vehicle)
+        private static bool IsBannedModel(IRenderable vehicle)
         {
-            return vehicle.Model.Name.ToUpper().Equals(SpeedoModelName);
+            var vehicleModel = vehicle.Model.Name.ToUpper();
+            return ModelsBannedFromCleaning.Contains(vehicleModel);
         }
 
         private static bool IsWreck(Vehicle vehicle)

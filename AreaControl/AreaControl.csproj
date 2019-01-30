@@ -129,6 +129,7 @@
     <Compile Include="Utils\Tasks\AbstractTaskBuilder.cs" />
     <Compile Include="Utils\Tasks\AnimationTaskExecutor.cs" />
     <Compile Include="Utils\Tasks\ExecutorEntity.cs" />
+    <Compile Include="Utils\Tasks\RageTaskExecutor.cs" />
     <Compile Include="Utils\Tasks\TaskExecutor.cs" />
     <Compile Include="Utils\Tasks\TaskHash.cs" />
     <Compile Include="Utils\Tasks\TaskId.cs" />

@@ -242,10 +242,6 @@ namespace AreaControl.Actions.CloseRoad
             WarpVehicleInPosition(vehicle, slot);
             WarpVehicleInHeading(vehicle, slot);
             Rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
-
-            var emptyVehicleTask = vehicle.Empty()
-                .WaitForCompletion(10000);
-            Rage.LogTrivialDebug("Empty vehicle task ended with " + emptyVehicleTask);
         }
 
         private void WarpVehicleInHeading(ACVehicle vehicle, BlockSlot slot)
@@ -274,6 +270,7 @@ namespace AreaControl.Actions.CloseRoad
 
         private void AssignDutiesToDriver(ACPed ped, BlockSlot slot)
         {
+            ped.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
             AssignPlaceBarriersDuty(ped, slot);
             _dutyManager.RegisterDuty(ped, new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode));
         }
@@ -281,7 +278,11 @@ namespace AreaControl.Actions.CloseRoad
         private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, BlockSlot slot)
         {
             var passengers = vehicle.Passengers;
-            passengers.ForEach(AssignNextAvailableDutyToPed);
+            passengers.ForEach(x =>
+            {
+                x.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
+                AssignNextAvailableDutyToPed(x);
+            });
         }
 
         private void AssignPlaceBarriersDuty(ACPed ped, BlockSlot slot)

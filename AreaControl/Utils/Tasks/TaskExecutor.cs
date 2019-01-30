@@ -225,14 +225,12 @@ namespace AreaControl.Utils.Tasks
                 var lastStatus = executorEntity.CompletionStatus;
                 executorEntity.CompletionStatus = status;
 
-                //assume that if the status is 0, the task has been completed
-                //set the task to completed when it gets the status TaskNotAssignedStatus
-                if (status == 0 | status == ExecutorEntity.TaskNotAssignedStatus)
+                if (status == (int) TaskStatus.None)
                     executorEntity.CompletedTask = true;
 
                 //when in debug, check if the hash was correct or not
                 //if not, try to figure out which one is correct by looping over all of them
-                if (lastStatus == ExecutorEntity.UnknownCompletionStatus && status == ExecutorEntity.TaskNotAssignedStatus)
+                if (lastStatus == ExecutorEntity.UnknownCompletionStatus && (status == (int) TaskStatus.NoTask || status == (int) TaskStatus.Unknown))
                     CheckForIncorrectHash(executorEntity);
             }
         }
@@ -246,14 +244,18 @@ namespace AreaControl.Utils.Tasks
             {
                 var status = TaskUtil.GetScriptTaskStatus(executorEntity.Ped, (uint) value);
 
-                if (status != ExecutorEntity.TaskNotAssignedStatus)
+                if (status == (int) TaskStatus.None)
                     rage.LogTrivial("Task Hash suggestion is " + value + "(" + (uint) value + ") for original task hash " + TaskHash);
             }
         }
     }
 
-    internal class TaskExecutorBuilder : AbstractTaskBuilder<TaskExecutorBuilder>
+    internal class TaskExecutorBuilder : AbstractTaskBuilder<TaskExecutorBuilder, TaskExecutor>
     {
+        private TaskIdentificationType _identificationType;
+        private TaskId _taskId = Tasks.TaskId.Unknown;
+        private TaskHash _taskHash = Tasks.TaskHash.Unknown;
+
         private TaskExecutorBuilder()
         {
         }
@@ -263,7 +265,26 @@ namespace AreaControl.Utils.Tasks
             return new TaskExecutorBuilder();
         }
 
-        public TaskExecutor Build()
+        public TaskExecutorBuilder IdentificationType(TaskIdentificationType identificationType)
+        {
+            _identificationType = identificationType;
+            return this;
+        }
+
+        public TaskExecutorBuilder TaskId(TaskId taskId)
+        {
+            _taskId = taskId;
+            return this;
+        }
+
+        public TaskExecutorBuilder TaskHash(TaskHash taskHash)
+        {
+            _taskHash = taskHash;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override TaskExecutor Build()
         {
             Assert.NotNull(_identificationType, "identification type has not been set");
             Assert.NotNull(_executorEntities, "executor entities have not been set");

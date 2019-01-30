@@ -174,6 +174,9 @@ namespace AreaControl.Actions.RedirectTraffic
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
 
                 MoveToSlot(redirectSlot, vehicle);
+
+                vehicle.Driver.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
+                
                 PlaceCones(vehicle.Driver, redirectSlot);
                 AssignRedirectTrafficDutyToDriver(vehicle, redirectSlot);
             }, "RedirectTrafficImpl.RedirectTraffic");
@@ -200,10 +203,6 @@ namespace AreaControl.Actions.RedirectTraffic
                 .WaitForCompletion(30000);
             WarpInPositionIfNeeded(vehicle, redirectSlot);
             vehicle.EnableHazardIndicators();
-
-            var emptyVehicleTask = vehicle.Empty()
-                .WaitForCompletion(10000);
-            _rage.LogTrivialDebug("Empty vehicle task ended with " + emptyVehicleTask);
         }
 
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, RedirectSlot redirectSlot)

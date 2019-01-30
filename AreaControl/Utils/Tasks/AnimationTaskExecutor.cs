@@ -6,9 +6,9 @@ namespace AreaControl.Utils.Tasks
 {
     public class AnimationTaskExecutor : TaskExecutor
     {
-        internal AnimationTaskExecutor(TaskIdentificationType identificationType, TaskId taskId, TaskHash taskHash,
-            IEnumerable<ExecutorEntity> executorEntities, AnimationDictionary animationDictionary, string animationName, AnimationTask rageTask, bool isAborted)
-            : base(identificationType, taskId, taskHash, executorEntities)
+        internal AnimationTaskExecutor(IEnumerable<ExecutorEntity> executorEntities, AnimationDictionary animationDictionary, string animationName,
+            AnimationTask rageTask, bool isAborted)
+            : base(TaskIdentificationType.Animation, TaskId.Unknown, TaskHash.Unknown, executorEntities)
         {
             AnimationDictionary = animationDictionary;
             AnimationName = animationName;
@@ -71,7 +71,7 @@ namespace AreaControl.Utils.Tasks
         }
     }
 
-    internal class AnimationTaskExecutorBuilder : AbstractTaskBuilder<AnimationTaskExecutorBuilder>
+    internal class AnimationTaskExecutorBuilder : AbstractTaskBuilder<AnimationTaskExecutorBuilder, AnimationTaskExecutor>
     {
         private AnimationDictionary _animationDictionary;
         private AnimationTask _rageAnimationTask;
@@ -111,16 +111,15 @@ namespace AreaControl.Utils.Tasks
             return this;
         }
 
-        public AnimationTaskExecutor Build()
+        /// <inheritdoc />
+        public override AnimationTaskExecutor Build()
         {
-            Assert.NotNull(_identificationType, "identification type has not been set");
             Assert.NotNull(_executorEntities, "executor entities have not been set");
             Assert.NotNull(_animationDictionary, "animationDictionary type has not been set");
             Assert.NotNull(_animationName, "animationName has not been set");
             Assert.NotNull(_rageAnimationTask, "rageAnimationTask has not been set");
 
-            return new AnimationTaskExecutor(_identificationType, _taskId, _taskHash, ConvertExecutorEntities(), _animationDictionary, _animationName,
-                _rageAnimationTask, _isAborted);
+            return new AnimationTaskExecutor(ConvertExecutorEntities(), _animationDictionary, _animationName, _rageAnimationTask, _isAborted);
         }
     }
 }

@@ -111,18 +111,6 @@ namespace AreaControl.Instances
         }
 
         /// <summary>
-        /// Empty this vehicle.
-        /// Makes all occupants of this vehicle leave it.
-        /// </summary>
-        public TaskExecutor Empty()
-        {
-            ChangeStateToBusy();
-            var executor = TaskUtil.EmptyVehicle(Instance);
-            executor.OnCompletion += (sender, args) => Occupants.ForEach(x => x.IsBusy = false);
-            return executor;
-        }
-
-        /// <summary>
         /// Drive to the given position.
         /// </summary>
         /// <param name="position">Set the target position.</param>

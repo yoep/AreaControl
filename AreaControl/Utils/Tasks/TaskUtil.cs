@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using AreaControl.Instances;
 using Rage;
 using Rage.Native;
@@ -10,24 +9,6 @@ namespace AreaControl.Utils.Tasks
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public static class TaskUtil
     {
-        /// <summary>
-        /// Empty all occupants of the given vehicle.
-        /// </summary>
-        /// <param name="vehicle">Set the vehicle to empty.</param>
-        public static TaskExecutor EmptyVehicle(Vehicle vehicle)
-        {
-            Assert.NotNull(vehicle, "vehicle cannot be null");
-            var occupants = vehicle.Occupants.ToList();
-            occupants.ForEach(KeepTaskForStatusChecks);
-            NativeFunction.Natives.TASK_EVERYONE_LEAVE_VEHICLE(vehicle);
-
-            return TaskExecutorBuilder.Builder()
-                .IdentificationType(TaskIdentificationType.Hash)
-                .TaskHash(TaskHash.TASK_EVERYONE_LEAVE_VEHICLE)
-                .ExecutorEntities(occupants)
-                .Build();
-        }
-
         /// <summary>
         /// Go straight to the given position.
         /// </summary>
@@ -47,6 +28,29 @@ namespace AreaControl.Utils.Tasks
             return TaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Hash)
                 .TaskHash(TaskHash.TASK_GO_STRAIGHT_TO_COORD)
+                .ExecutorEntities(new List<Ped> {ped})
+                .Build();
+        }
+
+        /// <summary>
+        /// Go to the given entity.
+        /// </summary>
+        /// <param name="ped">Set the ped that needs to executed the task.</param>
+        /// <param name="target">Set the target entity to go to.</param>
+        /// <param name="speed">Set the speed of the ped.</param>
+        /// <param name="acceptedDistance">Set the accepted distance from the target</param>
+        /// <param name="timeout">Set the max. time the ped can take</param>
+        /// <returns>Returns the task executor.</returns>
+        public static TaskExecutor GoTo(Ped ped, Entity target, MovementSpeed speed, float acceptedDistance, int timeout = 30000)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.NotNull(target, "target cannot be null");
+            KeepTaskForStatusChecks(ped);
+            NativeFunction.Natives.TASK_GO_TO_ENTITY(ped, target, timeout, acceptedDistance, speed.Value, speed, 0);
+
+            return TaskExecutorBuilder.Builder()
+                .IdentificationType(TaskIdentificationType.Hash)
+                .TaskHash(TaskHash.TASK_GOTO_ENTITY)
                 .ExecutorEntities(new List<Ped> {ped})
                 .Build();
         }
@@ -115,6 +119,26 @@ namespace AreaControl.Utils.Tasks
         }
 
         /// <summary>
+        /// Leave the given vehicle.
+        /// </summary>
+        /// <param name="ped">Set the ped to execute the given action.</param>
+        /// <param name="vehicle">Set the vehicle to leave.</param>
+        /// <param name="leaveVehicleFlags">Set the task flags.</param>
+        /// <returns>Returns the task executor for this task.</returns>
+        public static TaskExecutor LeaveVehicle(Ped ped, Vehicle vehicle, LeaveVehicleFlags leaveVehicleFlags)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.NotNull(vehicle, "vehicle cannot be null");
+            NativeFunction.Natives.TASK_LEAVE_VEHICLE(ped, vehicle, (int) leaveVehicleFlags);
+
+            return TaskExecutorBuilder.Builder()
+                .IdentificationType(TaskIdentificationType.Hash)
+                .TaskHash(TaskHash.TASK_LEAVE_VEHICLE)
+                .ExecutorEntities(new List<Ped> {ped})
+                .Build();
+        }
+
+        /// <summary>
         /// Drive the vehicle to the given position.
         /// </summary>
         /// <param name="ped">Set the driver.</param>
@@ -156,7 +180,6 @@ namespace AreaControl.Utils.Tasks
             var rageAnimationTask = ped.Tasks.PlayAnimation(dictionary, animationName, 1.5f, animationFlags);
 
             return AnimationTaskExecutorBuilder.Builder()
-                .IdentificationType(TaskIdentificationType.Animation)
                 .ExecutorEntities(new List<Ped> {ped})
                 .AnimationDictionary(dictionary)
                 .AnimationName(animationName)

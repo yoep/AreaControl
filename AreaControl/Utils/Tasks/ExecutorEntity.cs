@@ -4,7 +4,6 @@ namespace AreaControl.Utils.Tasks
 {
     public class ExecutorEntity
     {
-        public const int TaskNotAssignedStatus = 7;
         public const int UnknownCompletionStatus = 404;
 
         public ExecutorEntity(Ped ped)

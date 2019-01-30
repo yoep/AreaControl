@@ -4,6 +4,7 @@ namespace AreaControl.Utils.Tasks
     {
         Animation,
         Id,
-        Hash
+        Hash,
+        Rage
     }
 }
