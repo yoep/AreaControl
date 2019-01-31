@@ -9,7 +9,7 @@ namespace AreaControl.Utils
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum PlacementType : uint
     {
-        RightHand = 0xDEAD,
+        RightHand = 0x6F06,
         LeftHand = 0x49D9
     }
 }

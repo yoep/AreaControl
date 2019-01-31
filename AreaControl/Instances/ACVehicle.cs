@@ -16,7 +16,7 @@ namespace AreaControl.Instances
         #region Constructors
 
         public ACVehicle(Vehicle instance, long id)
-            : base(instance, id)
+            : base(instance, id, 1f)
         {
         }
 

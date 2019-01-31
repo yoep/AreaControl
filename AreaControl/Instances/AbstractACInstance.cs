@@ -7,10 +7,13 @@ namespace AreaControl.Instances
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public abstract class AbstractACInstance<TType> : IACEntity where TType : Entity
     {
+        private readonly float _blipScale;
+
         #region Constructors
 
-        protected AbstractACInstance(TType instance, long id)
+        protected AbstractACInstance(TType instance, long id, float blipScale)
         {
+            _blipScale = blipScale;
             Instance = instance;
             Id = id;
         }
@@ -51,7 +54,8 @@ namespace AreaControl.Instances
             Blip = new Blip(Instance)
             {
                 IsRouteEnabled = false,
-                IsFriendly = true
+                IsFriendly = true,
+                Scale = _blipScale
             };
         }
 

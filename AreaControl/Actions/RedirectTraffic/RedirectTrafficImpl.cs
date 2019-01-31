@@ -176,6 +176,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 MoveToSlot(redirectSlot, vehicle);
 
                 vehicle.Driver.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
+                vehicle.EnableSirens();
 
                 PlaceCones(vehicle.Driver, redirectSlot);
                 AssignRedirectTrafficDutyToDriver(vehicle, redirectSlot);

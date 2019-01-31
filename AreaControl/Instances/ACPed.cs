@@ -22,7 +22,7 @@ namespace AreaControl.Instances
         #region Constructors
 
         public ACPed(Ped instance, long id)
-            : base(instance, id)
+            : base(instance, id, 0.75f)
         {
         }
 

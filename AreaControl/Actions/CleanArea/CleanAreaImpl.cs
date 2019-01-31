@@ -77,12 +77,17 @@ namespace AreaControl.Actions.CleanArea
 
                     if (duty != null)
                     {
+                        ped.CreateBlip();
                         _rage.LogTrivialDebug("Activating clear area duty " + duty);
-                        duty.OnCompletion += (sender, args) => ped.ReturnToLspdfrDuty();
+                        duty.OnCompletion += (sender, args) =>
+                        {
+                            ped.DeleteBlip();
+                            ped.ReturnToLspdfrDuty();
+                        };
                     }
                     else
                     {
-                        _rage.LogTrivialDebug("Couldn't find an available clear area duty for " + ped);
+                        _rage.LogTrivialDebug("Couldn't find any available clear area duty for " + ped);
                     }
                 }
             }, "CleanAreaImpl");
