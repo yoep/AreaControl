@@ -20,5 +20,15 @@ namespace AreaControl.Instances
         /// Check if the instance reference is invalid.
         /// </summary>
         bool IsInvalid { get; }
+
+        /// <summary>
+        /// Create a blip for this instance.
+        /// </summary>
+        void CreateBlip();
+        
+        /// <summary>
+        /// Delete the active blip for this instance.
+        /// </summary>
+        void DeleteBlip();
     }
 }

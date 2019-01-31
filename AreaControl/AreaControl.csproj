@@ -89,6 +89,7 @@
     <Compile Include="Duties\RedirectTrafficDuty.cs" />
     <Compile Include="Duties\ReturnToVehicleDuty.cs" />
     <Compile Include="EntryPoint.cs" />
+    <Compile Include="Instances\AbstractACInstance.cs" />
     <Compile Include="Instances\EntityManager.cs" />
     <Compile Include="Instances\IACEntity.cs" />
     <Compile Include="Instances\IEntityManager.cs" />

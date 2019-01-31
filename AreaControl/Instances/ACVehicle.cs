@@ -11,35 +11,18 @@ namespace AreaControl.Instances
     /// Defines a <see cref="Vehicle"/> which is managed by the AreaControl plugin.
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class ACVehicle : IACEntity
+    public class ACVehicle : AbstractACInstance<Vehicle>
     {
-        private Blip _blip;
-
         #region Constructors
 
         public ACVehicle(Vehicle instance, long id)
+            : base(instance, id)
         {
-            Instance = instance;
-            Id = id;
         }
 
         #endregion
 
         #region Properties
-
-        /// <inheritdoc />
-        public long Id { get; }
-
-        /// <inheritdoc />
-        public bool IsValid => Instance != null && Instance.IsValid();
-
-        /// <inheritdoc />
-        public bool IsInvalid => !IsValid;
-
-        /// <summary>
-        /// Get the GTA V vehicle instance.
-        /// </summary>
-        public Vehicle Instance { get; }
 
         /// <summary>
         /// Get or set the Area Controlled passengers of this vehicle.
@@ -90,27 +73,6 @@ namespace AreaControl.Instances
         #region Methods
 
         /// <summary>
-        /// Create a blip in the map for this vehicle.
-        /// </summary>
-        public void CreateBlip()
-        {
-            _blip = new Blip(Instance)
-            {
-                IsRouteEnabled = false,
-                IsFriendly = true
-            };
-        }
-
-        /// <summary>
-        /// Delete the blip from this vehicle.
-        /// </summary>
-        public void DeleteBlip()
-        {
-            if (_blip != null && _blip.IsValid())
-                _blip.Delete();
-        }
-
-        /// <summary>
         /// Drive to the given position.
         /// </summary>
         /// <param name="position">Set the target position.</param>
@@ -124,12 +86,6 @@ namespace AreaControl.Instances
             var executor = TaskUtil.DriveToPosition(Driver.Instance, Instance, position, speed, drivingFlags, acceptedDistance);
             executor.OnCompletion += (sender, args) => Occupants.ForEach(x => x.IsBusy = false);
             return executor;
-        }
-
-        /// <inheritdoc />
-        public void Delete()
-        {
-            Instance.Delete();
         }
 
         /// <summary>

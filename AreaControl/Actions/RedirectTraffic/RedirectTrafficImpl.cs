@@ -176,7 +176,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 MoveToSlot(redirectSlot, vehicle);
 
                 vehicle.Driver.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
-                
+
                 PlaceCones(vehicle.Driver, redirectSlot);
                 AssignRedirectTrafficDutyToDriver(vehicle, redirectSlot);
             }, "RedirectTrafficImpl.RedirectTraffic");
@@ -215,6 +215,13 @@ namespace AreaControl.Actions.RedirectTraffic
         {
             if (!_settingsManager.RedirectTrafficSettings.PlaceCones)
                 return;
+
+            //walk to front of car to prevent being stuck at the side when placing cones on the right side of the vehicle
+            if (redirectSlot.PlaceConesRightSide)
+            {
+                ped.WalkTo(redirectSlot.Position + MathHelper.ConvertHeadingToDirection(redirectSlot.Heading) * 3f, redirectSlot.Heading)
+                    .WaitForCompletion(5000);
+            }
 
             foreach (var cone in redirectSlot.Cones)
             {

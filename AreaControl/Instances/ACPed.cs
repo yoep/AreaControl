@@ -14,7 +14,7 @@ namespace AreaControl.Instances
     /// Defines a <see cref="Ped"/> which is managed by the AreaControl plugin.
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class ACPed : IACEntity
+    public class ACPed : AbstractACInstance<Ped>
     {
         private readonly List<Entity> _attachments = new List<Entity>();
         private bool _weaponsEnabled;
@@ -22,28 +22,13 @@ namespace AreaControl.Instances
         #region Constructors
 
         public ACPed(Ped instance, long id)
+            : base(instance, id)
         {
-            Instance = instance;
-            Id = id;
         }
 
         #endregion
 
         #region Properties
-
-        /// <inheritdoc />
-        public long Id { get; }
-
-        /// <inheritdoc />
-        public bool IsValid => Instance != null && Instance.IsValid();
-
-        /// <inheritdoc />
-        public bool IsInvalid => !IsValid;
-
-        /// <summary>
-        /// Get the GTA V Ped instance.
-        /// </summary>
-        public Ped Instance { get; }
 
         /// <summary>
         /// Get or set if this vehicle is busy.
@@ -64,7 +49,7 @@ namespace AreaControl.Instances
         /// Get the last vehicle of this ped.
         /// </summary>
         public ACVehicle LastVehicle { get; private set; }
-        
+
         /// <summary>
         /// Get the last vehicle seat of this ped.
         /// </summary>
@@ -226,10 +211,10 @@ namespace AreaControl.Instances
         }
 
         /// <inheritdoc />
-        public void Delete()
+        public override void Delete()
         {
             DeleteAttachments();
-            Instance.Delete();
+            base.Delete();
         }
 
         /// <summary>
