@@ -13,7 +13,7 @@ namespace AreaControl.Duties
     public class CleanWrecksDuty : AbstractDuty
     {
         private const float SearchRange = 50f;
-        
+
         private static readonly List<string> ModelsBannedFromCleaning = new List<string>
         {
             "SPEEDO",
@@ -111,7 +111,7 @@ namespace AreaControl.Duties
 
         private static bool IsWreck(Vehicle vehicle)
         {
-            return vehicle.IsEmpty && !vehicle.IsPoliceVehicle || vehicle.IsPoliceVehicle && !vehicle.IsDriveable;
+            return vehicle.IsEmpty && vehicle.IsEngineOn && !vehicle.IsPoliceVehicle || (vehicle.IsPoliceVehicle && !vehicle.IsDriveable);
         }
 
         #endregion

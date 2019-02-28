@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AreaControl.Instances.Exceptions;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
 using LSPD_First_Response.Mod.API;
@@ -44,6 +45,11 @@ namespace AreaControl.Instances
             get { return _weaponsEnabled; }
             set { SetWeaponState(value); }
         }
+
+        /// <summary>
+        /// Get if the ped has a last- and existing vehicle that can be used.
+        /// </summary>
+        public bool HasLastVehicle => LastVehicle != null && LastVehicle.IsValid;
 
         /// <summary>
         /// Get the last vehicle of this ped.
@@ -159,8 +165,12 @@ namespace AreaControl.Instances
         /// </summary>
         /// <param name="speed">Set the speed when going to the vehicle.</param>
         /// <returns>Returns the task executor for this task.</returns>
+        /// <exception cref="VehicleNotAvailableException">Is thrown when the ped has no last vehicle or the last vehicle is invalid.</exception>
         public TaskExecutor EnterLastVehicle(MovementSpeed speed)
         {
+            if (!HasLastVehicle)
+                throw new VehicleNotAvailableException("Last vehicle not available for " + this);
+
             IsBusy = true;
             var taskExecutor = TaskUtil.EnterVehicle(Instance, LastVehicle.Instance, LastVehicleSeat, speed);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
@@ -245,9 +255,22 @@ namespace AreaControl.Instances
             _attachments.Clear();
         }
 
+        /// <summary>
+        /// Make the ped cruise around with the current vehicle.
+        /// </summary>
         public void CruiseWithVehicle()
         {
-            Instance.Tasks.CruiseWithVehicle(30f);
+            if (Instance.CurrentVehicle != null)
+                Instance.Tasks.CruiseWithVehicle(30f);
+        }
+
+        /// <summary>
+        /// Make the ped wander around in the game world.
+        /// </summary>
+        public void WanderAround()
+        {
+            IsBusy = false;
+            Instance.Tasks.Wander();
         }
 
         #endregion

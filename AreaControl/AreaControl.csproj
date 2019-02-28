@@ -35,7 +35,7 @@
     <Reference Include="Arrest Manager, Version=7.9.2.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\Arrest Manager.dll</HintPath>
     </Reference>
-    <Reference Include="LSPD First Response, Version=0.3.38.5436, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="LSPD First Response, Version=0.4.39.22580, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\LSPD First Response.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -75,6 +75,7 @@
     <Compile Include="Debug\RoadInfo.cs" />
     <Compile Include="Debug\RoadPreview.cs" />
     <Compile Include="Duties\AbstractDuty.cs" />
+    <Compile Include="Duties\AbstractOnPursuitAwareDuty.cs" />
     <Compile Include="Duties\CleanCorpsesDuty.cs" />
     <Compile Include="Duties\CleanWrecksDuty.cs" />
     <Compile Include="Duties\DutyAvailableEventArgs.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="EntryPoint.cs" />
     <Compile Include="Instances\AbstractACInstance.cs" />
     <Compile Include="Instances\EntityManager.cs" />
+    <Compile Include="Instances\Exceptions\VehicleNotAvailableException.cs" />
     <Compile Include="Instances\IACEntity.cs" />
     <Compile Include="Instances\IEntityManager.cs" />
     <Compile Include="Instances\IPreviewSupport.cs" />
