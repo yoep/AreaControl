@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Rage;
 
-namespace AreaControl.AbstractionLayer
+namespace AreaControl.AbstractionLayer.Implementation
 {
     /// <inheritdoc />
     public class RageImpl : IRage
@@ -28,7 +28,7 @@ namespace AreaControl.AbstractionLayer
         /// <inheritdoc />
         public void LogTrivialDebug(string message)
         {
-            Game.LogTrivialDebug("[" + AreaControl.Name + "]: " + message.Trim());
+            Game.LogTrivialDebug("[" + AreaControl.Name + "][DEBUG]: " + message.Trim());
         }
 
         /// <inheritdoc />

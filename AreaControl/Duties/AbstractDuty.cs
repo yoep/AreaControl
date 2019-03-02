@@ -1,11 +1,15 @@
 using System;
+using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 
 namespace AreaControl.Duties
 {
     public abstract class AbstractDuty : IDuty
     {
+        protected readonly IRage Rage = IoC.Instance.GetInstance<IRage>();
         private ACPed _ped;
+
+        #region Properties
 
         /// <inheritdoc />
         public long Id { get; protected set; }
@@ -41,14 +45,27 @@ namespace AreaControl.Duties
         /// </summary>
         protected bool IsAborted => State == DutyState.Aborted;
 
+        #endregion
+
+        #region Methods
+
         /// <inheritdoc />
-        public virtual void Execute()
+        public void Execute()
         {
             if (State != DutyState.Ready)
                 throw new InvalidDutyStateException("Duty cannot be executed because it's in an invalid state", State);
 
             State = DutyState.Active;
             Ped.IsBusy = true;
+
+            try
+            {
+                DoExecute();
+            }
+            catch (Exception ex)
+            {
+                Rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
+            }
         }
 
         /// <inheritdoc />
@@ -74,6 +91,15 @@ namespace AreaControl.Duties
                    "---";
         }
 
+        #endregion
+
+        #region Functions
+
+        /// <summary>
+        /// Execute the duty functionality.
+        /// </summary>
+        protected abstract void DoExecute();
+
         protected virtual void CompleteDuty()
         {
             if (State != DutyState.Active)
@@ -83,5 +109,7 @@ namespace AreaControl.Duties
             State = DutyState.Completed;
             OnCompletion?.Invoke(this, EventArgs.Empty);
         }
+
+        #endregion
     }
 }

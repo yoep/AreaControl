@@ -3,7 +3,6 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
-using Arrest_Manager.API;
 using Rage;
 
 namespace AreaControl.Duties
@@ -18,30 +17,34 @@ namespace AreaControl.Duties
 
         private readonly Vector3 _position;
         private readonly ResponseCode _code;
-        private readonly IRage _rage;
+        private readonly IArrestManager _arrestManager;
         private readonly float _scanRadius;
 
-        internal CleanCorpsesDuty(long id, Vector3 position, ResponseCode code)
+        #region Constructors
+
+        internal CleanCorpsesDuty(long id, Vector3 position)
         {
             Assert.NotNull(position, "position cannot be null");
             Id = id;
             _position = position;
-            _code = code;
-            _rage = IoC.Instance.GetInstance<IRage>();
             _scanRadius = SearchRange;
-        }
-        
-        internal CleanCorpsesDuty(long id, Vector3 position, ResponseCode code, float scanRadius)
-        {
-            Assert.NotNull(position, "position cannot be null");
-            Id = id;
-            _position = position;
-            _code = code;
-            _rage = IoC.Instance.GetInstance<IRage>();
-            _scanRadius = scanRadius;
+            _arrestManager = IoC.Instance.GetInstance<IArrestManager>();
+            _code = IoC.Instance.GetInstance<IResponseManager>().ResponseCode;
         }
 
-        #region IDuty implementation
+        internal CleanCorpsesDuty(long id, Vector3 position, float scanRadius)
+        {
+            Assert.NotNull(position, "position cannot be null");
+            Id = id;
+            _position = position;
+            _scanRadius = scanRadius;
+            _arrestManager = IoC.Instance.GetInstance<IArrestManager>();
+            _code = IoC.Instance.GetInstance<IResponseManager>().ResponseCode;
+        }
+
+        #endregion
+
+        #region IDuty
 
         /// <inheritdoc />
         public override bool IsAvailable => IsDeadBodyInRange();
@@ -52,38 +55,42 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public override bool IsMultipleInstancesAllowed => false;
 
-        /// <inheritdoc />
-        public override void Execute()
-        {
-            base.Execute();
+        #endregion
 
-            _rage.NewSafeFiber(() =>
+        #region AbstractDuty
+
+        /// <inheritdoc />
+        protected override void DoExecute()
+        {
+            Rage.NewSafeFiber(() =>
             {
-                _rage.LogTrivialDebug("Executing CleanCorpsesDuty...");
+                Rage.LogTrivialDebug("Executing CleanCorpsesDuty...");
                 var deathPed = GetFirstAvailableDeathPed();
                 var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(deathPed) : Ped.RunTo(deathPed);
 
                 goToExecutor
                     .WaitForAndExecute(executor =>
                     {
-                        _rage.LogTrivialDebug("Completed task executor for walking to death ped " + executor);
+                        Rage.LogTrivialDebug("Completed task executor for walking to death ped " + executor);
                         return Ped.LookAt(deathPed);
                     }, 30000)
                     .WaitForAndExecute(executor =>
                     {
-                        _rage.LogTrivialDebug("Completed task executor for looking at ped " + executor);
+                        Rage.LogTrivialDebug("Completed task executor for looking at ped " + executor);
                         return AnimationUtil.TalkToRadio(Ped);
                     }, 3000)
                     .WaitForAndExecute(executor =>
                     {
-                        _rage.LogTrivialDebug("Completed task executor talking to radio " + executor);
-                        _rage.LogTrivialDebug("Calling coroner...");
-                        Functions.CallCoroner(deathPed.Position, false);
+                        Rage.LogTrivialDebug("Completed task executor talking to radio " + executor);
+
+                        Rage.LogTrivialDebug("Calling coroner...");
+                        _arrestManager.CallCoroner(deathPed.Position, false);
+
                         return AnimationUtil.Investigate(Ped);
                     }, 10000)
                     .WaitForAndExecute(executor =>
                     {
-                        _rage.LogTrivialDebug("Completed animation executor for investigate " + executor);
+                        Rage.LogTrivialDebug("Completed animation executor for investigate " + executor);
                         Ped.DeleteAttachments();
 
                         while (IsDeadBodyInRange())
@@ -91,7 +98,7 @@ namespace AreaControl.Duties
                             GameFiber.Yield();
                         }
 
-                        _rage.LogTrivialDebug("CleanCorpsesDuty has been completed");
+                        Rage.LogTrivialDebug("CleanCorpsesDuty has been completed");
                         CompleteDuty();
                     }, 5000);
             }, "CleanCorpsesDuty.Execute");

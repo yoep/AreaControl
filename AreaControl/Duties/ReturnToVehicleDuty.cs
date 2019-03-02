@@ -1,5 +1,4 @@
 using System;
-using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Instances.Exceptions;
 using AreaControl.Utils.Tasks;
@@ -13,13 +12,7 @@ namespace AreaControl.Duties
     /// </summary>
     public class ReturnToVehicleDuty : AbstractOnPursuitAwareDuty
     {
-        private readonly IRage _rage;
         private TaskExecutor _currentTaskExecutor;
-
-        public ReturnToVehicleDuty()
-        {
-            _rage = IoC.Instance.GetInstance<IRage>();
-        }
 
         #region Properties
 
@@ -35,15 +28,14 @@ namespace AreaControl.Duties
 
         #endregion
 
-        #region Methods
+        #region AbstractDuty
 
         /// <inheritdoc />
-        public override void Execute()
+        protected override void DoExecute()
         {
-            base.Execute();
-            _rage.LogTrivialDebug("Executing ReturnToVehicleDuty...");
+            Rage.LogTrivialDebug("Executing ReturnToVehicleDuty...");
 
-            _rage.NewSafeFiber(() =>
+            Rage.NewSafeFiber(() =>
             {
                 Ped.WeaponsEnabled = true;
 
@@ -54,13 +46,13 @@ namespace AreaControl.Duties
                     enterLastVehicleTask.OnAborted += (sender, args) => Ped.WarpIntoVehicle(Ped.LastVehicle, Ped.LastVehicleSeat);
                     enterLastVehicleTask.WaitForAndExecute(() =>
                     {
-                        _rage.LogTrivialDebug("ReturnToVehicleDuty completed");
+                        Rage.LogTrivialDebug("ReturnToVehicleDuty completed");
                         CompleteDuty();
                     }, 30000);
                 }
                 catch (VehicleNotAvailableException ex)
                 {
-                    _rage.LogTrivial("ReturnToVehicleDuty could not be executed: " + ex.Message + Environment.NewLine + ex.StackTrace);
+                    Rage.LogTrivial("ReturnToVehicleDuty could not be executed: " + ex.Message + Environment.NewLine + ex.StackTrace);
                     Ped.WanderAround();
                     CompleteDuty();
                 }

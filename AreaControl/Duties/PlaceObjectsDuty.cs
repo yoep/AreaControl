@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
 using AreaControl.Utils;
 using Rage;
@@ -10,15 +9,14 @@ namespace AreaControl.Duties
     {
         private readonly List<PlaceObject> _objects;
         private readonly ResponseCode _responseCode;
-        private readonly IRage _rage;
         private readonly bool _placeFromHand;
 
-        public PlaceObjectsDuty(long id, IEnumerable<PlaceObject> objects, ResponseCode responseCode, bool placeFromHand)
+        internal PlaceObjectsDuty(long id, IEnumerable<PlaceObject> objects, ResponseCode responseCode, bool placeFromHand)
         {
+            Id = id;
             _objects = new List<PlaceObject>(objects);
             _responseCode = responseCode;
             _placeFromHand = placeFromHand;
-            _rage = IoC.Instance.GetInstance<IRage>();
         }
 
         #region IDuty
@@ -36,11 +34,9 @@ namespace AreaControl.Duties
 
         #region AbstractDuty
 
-        public override void Execute()
+        protected override void DoExecute()
         {
-            base.Execute();
-
-            _rage.NewSafeFiber(() =>
+            Rage.NewSafeFiber(() =>
             {
                 foreach (var placeObject in _objects)
                 {
@@ -56,7 +52,7 @@ namespace AreaControl.Duties
                     var animationExecutor = walkToExecutor
                         .WaitForAndExecute(executor =>
                         {
-                            _rage.LogTrivialDebug("Completed walk to place object for " + executor);
+                            Rage.LogTrivialDebug("Completed walk to place object for " + executor);
                             return AnimationUtil.PlaceDownObject(Ped, placeObject.Instance, _placeFromHand);
                         }, 20000)
                         .WaitForCompletion(2500);
@@ -64,7 +60,7 @@ namespace AreaControl.Duties
                     if (IsAborted)
                         break;
 
-                    _rage.LogTrivialDebug("Completed place object animation for " + animationExecutor);
+                    Rage.LogTrivialDebug("Completed place object animation for " + animationExecutor);
                 }
 
                 CompleteDuty();
@@ -74,7 +70,7 @@ namespace AreaControl.Duties
         public override void Abort()
         {
             base.Abort();
-            _rage.NewSafeFiber(() => Ped.DeleteAttachments(), "PlaceObjectsDuty.Abort");
+            Rage.NewSafeFiber(() => Ped.DeleteAttachments(), "PlaceObjectsDuty.Abort");
         }
 
         #endregion

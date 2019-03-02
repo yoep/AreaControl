@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
-using AreaControl.Menu;
 using Rage;
 
 namespace AreaControl.Duties
@@ -14,18 +13,14 @@ namespace AreaControl.Duties
         private readonly Dictionary<ACPed, List<IDuty>> _duties = new Dictionary<ACPed, List<IDuty>>();
         private readonly List<DutyListener> _dutyListeners = new List<DutyListener>();
         private readonly IRage _rage;
-        private readonly IEntityManager _entityManager;
-        private readonly IResponseManager _responseManager;
         private bool _isActive = true;
         private long _lastDutyId;
 
         #region Constructors
 
-        public DutyManager(IRage rage, IEntityManager entityManager, IResponseManager responseManager)
+        public DutyManager(IRage rage)
         {
             _rage = rage;
-            _entityManager = entityManager;
-            _responseManager = responseManager;
         }
 
         #endregion
@@ -208,10 +203,10 @@ namespace AreaControl.Duties
                 switch (dutyType)
                 {
                     case DutyType.CleanCorpses:
-                        duties.Add(new CleanCorpsesDuty(++_lastDutyId, position, _responseManager.ResponseCode));
+                        duties.Add(new CleanCorpsesDuty(++_lastDutyId, position));
                         break;
                     case DutyType.CleanWrecks:
-                        duties.Add(new CleanWrecksDuty(++_lastDutyId, position, _entityManager, _responseManager.ResponseCode));
+                        duties.Add(new CleanWrecksDuty(++_lastDutyId, position));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(dutyTypes), "Duty type " + dutyType + " has not yet been added to GetNextAvailableDuty");

@@ -5,7 +5,6 @@ using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
-using Arrest_Manager.API;
 using Rage;
 
 namespace AreaControl.Duties
@@ -22,18 +21,20 @@ namespace AreaControl.Duties
         };
 
         private readonly Vector3 _position;
-        private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
+        private readonly IArrestManager _arrestManager;
         private readonly ResponseCode _code;
 
-        internal CleanWrecksDuty(long id, Vector3 position, IEntityManager entityManager, ResponseCode code)
+        internal CleanWrecksDuty(long id, Vector3 position)
         {
             Id = id;
             _position = position;
-            _entityManager = entityManager;
-            _code = code;
-            _rage = IoC.Instance.GetInstance<IRage>();
+            _entityManager = IoC.Instance.GetInstance<IEntityManager>();
+            _arrestManager = IoC.Instance.GetInstance<IArrestManager>();
+            _code = IoC.Instance.GetInstance<IResponseManager>().ResponseCode;
         }
+
+        #region IDuty
 
         /// <inheritdoc />
         public override bool IsAvailable => IsWreckInRang();
@@ -44,47 +45,53 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public override bool IsMultipleInstancesAllowed => false;
 
-        /// <inheritdoc />
-        public override void Execute()
-        {
-            base.Execute();
+        #endregion
 
-            _rage.NewSafeFiber(() =>
+        #region AbstractDuty
+
+        /// <inheritdoc />
+        protected override void DoExecute()
+        {
+            Rage.NewSafeFiber(() =>
             {
                 var wrecks = GetWrecks();
 
-                _rage.LogTrivialDebug("Executing CleanWrecksDuty...");
+                Rage.LogTrivialDebug("Executing CleanWrecksDuty...");
                 foreach (var wreck in wrecks)
                 {
-                    _rage.LogTrivialDebug("Making wreck persistent...");
+                    Rage.LogTrivialDebug("Making wreck persistent...");
                     //make the wreck persistent as the game likes to remove it suddenly making this duty crash :(
                     wreck.IsPersistent = true;
 
-                    _rage.LogTrivialDebug("Going to wreck " + (wrecks.IndexOf(wreck) + 1) + " of " + wrecks.Count);
+                    Rage.LogTrivialDebug("Going to wreck " + (wrecks.IndexOf(wreck) + 1) + " of " + wrecks.Count);
                     var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(wreck) : Ped.RunTo(wreck);
 
                     goToExecutor
                         .WaitForAndExecute(taskExecutor =>
                         {
-                            _rage.LogTrivialDebug("Completed go to wreck for task " + taskExecutor);
+                            Rage.LogTrivialDebug("Completed go to wreck for task " + taskExecutor);
                             return AnimationUtil.IssueTicket(Ped);
                         }, 30000)
                         .WaitForAndExecute(taskExecutor =>
                         {
-                            _rage.LogTrivialDebug("Completed write ticket at wreck " + taskExecutor);
+                            Rage.LogTrivialDebug("Completed write ticket at wreck " + taskExecutor);
                             Ped.DeleteAttachments();
-                            _rage.LogTrivialDebug("Calling tow truck for " + wreck.Model.Name + "...");
-                            Functions.RequestTowTruck(wreck, false);
+
+                            Rage.LogTrivialDebug("Calling tow truck for " + wreck.Model.Name + "...");
+                            _arrestManager.RequestTowTruck(wreck, false);
+
                             return AnimationUtil.TalkToRadio(Ped);
                         }, 5000)
                         .WaitForCompletion(3000);
                     _entityManager.RegisterDisposedWreck(wreck);
                 }
 
-                _rage.LogTrivialDebug("CleanWrecksDuty completed");
+                Rage.LogTrivialDebug("CleanWrecksDuty completed");
                 CompleteDuty();
             }, "CleanWrecksDuty.Execute");
         }
+
+        #endregion
 
         #region Functions
 
