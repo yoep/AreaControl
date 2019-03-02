@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using AreaControl.AbstractionLayer;
 using AreaControl.AbstractionLayer.Implementation;
 using AreaControl.AbstractionLayer.NoOp;
@@ -18,8 +17,8 @@ namespace AreaControl
         /// </summary>
         public static void Initialize()
         {
-            CheckDependencies();
             InitializeMenu();
+            CheckDependencies();
         }
 
         /// <summary>
@@ -39,6 +38,8 @@ namespace AreaControl
                 {
                     instance.Dispose();
                 }
+
+                rage.DisplayPluginNotification("~g~has been unloaded");
             }
             catch (Exception ex)
             {
@@ -55,20 +56,26 @@ namespace AreaControl
             var ioC = IoC.Instance;
             var rage = ioC.GetInstance<IRage>();
 
-            //check Arrest Manager
-            if (ModIntegrationUtil.IsModLoaded(Assembly.GetAssembly(typeof(Arrest_Manager.API.Functions))))
+            //wait 1 tick before asking LSPDFR for the list
+            rage.NewSafeFiber(() =>
             {
-                ioC.RegisterSingleton<IArrestManager>(typeof(ArrestManagerImpl));
-                rage.LogTrivialDebug("ArrestManagerImpl registered for Arrest Manager");
-            }
-            else
-            {
-                rage.LogTrivial("Arrest Manager has not been loaded");
-                rage.DisplayPluginNotification("~r~Arrest Manager has not been loaded");
+                rage.FiberYield();
                 
-                ioC.RegisterSingleton<IArrestManager>(typeof(ArrestManagerNoOp));
-                rage.LogTrivialDebug("ArrestManagerNoOp registered for Arrest Manager");
-            }
+                //check Arrest Manager
+                if (ModIntegrationUtil.IsModLoaded("Arrest_Manager"))
+                {
+                    ioC.RegisterSingleton<IArrestManager>(typeof(ArrestManagerImpl));
+                    rage.LogTrivialDebug("ArrestManagerImpl registered for Arrest Manager");
+                }
+                else
+                {
+                    rage.LogTrivial("Arrest Manager has not been loaded");
+                    rage.DisplayPluginNotification("~r~Arrest Manager has not been loaded");
+
+                    ioC.RegisterSingleton<IArrestManager>(typeof(ArrestManagerNoOp));
+                    rage.LogTrivialDebug("ArrestManagerNoOp registered for Arrest Manager");
+                }
+            }, "Main.CheckDependencies");
         }
 
         private static void InitializeMenu()

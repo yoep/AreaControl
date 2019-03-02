@@ -39,7 +39,7 @@ namespace AreaControl
             {
                 rage.LogTrivial("*** An unknown error occurred and the plugin has stopped working ***");
                 rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
-                rage.DisplayPluginNotification("failed to initialize, check logs for more info");
+                rage.DisplayPluginNotification("~r~failed to initialize, check logs for more info");
             }
         }
 

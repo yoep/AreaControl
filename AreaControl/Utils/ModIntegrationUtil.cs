@@ -1,16 +1,23 @@
+using System;
 using System.Linq;
-using System.Reflection;
 using LSPD_First_Response.Mod.API;
 
 namespace AreaControl.Utils
 {
     public static class ModIntegrationUtil
     {
-        public static bool IsModLoaded(Assembly mod)
+        public static bool IsModLoaded(string assemblyQualifiedName)
         {
-            Assert.NotNull(mod, "mod cannot be null");
-            return Functions.GetAllUserPlugins()
-                .Any(x => x == mod);
+            Assert.NotNull(assemblyQualifiedName, "assemblyQualifiedName cannot be null");
+            try
+            {
+                return Functions.GetAllUserPlugins()
+                    .Any(x => x.ToString().Contains(assemblyQualifiedName));
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
