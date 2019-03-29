@@ -70,8 +70,6 @@
     <Compile Include="Actions\RedirectTraffic\RedirectSlot.cs" />
     <Compile Include="Actions\RedirectTraffic\RedirectTrafficImpl.cs" />
     <Compile Include="Actions\RedirectTraffic\RedirectTrafficPreview.cs" />
-    <Compile Include="Actions\RoadBlock\IRoadBlock.cs" />
-    <Compile Include="Actions\RoadBlock\RoadBlockImpl.cs" />
     <Compile Include="Actions\SlowDownTraffic\ISlowDownTraffic.cs" />
     <Compile Include="Actions\SlowDownTraffic\SlowDownTrafficImpl.cs" />
     <Compile Include="AreaControl.cs" />

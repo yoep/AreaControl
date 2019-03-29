@@ -38,6 +38,9 @@ namespace AreaControl.Actions.CloseRoad
         public abstract bool IsVisible { get; }
 
         /// <inheritdoc />
+        public abstract bool IsDebug { get; }
+
+        /// <inheritdoc />
         public abstract void OnMenuActivation(IMenu sender);
 
         /// <inheritdoc />

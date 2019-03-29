@@ -1,3 +1,4 @@
+using System.Data.SqlTypes;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Menu;
@@ -25,6 +26,9 @@ namespace AreaControl.Debug
 
         /// <inheritdoc />
         public bool IsVisible => true;
+
+        /// <inheritdoc />
+        public bool IsDebug => true;
 
         /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)

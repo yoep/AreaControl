@@ -25,6 +25,9 @@ namespace AreaControl.Debug
         public bool IsVisible => true;
 
         /// <inheritdoc />
+        public bool IsDebug => true;
+
+        /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
         {
             var road = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);

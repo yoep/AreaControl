@@ -67,6 +67,9 @@ namespace AreaControl.Actions.RedirectTraffic
         public override bool IsVisible => true;
 
         /// <inheritdoc />
+        public override bool IsDebug => false;
+
+        /// <inheritdoc />
         public override void OnMenuActivation(IMenu sender)
         {
             if (IsActive)

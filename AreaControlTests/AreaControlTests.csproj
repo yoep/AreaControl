@@ -72,6 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractionLayer\SettingsManagerImpl.cs" />
     <Compile Include="IoCTests.cs" />
     <Compile Include="MenuImplTests.cs" />
     <Compile Include="Model\Component.cs" />

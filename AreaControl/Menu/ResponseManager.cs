@@ -54,6 +54,9 @@ namespace AreaControl.Menu
         public bool IsVisible => true;
 
         /// <inheritdoc />
+        public bool IsDebug => false;
+
+        /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
         {
             UpdateResponseCode();

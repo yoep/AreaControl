@@ -1,9 +1,10 @@
 using AreaControl;
 using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
+using AreaControl.Settings;
+using AreaControlTests.AbstractionLayer;
 using Xunit;
 using Assert = Xunit.Assert;
-using RageImpl = AreaControlTests.AbstractionLayer.RageImpl;
 
 namespace AreaControlTests
 {
@@ -17,10 +18,11 @@ namespace AreaControlTests
                 var ioC = IoC.Instance;
                 ioC.UnregisterAll()
                     .Register<IRage>(typeof(RageImpl))
+                    .Register<ISettingsManager>(typeof(SettingsManagerImpl))
                     .RegisterSingleton<IMenu>(typeof(MenuImpl));
 
                 var result = ioC.GetInstance<IMenu>();
-                
+
                 Assert.NotNull(result);
                 Assert.True(result.IsMenuInitialized);
             }

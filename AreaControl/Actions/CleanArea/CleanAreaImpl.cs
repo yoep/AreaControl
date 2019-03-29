@@ -36,6 +36,9 @@ namespace AreaControl.Actions.CleanArea
         public bool IsVisible => true;
 
         /// <inheritdoc />
+        public bool IsDebug => false;
+
+        /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
         {
             Execute();

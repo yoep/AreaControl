@@ -23,6 +23,9 @@ namespace AreaControl.Actions.CloseRoad
         public override bool IsVisible => true;
 
         /// <inheritdoc />
+        public override bool IsDebug => true;
+
+        /// <inheritdoc />
         public override void OnMenuActivation(IMenu sender)
         {
             if (IsActive)

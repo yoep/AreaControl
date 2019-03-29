@@ -14,7 +14,9 @@ namespace AreaControl.Menu
     public class MenuImpl : IMenu
     {
         private static readonly MenuPool MenuPool = new MenuPool();
-        private static readonly UIMenu AreaControlMenu = new UIMenu("Area Control", "~b~CONTROL YOUR SURROUNDING");
+        private static readonly UIMenu NormalMenu = CreateMenu();
+        private static readonly UIMenu DebugMenu = CreateMenu();
+        private static readonly UIMenuSwitchMenusItem MenuSwitcher = CreateMenuSwitcher();
         private static readonly List<IMenuComponent> MenuItems = new List<IMenuComponent>();
         private readonly IRage _rage;
         private readonly ISettingsManager _settingsManager;
@@ -49,8 +51,18 @@ namespace AreaControl.Menu
         {
             Assert.NotNull(component, "component cannot be null");
 
+            if (component.IsDebug)
+            {
+                DebugMenu.AddItem(component.MenuItem);
+                DebugMenu.RefreshIndex();
+            }
+            else
+            {
+                NormalMenu.AddItem(component.MenuItem);
+                NormalMenu.RefreshIndex();
+            }
+
             MenuItems.Add(component);
-            AreaControlMenu.AddItem(component.MenuItem);
         }
 
         #endregion
@@ -63,14 +75,23 @@ namespace AreaControl.Menu
         {
             try
             {
-                _rage.LogTrivialDebug("Adding AreaControlMenu to the MenuPool...");
-                MenuPool.Add(AreaControlMenu);
-                _rage.LogTrivialDebug("AreaControlMenu added to MenuPool");
+                _rage.LogTrivialDebug("Initializing submenus...");
+                NormalMenu.AddItem(MenuSwitcher, 0);
+                DebugMenu.AddItem(MenuSwitcher, 0);
+                NormalMenu.RefreshIndex();
+                DebugMenu.RefreshIndex();
+                _rage.LogTrivialDebug("Submenus initialized");
+                
                 _rage.LogTrivialDebug("Adding MenuImpl.Process to FrameRender handler...");
                 Game.FrameRender += Process;
                 _rage.LogTrivialDebug("MenuImpl.Process added to FrameRender handler");
-                AreaControlMenu.OnItemSelect += ItemSelectionHandler;
-                AreaControlMenu.OnIndexChange += ItemChangeHandler;
+                
+                _rage.LogTrivialDebug("Adding Menu handlers...");
+                NormalMenu.OnItemSelect += ItemSelectionHandler;
+                NormalMenu.OnIndexChange += ItemChangeHandler;
+                DebugMenu.OnItemSelect += ItemSelectionHandler;
+                DebugMenu.OnIndexChange += ItemChangeHandler;
+                _rage.LogTrivialDebug("Menu handlers added");
 
                 IsMenuInitialized = true;
             }
@@ -78,27 +99,28 @@ namespace AreaControl.Menu
             {
                 _rage.LogTrivial("*** An unexpected error occurred while initializing the menu ***" +
                                  Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
-                _rage.LogTrivial("an unexpected error occurred");
+                _rage.DisplayPluginNotification("an unexpected error occurred");
             }
         }
 
         private void Process(object sender, GraphicsEventArgs e)
         {
-            if (IsMenuKeyPressed())
+            try
             {
-                foreach (var component in MenuItems)
+                if (IsMenuKeyPressed())
                 {
-                    if (component.IsVisible && !IsShownInMenu(component))
-                        AreaControlMenu.AddItem(component.MenuItem);
-                    if (!component.IsVisible && IsShownInMenu(component))
-                        RemoveItemFromMenu(component);
+                    MenuSwitcher.CurrentMenu.Visible = !MenuSwitcher.CurrentMenu.Visible;
+                    IsShown = MenuSwitcher.CurrentMenu.Visible;
                 }
 
-                AreaControlMenu.Visible = !AreaControlMenu.Visible;
-                IsShown = AreaControlMenu.Visible;
+                MenuPool.ProcessMenus();
             }
-
-            MenuPool.ProcessMenus();
+            catch (Exception ex)
+            {
+                _rage.LogTrivial("*** An unexpected error occurred while processing the menu ***" +
+                                 Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
+                _rage.DisplayPluginNotification("an unexpected error occurred");
+            }
         }
 
         private bool IsMenuKeyPressed()
@@ -108,17 +130,12 @@ namespace AreaControl.Menu
             var secondKeyDown = secondKey == Keys.None;
 
             if (!secondKeyDown && secondKey == Keys.ShiftKey && Game.IsShiftKeyDownRightNow)
-                secondKeyDown = true; 
-            
+                secondKeyDown = true;
+
             if (!secondKeyDown && secondKey == Keys.ControlKey && Game.IsControlKeyDownRightNow)
                 secondKeyDown = true;
 
             return Game.IsKeyDown(generalSettings.OpenMenuKey) && secondKeyDown;
-        }
-
-        private static bool IsShownInMenu(IMenuComponent component)
-        {
-            return AreaControlMenu.MenuItems.Contains(component.MenuItem);
         }
 
         private void ItemSelectionHandler(UIMenu sender, UIMenuItem selectedItem, int index)
@@ -148,22 +165,28 @@ namespace AreaControl.Menu
             }
         }
 
-        private void ItemChangeHandler(UIMenu sender, int newindex)
+        private void ItemChangeHandler(UIMenu sender, int newIndex)
         {
-            MenuItems.FirstOrDefault(x => x.MenuItem == sender.MenuItems[newindex])?.OnMenuHighlighted(this);
-        }
-
-        private static void RemoveItemFromMenu(IMenuComponent component)
-        {
-            if (IsShownInMenu(component))
-                AreaControlMenu.RemoveItemAt(AreaControlMenu.MenuItems.IndexOf(component.MenuItem));
-
-            AreaControlMenu.RefreshIndex();
+            MenuItems.FirstOrDefault(x => x.MenuItem == sender.MenuItems[newIndex])?.OnMenuHighlighted(this);
         }
 
         private static void CloseMenu()
         {
-            AreaControlMenu.Visible = false;
+            MenuSwitcher.CurrentMenu.Visible = false;
+        }
+
+        private static UIMenu CreateMenu()
+        {
+            var menu = new UIMenu("Area Control", "~b~CONTROL YOUR SURROUNDING");
+            MenuPool.Add(menu);
+            return menu;
+        }
+
+        private static UIMenuSwitchMenusItem CreateMenuSwitcher()
+        {
+            return new UIMenuSwitchMenusItem("Type", null,
+                new DisplayItem(NormalMenu, "Street Control"),
+                new DisplayItem(DebugMenu, "Debug"));
         }
 
         #endregion
