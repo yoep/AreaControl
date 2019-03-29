@@ -60,9 +60,9 @@ namespace AreaControl
             rage.NewSafeFiber(() =>
             {
                 rage.FiberYield();
-                
+
                 //check Arrest Manager
-                if (ModIntegrationUtil.IsModLoaded("Arrest_Manager"))
+                if (ModIntegrationUtil.IsModLoaded("Arrest Manager"))
                 {
                     ioC.RegisterSingleton<IArrestManager>(typeof(ArrestManagerImpl));
                     rage.LogTrivialDebug("ArrestManagerImpl registered for Arrest Manager");
