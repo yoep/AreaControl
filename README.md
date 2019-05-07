@@ -36,6 +36,7 @@ Busy streets (such as highways) will be slowed down by one or more backup unit(s
 
 - Police Smart Radio integration
 - Create crime scene
+- Create lock-down area
 - Close Road
     - Auto call EMS when closing the road and death bodies are present
     - Different standby states for idle police peds between code 2 and 3

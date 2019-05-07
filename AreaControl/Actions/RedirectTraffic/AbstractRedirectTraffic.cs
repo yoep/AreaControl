@@ -30,11 +30,6 @@ namespace AreaControl.Actions.RedirectTraffic
         public abstract void OnMenuActivation(IMenu sender);
 
         /// <inheritdoc />
-        public virtual void OnMenuHighlighted(IMenu sender)
-        {
-        }
-
-        /// <inheritdoc />
         public bool IsActive { get; protected set; }
 
         #endregion

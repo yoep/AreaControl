@@ -43,12 +43,6 @@ namespace AreaControl.Actions.CloseRoad
         /// <inheritdoc />
         public abstract void OnMenuActivation(IMenu sender);
 
-        /// <inheritdoc />
-        public virtual void OnMenuHighlighted(IMenu sender)
-        {
-            //do nothing
-        }
-
         #endregion
 
         #region ICloseRoad implementation
@@ -58,7 +52,7 @@ namespace AreaControl.Actions.CloseRoad
 
         #endregion
 
-        protected ICollection<BlockSlot> DetermineBlockSlots(float distanceFromOriginalSlot)
+        protected ICollection<BlockSlot> DetermineBlockSlots()
         {
             var blockSlots = new List<BlockSlot>();
             var closestRoadToPlayer = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
@@ -79,7 +73,7 @@ namespace AreaControl.Actions.CloseRoad
 
                 foreach (var lane in lanesToBlock)
                 {
-                    var laneRightSide = lane.RightSide + MathHelper.ConvertHeadingToDirection(lane.Heading) * distanceFromOriginalSlot;
+                    var laneRightSide = lane.RightSide + MathHelper.ConvertHeadingToDirection(lane.Heading) * DistanceFromPlayer;
                     var placementPosition = laneRightSide + MathHelper.ConvertHeadingToDirection(lane.Heading + 90f) * 2f;
 
                     blockSlots.Add(new BlockSlot(placementPosition, lane.Heading));

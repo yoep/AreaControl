@@ -57,7 +57,7 @@ namespace AreaControl.Actions.CloseRoad
             MenuItem.Text = AreaControl.ActionRemoveCloseRoadPreview;
             Rage.NewSafeFiber(() =>
             {
-                _blockSlots = DetermineBlockSlots(0f);
+                _blockSlots = DetermineBlockSlots();
 
                 foreach (var slot in _blockSlots)
                 {

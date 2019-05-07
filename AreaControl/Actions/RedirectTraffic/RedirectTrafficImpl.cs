@@ -90,23 +90,23 @@ namespace AreaControl.Actions.RedirectTraffic
             _rage.NewSafeFiber(() =>
             {
                 var position = Game.LocalPlayer.Character.Position;
-                var redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
+                _redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
 
                 _rage.DisplayNotification("Requesting dispatch to ~b~redirect traffic~s~...");
                 Functions.PlayScannerAudioUsingPosition(DispatchAudio + " " + _responseManager.ResponseCodeAudio, position);
                 GameFiber.Sleep(5000);
                 Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
 
-                var spawnPosition = GetSpawnPosition(redirectSlot);
-                var vehicle = _entityManager.FindVehicleWithinOrCreateAt(redirectSlot.Position, spawnPosition, ScanRadius, 1);
+                var spawnPosition = GetSpawnPosition(_redirectSlot);
+                var vehicle = _entityManager.FindVehicleWithinOrCreateAt(_redirectSlot.Position, spawnPosition, ScanRadius, 1);
 
-                MoveToSlot(redirectSlot, vehicle);
+                MoveToSlot(_redirectSlot, vehicle);
 
                 vehicle.Driver.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
                 vehicle.EnableSirens();
 
-                PlaceCones(vehicle.Driver, redirectSlot);
-                AssignRedirectTrafficDutyToDriver(vehicle, redirectSlot);
+                PlaceCones(vehicle.Driver, _redirectSlot);
+                AssignRedirectTrafficDutyToDriver(vehicle, _redirectSlot);
             }, "RedirectTrafficImpl.RedirectTraffic");
         }
 

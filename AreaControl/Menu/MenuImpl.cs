@@ -88,9 +88,7 @@ namespace AreaControl.Menu
                 
                 _rage.LogTrivialDebug("Adding Menu handlers...");
                 NormalMenu.OnItemSelect += ItemSelectionHandler;
-                NormalMenu.OnIndexChange += ItemChangeHandler;
                 DebugMenu.OnItemSelect += ItemSelectionHandler;
-                DebugMenu.OnIndexChange += ItemChangeHandler;
                 _rage.LogTrivialDebug("Menu handlers added");
 
                 IsMenuInitialized = true;
@@ -163,11 +161,6 @@ namespace AreaControl.Menu
                                  Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
                 _rage.DisplayPluginNotification("an unexpected error occurred while invoking the menu action");
             }
-        }
-
-        private void ItemChangeHandler(UIMenu sender, int newIndex)
-        {
-            MenuItems.FirstOrDefault(x => x.MenuItem == sender.MenuItems[newIndex])?.OnMenuHighlighted(this);
         }
 
         private static void CloseMenu()
