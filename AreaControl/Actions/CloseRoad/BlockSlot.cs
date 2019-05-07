@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Utils;
 using Rage;
@@ -121,6 +122,8 @@ namespace AreaControl.Actions.CloseRoad
             public Vector3 Position { get; }
 
             public float Heading { get; }
+
+            public PlaceObjectsDuty.PlaceObject Object { get; set; }
         }
     }
 }

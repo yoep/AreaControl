@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
@@ -9,12 +8,11 @@ using AreaControl.Settings;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
-using RAGENativeUI;
 using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.RedirectTraffic
 {
-    public class RedirectTrafficImpl : AbstractRedirectTraffic, IPreviewSupport
+    public class RedirectTrafficImpl : AbstractRedirectTraffic
     {
         private const float ScanRadius = 250f;
         private const float VehiclePositionTolerance = 0.5f;
@@ -47,21 +45,7 @@ namespace AreaControl.Actions.RedirectTraffic
         #region IMenuComponent implementation
 
         /// <inheritdoc />
-        public override UIMenuItem MenuItem { get; } = new UIMenuListItem(AreaControl.RedirectTraffic, AreaControl.RedirectTrafficDescription,
-            new List<IDisplayItem>
-            {
-                new DisplayItem(-25f, "-5"),
-                new DisplayItem(-20f, "-4"),
-                new DisplayItem(-15f, "-3"),
-                new DisplayItem(-10f, "-2"),
-                new DisplayItem(-5f, "-1"),
-                new DisplayItem(0f, "0"),
-                new DisplayItem(5f, "+1"),
-                new DisplayItem(10f, "+2"),
-                new DisplayItem(15f, "+3"),
-                new DisplayItem(20f, "+4"),
-                new DisplayItem(25f, "+5")
-            });
+        public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.RedirectTraffic, AreaControl.RedirectTrafficDescription);
 
         /// <inheritdoc />
         public override bool IsVisible => true;
@@ -82,67 +66,9 @@ namespace AreaControl.Actions.RedirectTraffic
             }
         }
 
-        public override void OnMenuHighlighted(IMenu sender)
-        {
-            if (_settingsManager.RedirectTrafficSettings.ShowPreview && !IsActive)
-                _rage.NewSafeFiber(() =>
-                {
-                    while (sender.IsShown && MenuItem.Selected && !IsActive)
-                    {
-                        var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
-                        var redirectSlot = DetermineRedirectSlot(distanceFromOriginalSlot);
-
-                        if (redirectSlot.Position != _redirectSlot?.Position || !IsPreviewActive)
-                        {
-                            _redirectSlot?.DeletePreview();
-                            _redirectSlot = redirectSlot;
-                            CreatePreview();
-                        }
-
-                        GameFiber.Sleep(250);
-                    }
-
-                    DeletePreview();
-                }, "RedirectTrafficImpl.OnMenuHighlighted");
-        }
-
-        #endregion
-
-        #region IPreviewSupport implementation
-
-        /// <inheritdoc />
-        public bool IsPreviewActive { get; private set; }
-
-        /// <inheritdoc />
-        public void CreatePreview()
-        {
-            _rage.NewSafeFiber(() =>
-            {
-                _redirectSlot?.CreatePreview();
-                IsPreviewActive = true;
-            }, "RedirectTrafficImpl.CreatePreview");
-        }
-
-        /// <inheritdoc />
-        public void DeletePreview()
-        {
-            _rage.NewSafeFiber(() =>
-            {
-                _redirectSlot?.DeletePreview();
-                IsPreviewActive = false;
-            }, "RedirectTrafficImpl.DeletePreview");
-        }
-
         #endregion
 
         #region Functions
-
-        [IoC.PostConstruct]
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
-        private void Init()
-        {
-            ((UIMenuListItem) MenuItem).Index = 5;
-        }
 
         private void RemoveRedirectTraffic()
         {
@@ -163,10 +89,8 @@ namespace AreaControl.Actions.RedirectTraffic
             MenuItem.Text = AreaControl.RedirectTrafficRemove;
             _rage.NewSafeFiber(() =>
             {
-                DeletePreview();
                 var position = Game.LocalPlayer.Character.Position;
-                var distanceFromOriginalSlot = GetDistanceFromOriginalSlot();
-                var redirectSlot = _redirectSlot ?? DetermineRedirectSlot(distanceFromOriginalSlot);
+                var redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
 
                 _rage.DisplayNotification("Requesting dispatch to ~b~redirect traffic~s~...");
                 Functions.PlayScannerAudioUsingPosition(DispatchAudio + " " + _responseManager.ResponseCodeAudio, position);
@@ -254,11 +178,6 @@ namespace AreaControl.Actions.RedirectTraffic
                 vehicle.Instance.Position = redirectSlot.Position;
             if (headingDifference > VehicleHeadingTolerance)
                 vehicle.Instance.Heading = redirectSlot.Heading;
-        }
-
-        private float GetDistanceFromOriginalSlot()
-        {
-            return (float) ((UIMenuListItem) MenuItem).SelectedValue;
         }
 
         #endregion

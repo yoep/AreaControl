@@ -26,7 +26,6 @@ namespace AreaControl.Actions.CloseRoad
         private readonly IResponseManager _responseManager;
         private readonly IDutyManager _dutyManager;
         private readonly ISettingsManager _settingsManager;
-        private readonly List<PlaceObjectsDuty.PlaceObject> _placedObjects = new List<PlaceObjectsDuty.PlaceObject>();
 
         private ICollection<BlockSlot> _blockSlots;
 
@@ -85,7 +84,7 @@ namespace AreaControl.Actions.CloseRoad
         /// <inheritdoc />
         public override void OnMenuHighlighted(IMenu sender)
         {
-            if (_settingsManager.RedirectTrafficSettings.ShowPreview && !IsActive)
+            if (_settingsManager.CloseRoadSettings.ShowPreview && !IsActive)
                 Rage.NewSafeFiber(() =>
                 {
                     while (sender.IsShown && MenuItem.Selected && !IsActive)
@@ -169,8 +168,7 @@ namespace AreaControl.Actions.CloseRoad
             Functions.PlayScannerAudio("WE_ARE_CODE_4");
             _dutyManager.DismissDuties();
             _entityManager.Dismiss();
-            _placedObjects.ForEach(x => PropUtil.Remove(x.Instance));
-            _placedObjects.Clear();
+            ClearBarriers();
             IsActive = false;
         }
 
@@ -196,6 +194,17 @@ namespace AreaControl.Actions.CloseRoad
                     Rage.LogTrivial("Unable to create any road block slots");
                 }
             }, "AreaControl.CloseRoad");
+        }
+
+        private void ClearBarriers()
+        {
+            foreach (var barriers in _blockSlots.Select(x => x.Barriers))
+            {
+                foreach (var barrier in barriers)
+                {
+                    PropUtil.Remove(barrier.Object.Instance);
+                }
+            }
         }
 
         private void SpawnBlockSlots(ICollection<BlockSlot> blockSlots)
@@ -292,13 +301,16 @@ namespace AreaControl.Actions.CloseRoad
         {
             if (!_settingsManager.CloseRoadSettings.PlaceBarriers)
                 return;
+            
+            var objects = new List<PlaceObjectsDuty.PlaceObject>();
 
             foreach (var barrier in slot.Barriers)
             {
-                _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtil.CreatePoliceDoNotCrossBarrier));
+                barrier.Object = new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtil.CreatePoliceDoNotCrossBarrier);
+                objects.Add(barrier.Object);
             }
 
-            var placeObjectsDuty = new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, false);
+            var placeObjectsDuty = new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), objects, _responseManager.ResponseCode, false);
             Rage.LogTrivialDebug("Created place barriers duty " + placeObjectsDuty);
             _dutyManager.RegisterDuty(ped, placeObjectsDuty);
         }

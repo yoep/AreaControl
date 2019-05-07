@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
@@ -122,7 +123,7 @@ namespace AreaControl
             {
                 var type = typeof(T);
 
-                return GetInstances(type)
+                return GetInstancesDefinitions(type)
                     .Select(x => (T) x.Value)
                     .ToList()
                     .AsReadOnly();
@@ -212,7 +213,7 @@ namespace AreaControl
 
         private object GetInstance(Type type)
         {
-            var instances = GetInstances(type);
+            var instances = GetInstancesDefinitions(type);
 
             switch (instances.Count)
             {
@@ -232,7 +233,20 @@ namespace AreaControl
             }
         }
 
-        private List<KeyValuePair<ComponentDefinition, object>> GetInstances(Type type)
+        private IList GetInstances(Type type)
+        {
+            var genericType = GetGenericTypeForCollection(type);
+            var instances = GetInstancesDefinitions(genericType)
+                .Select(x => x.Value)
+                .ToList();
+            var list = CreateGenericTypeListInstance(genericType);
+
+            instances.ForEach(x => list.Add(x));
+
+            return list;
+        }
+
+        private List<KeyValuePair<ComponentDefinition, object>> GetInstancesDefinitions(Type type)
         {
             lock (_lockState)
             {
@@ -272,7 +286,12 @@ namespace AreaControl
                     continue;
 
                 return constructor.Invoke(constructor.GetParameters()
-                    .Select(parameterInfo => GetInstance(parameterInfo.ParameterType))
+                    .Select(parameterInfo =>
+                    {
+                        var parameterType = parameterInfo.ParameterType;
+
+                        return IsCollectionParameter(parameterInfo) ? GetInstances(parameterType) : GetInstance(parameterType);
+                    })
                     .ToArray());
             }
 
@@ -305,7 +324,49 @@ namespace AreaControl
 
         private bool AreAllParametersRegistered(ConstructorInfo constructor)
         {
-            return constructor.GetParameters().All(parameterInfo => _components.FirstOrDefault(x => x.Type == parameterInfo.ParameterType) != null);
+            return constructor.GetParameters()
+                .All(parameterInfo =>
+                {
+                    var actualParameterType = parameterInfo.ParameterType;
+
+                    if (IsCollectionParameter(parameterInfo))
+                    {
+                        actualParameterType = GetGenericTypeForCollection(actualParameterType);
+                    }
+
+                    return _components.FirstOrDefault(x => x.Type == actualParameterType) != null;
+                });
+        }
+
+        private static bool IsCollectionParameter(ParameterInfo parameter)
+        {
+            return IsCollectionType(parameter.ParameterType);
+        }
+
+        private static bool IsCollectionType(Type type)
+        {
+            return type.GetInterface(nameof(IEnumerable)) != null;
+        }
+
+        private static Type GetGenericTypeForCollection(Type type)
+        {
+            if (!type.IsGenericType)
+                throw new IoCException("Type is not a generic type collection for " + type);
+
+            var genericType = type.GetGenericArguments().FirstOrDefault();
+
+            if (genericType == null)
+                throw new IoCException("Could not determine generic type of collection for " + type);
+
+            return genericType;
+        }
+
+        private static IList CreateGenericTypeListInstance(Type genericType)
+        {
+            var listType = typeof(List<>);
+            var constructedListType = listType.MakeGenericType(genericType);
+
+            return (IList) Activator.CreateInstance(constructedListType);
         }
 
         #endregion

@@ -10,6 +10,8 @@ namespace AreaControl.Actions.RedirectTraffic
 {
     public abstract class AbstractRedirectTraffic : IRedirectTraffic
     {
+        private const float VehicleDistanceFromPlayer = 8f;
+
         #region IMenuComponent implementation
 
         /// <inheritdoc />
@@ -37,7 +39,7 @@ namespace AreaControl.Actions.RedirectTraffic
 
         #endregion
 
-        protected static RedirectSlot DetermineRedirectSlot(float distanceFromPlayer)
+        protected static RedirectSlot DetermineRedirectSlot()
         {
             var playerPosition = Game.LocalPlayer.Character.Position;
             var closestRoad = RoadUtil.GetClosestRoad(playerPosition, RoadType.All);
@@ -48,7 +50,7 @@ namespace AreaControl.Actions.RedirectTraffic
             var isLeftSideOfRoad = MultipleLanesInSameDirection(closestRoad, closestLane) && IsClosestToLeftLane(closestRoad, closestLane);
             var lanePosition = isLeftSideOfRoad ? closestLane.LeftSide : closestLane.RightSide;
 
-            return new RedirectSlot(lanePosition + moveDirection * distanceFromPlayer, closestLane.Heading, isLeftSideOfRoad);
+            return new RedirectSlot(lanePosition + moveDirection * VehicleDistanceFromPlayer, closestLane.Heading, isLeftSideOfRoad);
         }
 
         private static bool IsClosestToLeftLane(Road road, Road.Lane lane)

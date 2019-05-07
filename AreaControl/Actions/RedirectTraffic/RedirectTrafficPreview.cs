@@ -55,7 +55,7 @@ namespace AreaControl.Actions.RedirectTraffic
         {
             _rage.NewSafeFiber(() =>
             {
-                _redirectSlot = DetermineRedirectSlot(10f);
+                _redirectSlot = DetermineRedirectSlot();
                 _redirectSlot.CreatePreview();
             }, "RedirectTrafficPreview.CreatePreview");
         }

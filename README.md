@@ -35,9 +35,12 @@ Busy streets (such as highways) will be slowed down by one or more backup unit(s
 ## Planned Features
 
 - Police Smart Radio integration
-- Road block
+- Create crime scene
 - Close Road
     - Auto call EMS when closing the road and death bodies are present
+    - Different standby states for idle police peds between code 2 and 3
+- Protest Callout
+- Riot Callout
 
 ## Dependencies
 - [RAGE Plugin Hook](http://ragepluginhook.net/)
