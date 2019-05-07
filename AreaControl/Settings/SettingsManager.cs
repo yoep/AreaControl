@@ -24,7 +24,7 @@ namespace AreaControl.Settings
 
         /// <inheritdoc />
         public RedirectTrafficSettings RedirectTrafficSettings { get; private set; }
-        
+
         /// <inheritdoc />
         public CloseRoadSettings CloseRoadSettings { get; private set; }
 
@@ -69,10 +69,9 @@ namespace AreaControl.Settings
         {
             CloseRoadSettings = new CloseRoadSettings
             {
-                ShowPreview = file.ReadBoolean(CloseRoadGroupName, "ShowPreview", true),
-                PlaceBarriers = file.ReadBoolean(RedirectTrafficGroupName, "PlaceBarriers", true),
-                AutoCleanBodies = file.ReadBoolean(RedirectTrafficGroupName, "AutoCleanBodies", true),
-                AutoCleanWrecks = file.ReadBoolean(RedirectTrafficGroupName, "AutoCleanWrecks", true)
+                PlaceBarriers = file.ReadBoolean(CloseRoadGroupName, "PlaceBarriers", true),
+                AutoCleanBodies = file.ReadBoolean(CloseRoadGroupName, "AutoCleanBodies", true),
+                AutoCleanWrecks = file.ReadBoolean(CloseRoadGroupName, "AutoCleanWrecks", true)
             };
         }
 
