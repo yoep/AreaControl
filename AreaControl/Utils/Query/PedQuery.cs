@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using LSPD_First_Response.Mod.API;
 using Rage;
 
 namespace AreaControl.Utils.Query
@@ -40,14 +41,8 @@ namespace AreaControl.Utils.Query
                 .GetEntities(position, radius, GetEntitiesFlags.ConsiderHumanPeds | GetEntitiesFlags.ExcludePlayerPed)
                 .OfType<Ped>()
                 .Where(x => x.IsValid())
-                .Where(x => ModelUtil.CityPedModels.Contains(GetUnifiedModelName(x)) || ModelUtil.CountyPedModels.Contains(GetUnifiedModelName(x)) ||
-                            ModelUtil.StatePedModels.Contains(GetUnifiedModelName(x)))
+                .Where(Functions.IsPedACop)
                 .ToList();
-        }
-
-        private static string GetUnifiedModelName(Ped instance)
-        {
-            return instance.Model.Name.ToLower();
         }
     }
 }

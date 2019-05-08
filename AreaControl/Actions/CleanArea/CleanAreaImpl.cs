@@ -44,12 +44,6 @@ namespace AreaControl.Actions.CleanArea
             Execute();
         }
 
-        /// <inheritdoc />
-        public void OnMenuHighlighted(IMenu sender)
-        {
-            //no-op
-        }
-
         #endregion
 
         #region Functions

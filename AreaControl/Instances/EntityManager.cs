@@ -61,14 +61,21 @@ namespace AreaControl.Instances
             var peds = new List<ACPed>();
 
             //find managed peds
-            peds.AddRange(_managedPeds.Where(x => IsPedWithinRadius(position, radius, x)));
+            var managedPeds = _managedPeds
+                .Where(x => IsPedWithinRadius(position, radius, x))
+                .Where(x => x.Instance.IsValid())
+                .ToList();
+            _rage.LogTrivialDebug($"Found {managedPeds.Count} managed cops which are available");
+            
+            peds.AddRange(managedPeds);
 
             //find game world peds
             var worldPeds = PedQuery.FindCopsWithin(position, radius)
                 .Where(x => x.IsValid() && x.IsAlive)
                 .Where(x => !IsPedAlreadyManaged(x))
                 .ToList();
-
+            _rage.LogTrivialDebug($"Found {worldPeds.Count} cops in the world which are available");
+            
             foreach (var worldPed in worldPeds)
             {
                 peds.Add(RegisterPed(worldPed));
