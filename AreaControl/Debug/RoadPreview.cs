@@ -1,4 +1,3 @@
-using System.Data.SqlTypes;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Menu;
@@ -22,7 +21,7 @@ namespace AreaControl.Debug
         public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.RoadPreview);
 
         /// <inheritdoc />
-        public bool IsAutoClosed => true;
+        public bool IsAutoClosed => false;
 
         /// <inheritdoc />
         public bool IsVisible => true;
@@ -41,12 +40,6 @@ namespace AreaControl.Debug
             {
                 RemoveRoadPreview();
             }
-        }
-        
-        /// <inheritdoc />
-        public void OnMenuHighlighted(IMenu sender)
-        {
-            //do nothing
         }
 
         private void CreateRoadPreview()

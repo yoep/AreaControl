@@ -54,7 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractionLayer\IArrestManager.cs" />
+    <Compile Include="AbstractionLayer\ILogger.cs" />
     <Compile Include="AbstractionLayer\Implementation\ArrestManagerImpl.cs" />
+    <Compile Include="AbstractionLayer\Implementation\Logger.cs" />
     <Compile Include="AbstractionLayer\Implementation\RageImpl.cs" />
     <Compile Include="AbstractionLayer\NoOp\ArrestManagerNoOp.cs" />
     <Compile Include="Actions\CleanArea\CleanAreaImpl.cs" />

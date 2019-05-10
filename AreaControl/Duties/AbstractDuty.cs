@@ -7,6 +7,7 @@ namespace AreaControl.Duties
     public abstract class AbstractDuty : IDuty
     {
         protected readonly IRage Rage = IoC.Instance.GetInstance<IRage>();
+        protected readonly ILogger Logger = IoC.Instance.GetInstance<ILogger>();
         private ACPed _ped;
 
         #region Properties
@@ -64,7 +65,7 @@ namespace AreaControl.Duties
             }
             catch (Exception ex)
             {
-                Rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
+                Logger.Error(ex.Message, ex);
             }
         }
 

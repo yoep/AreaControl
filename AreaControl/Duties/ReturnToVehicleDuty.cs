@@ -1,4 +1,3 @@
-using System;
 using AreaControl.Instances;
 using AreaControl.Instances.Exceptions;
 using AreaControl.Utils.Tasks;
@@ -46,13 +45,13 @@ namespace AreaControl.Duties
                     enterLastVehicleTask.OnAborted += (sender, args) => Ped.WarpIntoVehicle(Ped.LastVehicle, Ped.LastVehicleSeat);
                     enterLastVehicleTask.WaitForAndExecute(() =>
                     {
-                        Rage.LogTrivialDebug("ReturnToVehicleDuty completed");
+                        Logger.Debug("ReturnToVehicleDuty completed");
                         CompleteDuty();
                     }, 30000);
                 }
                 catch (VehicleNotAvailableException ex)
                 {
-                    Rage.LogTrivial("ReturnToVehicleDuty could not be executed: " + ex.Message + Environment.NewLine + ex.StackTrace);
+                    Logger.Error($"ReturnToVehicleDuty could not be executed: {ex.Message}", ex);
                     Ped.WanderAround();
                     CompleteDuty();
                 }

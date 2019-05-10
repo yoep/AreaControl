@@ -16,12 +16,14 @@ namespace AreaControl.Actions.CloseRoad
         private const float LaneHeadingTolerance = 40f;
 
         protected readonly IRage Rage;
+        protected readonly ILogger Logger;
 
         #region Constructors
 
-        protected AbstractCloseRoad(IRage rage)
+        protected AbstractCloseRoad(IRage rage, ILogger logger)
         {
             Rage = rage;
+            Logger = logger;
         }
 
         #endregion
@@ -64,12 +66,12 @@ namespace AreaControl.Actions.CloseRoad
             {
                 var roadHeadingToOriginal =
                     MathHelper.NormalizeHeading(MathHelper.ConvertDirectionToHeading(closestRoadToPlayer.Position - road.Position));
-                Rage.LogTrivialDebug("Found road to use " + road);
-                Rage.LogTrivialDebug("Road heading in regards to closest road " + roadHeadingToOriginal);
+                Logger.Debug("Found road to use " + road);
+                Logger.Debug("Road heading in regards to closest road " + roadHeadingToOriginal);
                 var lanesToBlock = road.Lanes
                     .Where(x => Math.Abs(x.Heading - roadHeadingToOriginal) < LaneHeadingTolerance)
                     .ToList();
-                Rage.LogTrivialDebug("Found " + lanesToBlock.Count + " lanes to block");
+                Logger.Debug("Found " + lanesToBlock.Count + " lanes to block");
 
                 foreach (var lane in lanesToBlock)
                 {
@@ -80,7 +82,7 @@ namespace AreaControl.Actions.CloseRoad
                 }
             }
 
-            Rage.LogTrivialDebug("Created " + blockSlots.Count + " block slot(s)");
+            Logger.Debug("Created " + blockSlots.Count + " block slot(s)");
             return blockSlots;
         }
 

@@ -29,9 +29,9 @@ namespace AreaControl.Actions.CloseRoad
 
         #region Constructors
 
-        public CloseRoadImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager, IDutyManager dutyManager,
+        public CloseRoadImpl(IRage rage, ILogger logger, IEntityManager entityManager, IResponseManager responseManager, IDutyManager dutyManager,
             ISettingsManager settingsManager)
-            : base(rage)
+            : base(rage, logger)
         {
             _entityManager = entityManager;
             _responseManager = responseManager;
@@ -98,19 +98,26 @@ namespace AreaControl.Actions.CloseRoad
                 }
                 else
                 {
-                    Rage.LogTrivial("Unable to create any road block slots");
+                    Logger.Warn("Unable to create any road block slots");
                 }
             }, "AreaControl.CloseRoad");
         }
 
         private void ClearBarriers()
         {
-            foreach (var barriers in _blockSlots.Select(x => x.Barriers))
+            try
             {
-                foreach (var barrier in barriers)
+                foreach (var barriers in _blockSlots.Select(x => x.Barriers))
                 {
-                    PropUtil.Remove(barrier.Object.Instance);
+                    foreach (var barrier in barriers)
+                    {
+                        PropUtil.Remove(barrier.Object.Instance);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"An error occurred while clearing barriers with error: {ex.Message}", ex);
             }
         }
 
@@ -119,7 +126,7 @@ namespace AreaControl.Actions.CloseRoad
             var i = 0;
 
             Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
-            Rage.LogTrivialDebug("Spawning " + blockSlots.Count + " block slot(s) for close road function");
+            Logger.Debug($"Spawning {blockSlots.Count} block slot(s) for close road function");
             foreach (var slot in blockSlots)
             {
                 i++;
@@ -130,7 +137,7 @@ namespace AreaControl.Actions.CloseRoad
                         var positionBehindSlot = GetPositionBehindSlot(slot, index);
                         var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius, 2);
                         vehicle.SetOccupantsBusyState(true);
-                        Rage.LogTrivialDebug("Using vehicle " + vehicle + " for block slot " + index);
+                        Logger.Debug($"Using vehicle {vehicle} for block slot {index}");
 
                         MoveToSlot(vehicle, slot);
                         AssignDutiesToDriver(vehicle.Driver, slot);
@@ -148,11 +155,11 @@ namespace AreaControl.Actions.CloseRoad
             if (_responseManager.ResponseCode == ResponseCode.Code3)
                 vehicle.EnableSirens();
 
-            Rage.LogTrivialDebug("Vehicle driving to block slot...");
+            Logger.Trace("Vehicle driving to block slot...");
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(slot.Position, initialDrivingSpeed, initialDrivingFlags, 35f)
                 .WaitForCompletion();
-            Rage.LogTrivialDebug("Vehicle arrived in the area of block slot " + slot);
+            Logger.Trace("Vehicle arrived in the area of block slot " + slot);
             slot.ClearSlotFromTraffic();
             vehicle.EnableEmergencyLights();
             vehicleDriver.Instance.Tasks
@@ -160,7 +167,7 @@ namespace AreaControl.Actions.CloseRoad
                 .WaitForCompletion(20000);
             WarpVehicleInPosition(vehicle, slot);
             WarpVehicleInHeading(vehicle, slot);
-            Rage.LogTrivialDebug("Vehicle parked at block slot " + slot);
+            Logger.Trace("Vehicle parked at block slot " + slot);
         }
 
         private void WarpVehicleInHeading(ACVehicle vehicle, BlockSlot slot)
@@ -169,8 +176,8 @@ namespace AreaControl.Actions.CloseRoad
             var expectedHeading = slot.Heading;
             var headingDifference = Math.Abs(vehicleHeading - expectedHeading);
 
-            Rage.LogTrivialDebug("Checking heading tolerance, expected: " + expectedHeading + ", actual: " + vehicleHeading + ", difference: " +
-                                 headingDifference);
+            Logger.Debug("Checking heading tolerance, expected: " + expectedHeading + ", actual: " + vehicleHeading + ", difference: " +
+                         headingDifference);
             if (headingDifference > BlockHeadingTolerance)
                 vehicle.Instance.Heading = expectedHeading;
         }
@@ -181,8 +188,8 @@ namespace AreaControl.Actions.CloseRoad
             var expectedPosition = slot.Position;
             var positionDifference = Vector3.Distance(vehiclePosition, expectedPosition);
 
-            Rage.LogTrivialDebug("Checking position tolerance, expected: " + expectedPosition + ", actual: " + vehiclePosition + ", difference: " +
-                                 positionDifference);
+            Logger.Debug("Checking position tolerance, expected: " + expectedPosition + ", actual: " + vehiclePosition + ", difference: " +
+                         positionDifference);
             if (positionDifference > BlockPositionTolerance)
                 vehicle.Instance.Position = expectedPosition;
         }
@@ -218,7 +225,7 @@ namespace AreaControl.Actions.CloseRoad
             }
 
             var placeObjectsDuty = new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), objects, _responseManager.ResponseCode, false);
-            Rage.LogTrivialDebug("Created place barriers duty " + placeObjectsDuty);
+            Logger.Debug("Created place barriers duty " + placeObjectsDuty);
             _dutyManager.RegisterDuty(ped, placeObjectsDuty);
         }
 
