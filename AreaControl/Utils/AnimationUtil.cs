@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AreaControl.Instances;
 using AreaControl.Utils.Tasks;
 using Rage;
@@ -61,11 +62,12 @@ namespace AreaControl.Utils
         {
             if (!entity.IsValid())
                 return AnimationTaskExecutorBuilder.Builder()
+                    .ExecutorEntities(new List<Ped> {ped.Instance})
                     .AnimationDictionary(PlaceDownObjectDictionary)
                     .AnimationName(PlaceDownObjectAnimation)
                     .IsAborted(true)
                     .Build();
-            
+
             var originalPosition = new Vector3(entity.Position.X, entity.Position.Y, entity.Position.Z);
             entity.MakePersistent();
             entity.Position = Vector3.Zero;
@@ -82,7 +84,7 @@ namespace AreaControl.Utils
 
                 if (!entity.IsValid())
                     return;
-                
+
                 entity.Position = originalPosition;
                 PropUtil.PlaceCorrectlyOnGround(entity);
             };

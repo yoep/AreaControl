@@ -8,6 +8,11 @@ namespace AreaControl.Menu
         /// Get the menu item to register at nativeUI.
         /// </summary>
         UIMenuItem MenuItem { get; }
+        
+        /// <summary>
+        /// Get the type of the menu item.
+        /// </summary>
+        MenuType Type { get; }
 
         /// <summary>
         /// Get if the menu component is automatically closed when selected in the menu.
@@ -18,11 +23,6 @@ namespace AreaControl.Menu
         /// Get if the menu component is visible in the menu.
         /// </summary>
         bool IsVisible { get; }
-
-        /// <summary>
-        /// Get if the menu is a debug option.
-        /// </summary>
-        bool IsDebug { get; }
 
         /// <summary>
         /// Is triggered when the component menu item has been selected.

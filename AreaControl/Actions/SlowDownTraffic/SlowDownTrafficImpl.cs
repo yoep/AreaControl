@@ -40,15 +40,15 @@ namespace AreaControl.Actions.SlowDownTraffic
 
         /// <inheritdoc />
         public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.SlowDownTraffic);
+        
+        /// <inheritdoc />
+        public MenuType Type => MenuType.STREET_CONTROL;
 
         /// <inheritdoc />
         public bool IsAutoClosed => true;
 
         /// <inheritdoc />
         public bool IsVisible => true;
-
-        /// <inheritdoc />
-        public bool IsDebug => false;
 
         /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)

@@ -32,15 +32,15 @@ namespace AreaControl.Actions.CloseRoad
 
         /// <inheritdoc />
         public abstract UIMenuItem MenuItem { get; }
+        
+        /// <inheritdoc />
+        public MenuType Type => MenuType.STREET_CONTROL;
 
         /// <inheritdoc />
         public bool IsAutoClosed => true;
 
         /// <inheritdoc />
         public abstract bool IsVisible { get; }
-
-        /// <inheritdoc />
-        public abstract bool IsDebug { get; }
 
         /// <inheritdoc />
         public abstract void OnMenuActivation(IMenu sender);

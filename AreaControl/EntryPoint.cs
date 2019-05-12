@@ -53,6 +53,7 @@ namespace AreaControl
         {
             IoC.Instance
                 .Register<IRage>(typeof(RageImpl))
+                .Register<ILogger>(typeof(Logger))
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
                 .RegisterSingleton<IEntityManager>(typeof(EntityManager))
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))

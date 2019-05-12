@@ -30,13 +30,13 @@ namespace AreaControl.Actions.CleanArea
         public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ClearArea);
 
         /// <inheritdoc />
+        public MenuType Type => MenuType.AREA_CONTROL;
+
+        /// <inheritdoc />
         public bool IsAutoClosed => true;
 
         /// <inheritdoc />
         public bool IsVisible => true;
-
-        /// <inheritdoc />
-        public bool IsDebug => false;
 
         /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)

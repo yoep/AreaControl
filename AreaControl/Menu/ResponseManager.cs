@@ -46,15 +46,15 @@ namespace AreaControl.Menu
         /// <inheritdoc />
         public UIMenuItem MenuItem { get; } =
             new UIMenuListItem("Response code", "", GetResponseCodeValue(ResponseCode.Code2), GetResponseCodeValue(ResponseCode.Code3));
+        
+        /// <inheritdoc />
+        public MenuType Type => MenuType.DEBUG;
 
         /// <inheritdoc />
         public bool IsAutoClosed => false;
 
         /// <inheritdoc />
         public bool IsVisible => true;
-
-        /// <inheritdoc />
-        public bool IsDebug => false;
 
         /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)

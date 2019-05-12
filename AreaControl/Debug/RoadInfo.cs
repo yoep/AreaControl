@@ -19,15 +19,15 @@ namespace AreaControl.Debug
 
         /// <inheritdoc />
         public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.RoadInfo);
+        
+        /// <inheritdoc />
+        public MenuType Type => MenuType.DEBUG;
 
         /// <inheritdoc />
         public bool IsAutoClosed => false;
 
         /// <inheritdoc />
         public bool IsVisible => true;
-
-        /// <inheritdoc />
-        public bool IsDebug => true;
 
         /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
