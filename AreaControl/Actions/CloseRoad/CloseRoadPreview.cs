@@ -20,6 +20,9 @@ namespace AreaControl.Actions.CloseRoad
         public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ActionCloseRoadPreview);
 
         /// <inheritdoc />
+        public override MenuType Type => MenuType.DEBUG;
+
+        /// <inheritdoc />
         public override bool IsVisible => true;
 
         /// <inheritdoc />

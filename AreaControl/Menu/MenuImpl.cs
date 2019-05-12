@@ -20,7 +20,7 @@ namespace AreaControl.Menu
         private readonly ILogger _logger;
         private readonly ISettingsManager _settingsManager;
 
-        private UIMenuSwitchMenusItem MenuSwitcher;
+        private UIMenuSwitchMenusItem _menuSwitcher;
 
         #region Constructors
 
@@ -43,6 +43,15 @@ namespace AreaControl.Menu
 
         /// <inheritdoc />
         public int TotalItems => MenuItems.Count;
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            Game.FrameRender -= Process;
+        }
 
         #endregion
 
@@ -81,7 +90,7 @@ namespace AreaControl.Menu
                 _logger.Debug("Initializing submenus...");
                 foreach (var menu in Menus)
                 {
-                    menu.Value.AddItem(MenuSwitcher, 0);
+                    menu.Value.AddItem(_menuSwitcher, 0);
                     menu.Value.RefreshIndex();
                     menu.Value.OnItemSelect += ItemSelectionHandler;
                 }
@@ -105,8 +114,8 @@ namespace AreaControl.Menu
             {
                 if (IsMenuKeyPressed())
                 {
-                    MenuSwitcher.CurrentMenu.Visible = !MenuSwitcher.CurrentMenu.Visible;
-                    IsShown = MenuSwitcher.CurrentMenu.Visible;
+                    _menuSwitcher.CurrentMenu.Visible = !_menuSwitcher.CurrentMenu.Visible;
+                    IsShown = _menuSwitcher.CurrentMenu.Visible;
                 }
 
                 MenuPool.ProcessMenus();
@@ -161,12 +170,12 @@ namespace AreaControl.Menu
 
         private void CloseMenu()
         {
-            MenuSwitcher.CurrentMenu.Visible = false;
+            _menuSwitcher.CurrentMenu.Visible = false;
         }
 
         private void CreateMenuSwitcher()
         {
-            MenuSwitcher = new UIMenuSwitchMenusItem("Type", null,
+            _menuSwitcher = new UIMenuSwitchMenusItem("Type", null,
                 new DisplayItem(Menus[MenuType.AREA_CONTROL], "Area Control"),
                 new DisplayItem(Menus[MenuType.STREET_CONTROL], "Street Control"),
                 new DisplayItem(Menus[MenuType.DEBUG], "Debug"));

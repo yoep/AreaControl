@@ -18,7 +18,7 @@ namespace AreaControl.Actions.RedirectTraffic
         public abstract UIMenuItem MenuItem { get; }
         
         /// <inheritdoc />
-        public MenuType Type => MenuType.STREET_CONTROL;
+        public abstract MenuType Type { get; }
 
         /// <inheritdoc />
         public bool IsAutoClosed => true;

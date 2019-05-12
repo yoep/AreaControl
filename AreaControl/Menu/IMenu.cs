@@ -1,6 +1,8 @@
+using System;
+
 namespace AreaControl.Menu
 {
-    public interface IMenu
+    public interface IMenu : IDisposable
     {
         /// <summary>
         /// Check if the menu has been initialized.

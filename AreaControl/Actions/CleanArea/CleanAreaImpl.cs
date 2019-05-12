@@ -27,7 +27,7 @@ namespace AreaControl.Actions.CleanArea
         #region IMenuComponent
 
         /// <inheritdoc />
-        public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ClearArea);
+        public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.ClearArea, AreaControl.ClearAreaDescription);
 
         /// <inheritdoc />
         public MenuType Type => MenuType.AREA_CONTROL;

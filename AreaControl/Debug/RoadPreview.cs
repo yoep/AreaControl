@@ -7,7 +7,7 @@ using RAGENativeUI.Elements;
 
 namespace AreaControl.Debug
 {
-    public class RoadPreview : IMenuComponent
+    public class RoadPreview : IRoadPreview
     {
         private readonly IRage _rage;
         private Road _road;
@@ -17,9 +17,11 @@ namespace AreaControl.Debug
             _rage = rage;
         }
 
+        #region IMenuComponent
+
         /// <inheritdoc />
         public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.RoadPreview);
-        
+
         /// <inheritdoc />
         public MenuType Type => MenuType.DEBUG;
 
@@ -41,6 +43,26 @@ namespace AreaControl.Debug
                 RemoveRoadPreview();
             }
         }
+
+        #endregion
+
+        #region IRoadPreview
+
+        /// <inheritdoc />
+        public void ShowRoadPreview()
+        {
+            if (_road == null)
+                CreateRoadPreview();
+        }
+
+        /// <inheritdoc />
+        public void HideRoadPreview()
+        {
+            if (_road != null)
+                RemoveRoadPreview();
+        }
+
+        #endregion
 
         private void CreateRoadPreview()
         {

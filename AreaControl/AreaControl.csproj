@@ -76,6 +76,8 @@
     <Compile Include="Actions\SlowDownTraffic\SlowDownTrafficImpl.cs" />
     <Compile Include="AreaControl.cs" />
     <Compile Include="Assert.cs" />
+    <Compile Include="Debug\IRoadInfo.cs" />
+    <Compile Include="Debug\IRoadPreview.cs" />
     <Compile Include="Debug\RoadInfo.cs" />
     <Compile Include="Debug\RoadPreview.cs" />
     <Compile Include="Duties\AbstractDuty.cs" />
@@ -106,7 +108,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="Menu\IMenuComponent.cs" />
     <Compile Include="Menu\IMenu.cs" />
-    <Compile Include="Menu\IResponseManager.cs" />
     <Compile Include="Menu\MenuException.cs" />
     <Compile Include="Menu\MenuImpl.cs" />
     <Compile Include="Instances\ACPed.cs" />
@@ -114,8 +115,13 @@
     <Compile Include="Instances\Road.cs" />
     <Compile Include="Instances\VehicleSeat.cs" />
     <Compile Include="Menu\MenuType.cs" />
-    <Compile Include="Menu\ResponseCode.cs" />
-    <Compile Include="Menu\ResponseManager.cs" />
+    <Compile Include="Menu\Response\AbstractResponseSelector.cs" />
+    <Compile Include="Menu\Response\AreaControlResponseSelector.cs" />
+    <Compile Include="Menu\Response\IResponseManager.cs" />
+    <Compile Include="Menu\Response\IResponseSelector.cs" />
+    <Compile Include="Menu\Response\ResponseCode.cs" />
+    <Compile Include="Menu\Response\ResponseManager.cs" />
+    <Compile Include="Menu\Response\StreetControlResponseSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AbstractionLayer\IRage.cs" />
     <Compile Include="Settings\CloseRoadSettings.cs" />

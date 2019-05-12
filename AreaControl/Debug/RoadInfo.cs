@@ -6,7 +6,7 @@ using RAGENativeUI.Elements;
 
 namespace AreaControl.Debug
 {
-    public class RoadInfo : IMenuComponent
+    public class RoadInfo : IRoadInfo
     {
         private readonly IRage _rage;
         private readonly ILogger _logger;

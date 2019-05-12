@@ -1,4 +1,4 @@
-namespace AreaControl.Menu
+namespace AreaControl.Menu.Response
 {
     public enum ResponseCode
     {

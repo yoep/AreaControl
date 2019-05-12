@@ -28,12 +28,13 @@ namespace AreaControl
         {
             var ioC = IoC.Instance;
             var rage = ioC.GetInstance<IRage>();
+            var logger = ioC.GetInstance<ILogger>();
 
             try
             {
                 var disposables = ioC.GetInstances<IDisposable>();
 
-                rage.LogTrivialDebug("Starting disposal of " + disposables.Count + " instances");
+                logger.Debug("Starting disposal of " + disposables.Count + " instances");
                 foreach (var instance in disposables)
                 {
                     instance.Dispose();
@@ -43,7 +44,8 @@ namespace AreaControl
             }
             catch (Exception ex)
             {
-                rage.LogTrivial("Failed to unload plugin correctly with: " + ex.Message + Environment.NewLine + ex.StackTrace);
+                logger.Error($"Failed to unload plugin correctly with: ${ex.Message}", ex);
+                rage.DisplayPluginNotification("~r~failed to unload, see logs for more info");
             }
         }
 

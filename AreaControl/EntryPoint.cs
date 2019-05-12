@@ -11,6 +11,7 @@ using AreaControl.Debug;
 using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Menu;
+using AreaControl.Menu.Response;
 using AreaControl.Settings;
 using LSPD_First_Response.Mod.API;
 
@@ -30,7 +31,7 @@ namespace AreaControl
             try
             {
                 AttachDebugger();
-                
+
                 Main.Initialize();
                 rage.LogTrivial("initialized");
                 rage.DisplayPluginNotification("has been loaded");
@@ -59,6 +60,8 @@ namespace AreaControl
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
                 .RegisterSingleton<IDutyManager>(typeof(DutyManager))
                 .RegisterSingleton<ISettingsManager>(typeof(SettingsManager))
+                .Register<IResponseSelector>(typeof(AreaControlResponseSelector))
+                .Register<IResponseSelector>(typeof(StreetControlResponseSelector))
                 .Register<ICleanArea>(typeof(CleanAreaImpl))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl))
                 .Register<IRedirectTraffic>(typeof(RedirectTrafficImpl))
@@ -69,9 +72,9 @@ namespace AreaControl
         private static void InitializeDebugComponents()
         {
             IoC.Instance
-                .Register<ICloseRoadPreview>(typeof(CloseRoadPreview))
-                .Register<IMenuComponent>(typeof(RoadInfo))
-                .Register<IMenuComponent>(typeof(RoadPreview))
+                .RegisterSingleton<ICloseRoadPreview>(typeof(CloseRoadPreview))
+                .RegisterSingleton<IRoadInfo>(typeof(RoadInfo))
+                .RegisterSingleton<IRoadPreview>(typeof(RoadPreview))
                 .Register<IMenuComponent>(typeof(RedirectTrafficPreview));
         }
 

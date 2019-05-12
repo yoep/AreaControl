@@ -4,6 +4,7 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Menu;
+using AreaControl.Menu.Response;
 using AreaControl.Settings;
 using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
@@ -46,6 +47,9 @@ namespace AreaControl.Actions.RedirectTraffic
 
         /// <inheritdoc />
         public override UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.RedirectTraffic, AreaControl.RedirectTrafficDescription);
+
+        /// <inheritdoc />
+        public override MenuType Type => MenuType.STREET_CONTROL;
 
         /// <inheritdoc />
         public override bool IsVisible => true;
