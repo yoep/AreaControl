@@ -5,7 +5,7 @@ using Rage.Native;
 namespace AreaControl.Utils
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public static class PropUtil
+    public static class PropUtils
     {
         public static Object CreateWand()
         {
@@ -98,7 +98,7 @@ namespace AreaControl.Utils
 
         public static void Remove(Object entity)
         {
-            EntityUtil.Remove(entity);
+            EntityUtils.Remove(entity);
         }
     }
 }

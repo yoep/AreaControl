@@ -69,7 +69,7 @@ namespace AreaControl.Debug
             _rage.NewSafeFiber(() =>
             {
                 MenuItem.Text = AreaControl.RoadPreviewRemove;
-                _road = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
+                _road = RoadUtils.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
                 _road.CreatePreview();
             }, "RoadPreview.CreateRoadPreview");
         }

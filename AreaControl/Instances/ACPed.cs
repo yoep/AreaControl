@@ -90,7 +90,7 @@ namespace AreaControl.Instances
             Assert.NotNull(attachment, "entity cannot be null");
             _attachments.Add(attachment);
 
-            EntityUtil.AttachEntity(attachment, Instance, placement);
+            EntityUtils.AttachEntity(attachment, Instance, placement);
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace AreaControl.Instances
         {
             foreach (var attachment in _attachments.Where(x => x.IsValid()))
             {
-                EntityUtil.DetachEntity(attachment);
+                EntityUtils.DetachEntity(attachment);
                 attachment.Dismiss();
                 attachment.Delete();
             }
@@ -249,7 +249,7 @@ namespace AreaControl.Instances
         {
             foreach (var attachment in _attachments.Where(x => x.IsValid()))
             {
-                EntityUtil.DetachEntity(attachment);
+                EntityUtils.DetachEntity(attachment);
             }
 
             _attachments.Clear();

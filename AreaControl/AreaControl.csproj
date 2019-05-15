@@ -35,6 +35,9 @@
     <Reference Include="Arrest Manager, Version=7.9.2.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\Arrest Manager.dll</HintPath>
     </Reference>
+    <Reference Include="ComputerPlus, Version=1.4.1.1, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Libs\ComputerPlus.dll</HintPath>
+    </Reference>
     <Reference Include="LSPD First Response, Version=0.4.39.22580, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\LSPD First Response.dll</HintPath>
     </Reference>
@@ -76,6 +79,11 @@
     <Compile Include="Actions\SlowDownTraffic\SlowDownTrafficImpl.cs" />
     <Compile Include="AreaControl.cs" />
     <Compile Include="Assert.cs" />
+    <Compile Include="Callouts\CalloutManager.cs" />
+    <Compile Include="Callouts\ICallout.cs" />
+    <Compile Include="Callouts\ICalloutManager.cs" />
+    <Compile Include="Callouts\Riot\IRiotCallout.cs" />
+    <Compile Include="Callouts\Riot\RiotCallout.cs" />
     <Compile Include="Debug\IRoadInfo.cs" />
     <Compile Include="Debug\IRoadPreview.cs" />
     <Compile Include="Debug\RoadInfo.cs" />
@@ -130,14 +138,14 @@
     <Compile Include="Settings\RedirectTrafficSettings.cs" />
     <Compile Include="Settings\SettingsManager.cs" />
     <Compile Include="Utils\AnimationUtil.cs" />
-    <Compile Include="Utils\EntityUtil.cs" />
-    <Compile Include="Utils\ModelUtil.cs" />
+    <Compile Include="Utils\EntityUtils.cs" />
+    <Compile Include="Utils\ModelUtils.cs" />
     <Compile Include="Utils\ModIntegrationUtil.cs" />
     <Compile Include="Utils\PlacementType.cs" />
-    <Compile Include="Utils\PreviewUtil.cs" />
-    <Compile Include="Utils\PropUtil.cs" />
+    <Compile Include="Utils\PreviewUtils.cs" />
+    <Compile Include="Utils\PropUtils.cs" />
     <Compile Include="Utils\RoadType.cs" />
-    <Compile Include="Utils\RoadUtil.cs" />
+    <Compile Include="Utils\RoadUtils.cs" />
     <Compile Include="Utils\Query\PedQuery.cs" />
     <Compile Include="Utils\Query\VehicleQuery.cs" />
     <Compile Include="Utils\Tasks\AbstractTaskBuilder.cs" />

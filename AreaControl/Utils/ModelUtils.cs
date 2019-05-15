@@ -6,7 +6,7 @@ using Rage;
 
 namespace AreaControl.Utils
 {
-    public static class ModelUtil
+    public static class ModelUtils
     {
         private static readonly Random Random = new Random();
 

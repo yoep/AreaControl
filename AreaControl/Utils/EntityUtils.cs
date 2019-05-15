@@ -4,7 +4,7 @@ using Rage.Native;
 
 namespace AreaControl.Utils
 {
-    public static class EntityUtil
+    public static class EntityUtils
     {
         /// <summary>
         /// Attach the given attachment to the given entity.

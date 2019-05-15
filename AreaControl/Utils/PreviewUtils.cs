@@ -3,7 +3,7 @@ using Rage.Native;
 
 namespace AreaControl.Utils
 {
-    public static class PreviewUtil
+    public static class PreviewUtils
     {
         /// <summary>
         /// Transforms the given entity to a preview entity.

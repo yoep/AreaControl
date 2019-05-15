@@ -17,7 +17,7 @@ namespace AreaControl.Actions.CloseRoad
             OriginalRoadHeading = laneHeading;
             Position = position;
             Heading = (laneHeading + 30f) % 360;
-            PedHeading = RoadUtil.OppositeHeading(laneHeading);
+            PedHeading = RoadUtils.OppositeHeading(laneHeading);
             PedPosition = position + MathHelper.ConvertHeadingToDirection(PedHeading) * 4f;
 
             CreateBarriers();
@@ -63,9 +63,9 @@ namespace AreaControl.Actions.CloseRoad
         {
             _previewObjects.Add(new Vehicle("POLICE", Position, Heading));
             _previewObjects.Add(new Ped(new Model("s_m_y_cop_01"), PedPosition, PedHeading));
-            _barriers.ForEach(x => _previewObjects.Add(PropUtil.CreatePoliceDoNotCrossBarrier(x.Position, x.Heading)));
+            _barriers.ForEach(x => _previewObjects.Add(PropUtils.CreatePoliceDoNotCrossBarrier(x.Position, x.Heading)));
 
-            _previewObjects.ForEach(PreviewUtil.TransformToPreview);
+            _previewObjects.ForEach(PreviewUtils.TransformToPreview);
         }
 
         /// <inheritdoc />
@@ -74,7 +74,7 @@ namespace AreaControl.Actions.CloseRoad
             if (!IsPreviewActive)
                 return;
 
-            _previewObjects.ForEach(EntityUtil.Remove);
+            _previewObjects.ForEach(EntityUtils.Remove);
             _previewObjects.Clear();
         }
 
@@ -84,7 +84,7 @@ namespace AreaControl.Actions.CloseRoad
 
         public void ClearSlotFromTraffic()
         {
-            EntityUtil.CleanArea(Position, 5f);
+            EntityUtils.CleanArea(Position, 5f);
         }
 
         #endregion
@@ -93,7 +93,7 @@ namespace AreaControl.Actions.CloseRoad
 
         private void CreateBarriers()
         {
-            var barrierHeading = RoadUtil.OppositeHeading(OriginalRoadHeading);
+            var barrierHeading = RoadUtils.OppositeHeading(OriginalRoadHeading);
             var position = PedPosition + MathHelper.ConvertHeadingToDirection(barrierHeading) * 1f;
             var moveDirection = MathHelper.ConvertHeadingToDirection((barrierHeading + 90f) % 360);
 

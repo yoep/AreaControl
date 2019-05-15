@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using AreaControl.Utils;
 using Rage;
 
 namespace AreaControl.Instances
@@ -46,6 +47,13 @@ namespace AreaControl.Instances
         public bool IsInvalid => !IsValid;
 
         /// <inheritdoc />
+        public bool Persistent
+        {
+            get => Instance.IsPersistent;
+            set => Instance.IsPersistent = value;
+        }
+
+        /// <inheritdoc />
         public void CreateBlip()
         {
             if (Blip != null)
@@ -77,9 +85,7 @@ namespace AreaControl.Instances
         public virtual void Delete()
         {
             DeleteBlip();
-
-            if (Instance.IsValid())
-                Instance.Delete();
+            EntityUtils.Remove(Instance);
         }
 
         #endregion

@@ -15,7 +15,7 @@ namespace AreaControl.Actions.RedirectTraffic
         {
             Position = position;
             Heading = heading;
-            PedHeading = RoadUtil.OppositeHeading(Heading);
+            PedHeading = RoadUtils.OppositeHeading(Heading);
             PedPosition = Position + MathHelper.ConvertHeadingToDirection(PedHeading) * PedDistanceFromVehicle;
             PlaceConesRightSide = placeConesOnRightSide;
             CreateCones();
@@ -64,7 +64,7 @@ namespace AreaControl.Actions.RedirectTraffic
 
             _previewObjects.Add(new Vehicle("POLICE", Position, Heading));
             _previewObjects.Add(new Ped(new Model("s_m_y_cop_01"), PedPosition, PedHeading));
-            _previewObjects.ForEach(PreviewUtil.TransformToPreview);
+            _previewObjects.ForEach(PreviewUtils.TransformToPreview);
             _cones.ForEach(x => x.CreatePreview());
         }
 
@@ -74,7 +74,7 @@ namespace AreaControl.Actions.RedirectTraffic
             if (!IsPreviewActive)
                 return;
 
-            _previewObjects.ForEach(EntityUtil.Remove);
+            _previewObjects.ForEach(EntityUtils.Remove);
             _previewObjects.Clear();
             _cones.ForEach(x => x.DeletePreview());
         }
@@ -83,7 +83,7 @@ namespace AreaControl.Actions.RedirectTraffic
 
         public void ClearSlotFromTraffic()
         {
-            EntityUtil.CleanArea(Position, 5f);
+            EntityUtils.CleanArea(Position, 5f);
         }
 
         public override string ToString()
@@ -140,8 +140,8 @@ namespace AreaControl.Actions.RedirectTraffic
                 if (IsPreviewActive)
                     return;
 
-                _previewObject = PropUtil.CreateSmallConeWithStripes(Position);
-                PreviewUtil.TransformToPreview(_previewObject);
+                _previewObject = PropUtils.CreateSmallConeWithStripes(Position);
+                PreviewUtils.TransformToPreview(_previewObject);
             }
 
             /// <inheritdoc />
@@ -150,7 +150,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 if (!IsPreviewActive)
                     return;
 
-                PropUtil.Remove(_previewObject);
+                PropUtils.Remove(_previewObject);
                 _previewObject = null;
             }
 

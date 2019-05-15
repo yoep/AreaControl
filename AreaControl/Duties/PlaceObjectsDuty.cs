@@ -41,7 +41,7 @@ namespace AreaControl.Duties
             {
                 foreach (var placeObject in _objects)
                 {
-                    var headingBehindObject = RoadUtil.OppositeHeading(placeObject.Heading);
+                    var headingBehindObject = RoadUtils.OppositeHeading(placeObject.Heading);
                     var positionBehindCone = placeObject.Position + MathHelper.ConvertHeadingToDirection(headingBehindObject) * 0.8f;
                     var walkToExecutor = _responseCode == ResponseCode.Code2
                         ? Ped.WalkTo(positionBehindCone, placeObject.Heading)

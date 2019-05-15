@@ -112,7 +112,7 @@ namespace AreaControl.Actions.CloseRoad
                 {
                     foreach (var barrier in barriers)
                     {
-                        PropUtil.Remove(barrier.Object.Instance);
+                        PropUtils.Remove(barrier.Object.Instance);
                     }
                 }
             }
@@ -221,7 +221,7 @@ namespace AreaControl.Actions.CloseRoad
 
             foreach (var barrier in slot.Barriers)
             {
-                barrier.Object = new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtil.CreatePoliceDoNotCrossBarrier);
+                barrier.Object = new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtils.CreatePoliceDoNotCrossBarrier);
                 objects.Add(barrier.Object);
             }
 
@@ -271,7 +271,7 @@ namespace AreaControl.Actions.CloseRoad
 
         private static Road GetPositionBehindSlot(BlockSlot slot, int index)
         {
-            return RoadUtil.GetClosestRoad(slot.Position + MathHelper.ConvertHeadingToDirection(slot.PedHeading) * (80f * index), RoadType.All);
+            return RoadUtils.GetClosestRoad(slot.Position + MathHelper.ConvertHeadingToDirection(slot.PedHeading) * (80f * index), RoadType.All);
         }
 
         #endregion

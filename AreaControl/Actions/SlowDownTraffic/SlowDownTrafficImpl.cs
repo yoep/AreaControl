@@ -74,10 +74,10 @@ namespace AreaControl.Actions.SlowDownTraffic
             _rage.NewSafeFiber(() =>
             {
                 var position = Game.LocalPlayer.Character.Position;
-                var closestRoad = RoadUtil.GetClosestRoad(position, RoadType.All);
-                var closestLane = RoadUtil.GetClosestLane(closestRoad, position);
-                var positionBehindPlayer = position + MathHelper.ConvertHeadingToDirection(RoadUtil.OppositeHeading(closestLane.Heading)) * DistanceFromPlayer;
-                var roadBehindPlayer = RoadUtil.GetClosestRoad(positionBehindPlayer, RoadType.MajorRoadsOnly);
+                var closestRoad = RoadUtils.GetClosestRoad(position, RoadType.All);
+                var closestLane = RoadUtils.GetClosestLane(closestRoad, position);
+                var positionBehindPlayer = position + MathHelper.ConvertHeadingToDirection(RoadUtils.OppositeHeading(closestLane.Heading)) * DistanceFromPlayer;
+                var roadBehindPlayer = RoadUtils.GetClosestRoad(positionBehindPlayer, RoadType.MajorRoadsOnly);
 
                 _rage.DisplayNotification("Requesting dispatch to ~b~slow down traffic~s~ nearby " + World.GetStreetName(position) + "...");
                 Functions.PlayScannerAudioUsingPosition(DispatchAudio + " " + _responseManager.ResponseCodeAudio, position);

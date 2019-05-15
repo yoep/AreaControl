@@ -79,7 +79,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 Functions.PlayScannerAudio("WE_ARE_CODE_4");
                 _dutyManager.DismissDuties();
                 _entityManager.Dismiss();
-                _placedObjects.ForEach(x => PropUtil.Remove(x.Instance));
+                _placedObjects.ForEach(x => PropUtils.Remove(x.Instance));
                 IsActive = false;
             }, "RedirectTrafficImpl.RemoveRedirectTraffic");
         }
@@ -155,7 +155,7 @@ namespace AreaControl.Actions.RedirectTraffic
             foreach (var cone in redirectSlot.Cones)
             {
                 _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(cone.Position, 0f,
-                    (pos, heading) => PropUtil.CreateSmallConeWithStripes(pos)));
+                    (pos, heading) => PropUtils.CreateSmallConeWithStripes(pos)));
             }
 
             _dutyManager.RegisterDuty(ped,
@@ -165,7 +165,7 @@ namespace AreaControl.Actions.RedirectTraffic
         private static Vector3 GetSpawnPosition(RedirectSlot redirectSlot)
         {
             var positionBehindSlot = redirectSlot.Position + MathHelper.ConvertHeadingToDirection(redirectSlot.PedHeading) * 80f;
-            var closestRoad = RoadUtil.GetClosestRoad(positionBehindSlot, RoadType.All);
+            var closestRoad = RoadUtils.GetClosestRoad(positionBehindSlot, RoadType.All);
 
             return closestRoad.Position;
         }

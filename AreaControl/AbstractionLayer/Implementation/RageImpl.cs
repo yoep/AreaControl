@@ -28,7 +28,7 @@ namespace AreaControl.AbstractionLayer.Implementation
         /// <inheritdoc />
         public void LogTrivialDebug(string message)
         {
-            Game.LogTrivialDebug("[" + AreaControl.Name + "][DEBUG]: " + message.Trim());
+            Game.LogTrivialDebug("[" + AreaControl.Name + "]: " + message.Trim());
         }
 
         /// <inheritdoc />

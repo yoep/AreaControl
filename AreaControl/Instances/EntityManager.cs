@@ -13,6 +13,7 @@ namespace AreaControl.Instances
     public class EntityManager : IEntityManager, IDisposable
     {
         private readonly IRage _rage;
+        private readonly ILogger _logger;
         private readonly List<ACVehicle> _managedVehicles = new List<ACVehicle>();
         private readonly List<ACPed> _managedPeds = new List<ACPed>();
         private readonly List<Vehicle> _disposedWrecks = new List<Vehicle>();
@@ -21,9 +22,10 @@ namespace AreaControl.Instances
 
         #region Constructors
 
-        public EntityManager(IRage rage)
+        public EntityManager(IRage rage, ILogger logger)
         {
             _rage = rage;
+            _logger = logger;
         }
 
         #endregion
@@ -108,11 +110,17 @@ namespace AreaControl.Instances
         {
             _rage.NewSafeFiber(() =>
             {
+                _logger.Trace("Clearing vehicle blips...");
+                foreach (var vehicle in GetAllManagedVehicles())
+                {
+                    vehicle.DeleteBlip();
+                    vehicle.Persistent = false;
+                }
+                
                 while (_managedVehicles.Any(x => !x.IsWandering))
                 {
                     foreach (var vehicle in GetAllManagedVehicles().Where(x => !x.IsWandering && x.AllOccupantsPresent))
                     {
-                        vehicle.DeleteBlip();
                         vehicle.DisableSirens();
                         vehicle.Wander();
                     }
@@ -240,8 +248,8 @@ namespace AreaControl.Instances
 
         private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition, int numberOfOccupantsToSpawn)
         {
-            var closestRoad = RoadUtil.GetClosestRoad(spawnPosition, RoadType.All);
-            var vehicle = RegisterVehicle(new Vehicle(ModelUtil.GetLocalVehicle(spawnPosition), closestRoad.Position, closestRoad.Lanes.First().Heading));
+            var closestRoad = RoadUtils.GetClosestRoad(spawnPosition, RoadType.All);
+            var vehicle = RegisterVehicle(new Vehicle(ModelUtils.GetLocalVehicle(spawnPosition), closestRoad.Position, closestRoad.Lanes.First().Heading));
 
             for (var i = 0; i < numberOfOccupantsToSpawn; i++)
             {
@@ -271,7 +279,7 @@ namespace AreaControl.Instances
 
         private static Ped CreatePed(Vector3 spawnPosition)
         {
-            return new Ped(ModelUtil.GetLocalPed(spawnPosition), spawnPosition, 3f)
+            return new Ped(ModelUtils.GetLocalPed(spawnPosition), spawnPosition, 3f)
             {
                 IsPersistent = true,
                 BlockPermanentEvents = true,

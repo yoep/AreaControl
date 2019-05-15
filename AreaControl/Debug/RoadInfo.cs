@@ -32,7 +32,7 @@ namespace AreaControl.Debug
         /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
         {
-            var road = RoadUtil.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
+            var road = RoadUtils.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
             _logger.Info("Nearest road info: " + road);
             _rage.DisplayPluginNotification("see console or log file for info about the closest road");
         }

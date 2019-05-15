@@ -37,11 +37,11 @@ namespace AreaControl.Actions.RedirectTraffic
         protected static RedirectSlot DetermineRedirectSlot()
         {
             var playerPosition = Game.LocalPlayer.Character.Position;
-            var closestRoad = RoadUtil.GetClosestRoad(playerPosition, RoadType.All);
+            var closestRoad = RoadUtils.GetClosestRoad(playerPosition, RoadType.All);
 
             //first lane = right side, last lane = left side
-            var closestLane = RoadUtil.GetClosestLane(closestRoad, playerPosition);
-            var moveDirection = MathHelper.ConvertHeadingToDirection(RoadUtil.OppositeHeading(closestLane.Heading));
+            var closestLane = RoadUtils.GetClosestLane(closestRoad, playerPosition);
+            var moveDirection = MathHelper.ConvertHeadingToDirection(RoadUtils.OppositeHeading(closestLane.Heading));
             var isLeftSideOfRoad = MultipleLanesInSameDirection(closestRoad, closestLane) && IsClosestToLeftLane(closestRoad, closestLane);
             var lanePosition = isLeftSideOfRoad ? closestLane.LeftSide : closestLane.RightSide;
 

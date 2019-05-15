@@ -7,6 +7,7 @@ using AreaControl.Actions.CleanArea;
 using AreaControl.Actions.CloseRoad;
 using AreaControl.Actions.RedirectTraffic;
 using AreaControl.Actions.SlowDownTraffic;
+using AreaControl.Callouts;
 using AreaControl.Debug;
 using AreaControl.Duties;
 using AreaControl.Instances;
@@ -27,19 +28,19 @@ namespace AreaControl
             InitializeIoContainer();
             InitializeDebugComponents();
             var rage = IoC.Instance.GetInstance<IRage>();
+            var logger = IoC.Instance.GetInstance<ILogger>();
 
             try
             {
                 AttachDebugger();
 
                 Main.Initialize();
-                rage.LogTrivial("initialized");
+                logger.Info("Initialized");
                 rage.DisplayPluginNotification("has been loaded");
             }
             catch (Exception ex)
             {
-                rage.LogTrivial("*** An unknown error occurred and the plugin has stopped working ***");
-                rage.LogTrivial(ex.Message + Environment.NewLine + ex.StackTrace);
+                logger.Error($"An unexpected error occurred causing the plugin to stop with error: {ex.Message}", ex);
                 rage.DisplayPluginNotification("~r~failed to initialize, check logs for more info");
             }
         }
@@ -60,6 +61,7 @@ namespace AreaControl
                 .RegisterSingleton<IResponseManager>(typeof(ResponseManager))
                 .RegisterSingleton<IDutyManager>(typeof(DutyManager))
                 .RegisterSingleton<ISettingsManager>(typeof(SettingsManager))
+                .RegisterSingleton<ICalloutManager>(typeof(CalloutManager))
                 .Register<IResponseSelector>(typeof(AreaControlResponseSelector))
                 .Register<IResponseSelector>(typeof(StreetControlResponseSelector))
                 .Register<ICleanArea>(typeof(CleanAreaImpl))

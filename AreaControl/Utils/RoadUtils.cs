@@ -5,7 +5,7 @@ using Rage.Native;
 
 namespace AreaControl.Utils
 {
-    public static class RoadUtil
+    public static class RoadUtils
     {
         #region Methods
 

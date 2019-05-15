@@ -20,6 +20,11 @@ namespace AreaControl.Instances
         /// Check if the instance reference is invalid.
         /// </summary>
         bool IsInvalid { get; }
+        
+        /// <summary>
+        /// Get or set of the entity is persistent in the game world.
+        /// </summary>
+        bool Persistent { get; set; }
 
         /// <summary>
         /// Create a blip for this instance.

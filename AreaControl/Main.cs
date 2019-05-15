@@ -2,6 +2,7 @@ using System;
 using AreaControl.AbstractionLayer;
 using AreaControl.AbstractionLayer.Implementation;
 using AreaControl.AbstractionLayer.NoOp;
+using AreaControl.Callouts;
 using AreaControl.Menu;
 using AreaControl.Utils;
 
@@ -18,6 +19,7 @@ namespace AreaControl
         public static void Initialize()
         {
             InitializeMenu();
+            InitializeCallouts();
             CheckDependencies();
         }
 
@@ -93,6 +95,11 @@ namespace AreaControl
             }
 
             rage.LogTrivialDebug("Registered " + menu.TotalItems + " menu component(s)");
+        }
+        
+        private static void InitializeCallouts()
+        {
+            IoC.Instance.GetInstance<ICalloutManager>();
         }
 
         #endregion
