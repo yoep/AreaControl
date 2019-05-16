@@ -32,6 +32,9 @@ Busy streets (such as highways) will be slowed down by one or more backup unit(s
 - Slows down the traffic in the direction of the player
 - Units will resume duty when reaching the player
 
+### Riot (WIP)
+Citizens have started a riot in the city, keep the riot under control.
+
 ## Planned Features
 
 - Police Smart Radio integration
@@ -41,13 +44,13 @@ Busy streets (such as highways) will be slowed down by one or more backup unit(s
     - Auto call EMS when closing the road and death bodies are present
     - Different standby states for idle police peds between code 2 and 3
 - Protest Callout
-- Riot Callout
 
 ## Dependencies
 - [RAGE Plugin Hook](http://ragepluginhook.net/)
 - [RAGE Native UI](https://github.com/alexguirre/RAGENativeUI)
 - [LSPDFR](https://www.lcpdfr.com/files/file/7792-lspd-first-response/)
 - [Arrest Manager](https://www.lcpdfr.com/files/file/8107-arrest-manager-grab-peds-more-jail-points-prisoner-transport-more/)
+- [Computer+](https://www.lcpdfr.com/files/file/11453-lspdfr-computer/)
 
 ## Suggestions
 **Area Control** is in early development, so feel free to make suggestions or ask for new features.

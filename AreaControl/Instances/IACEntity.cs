@@ -22,6 +22,11 @@ namespace AreaControl.Instances
         bool IsInvalid { get; }
         
         /// <summary>
+        /// Get or set if this instance is friendly towards the player (default: true).
+        /// </summary>
+        bool IsFriendly { get; set; }
+        
+        /// <summary>
         /// Get or set of the entity is persistent in the game world.
         /// </summary>
         bool Persistent { get; set; }

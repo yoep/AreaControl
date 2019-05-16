@@ -47,6 +47,9 @@ namespace AreaControl.Instances
         public bool IsInvalid => !IsValid;
 
         /// <inheritdoc />
+        public bool IsFriendly { get; set; } = true;
+
+        /// <inheritdoc />
         public bool Persistent
         {
             get => Instance.IsPersistent;
@@ -62,7 +65,7 @@ namespace AreaControl.Instances
             Blip = new Blip(Instance)
             {
                 IsRouteEnabled = false,
-                IsFriendly = true,
+                IsFriendly = IsFriendly,
                 Scale = _blipScale
             };
         }

@@ -80,10 +80,8 @@
     <Compile Include="AreaControl.cs" />
     <Compile Include="Assert.cs" />
     <Compile Include="Callouts\CalloutManager.cs" />
-    <Compile Include="Callouts\ICallout.cs" />
     <Compile Include="Callouts\ICalloutManager.cs" />
-    <Compile Include="Callouts\Riot\IRiotCallout.cs" />
-    <Compile Include="Callouts\Riot\RiotCallout.cs" />
+    <Compile Include="Callouts\RiotCallout.cs" />
     <Compile Include="Debug\IRoadInfo.cs" />
     <Compile Include="Debug\IRoadPreview.cs" />
     <Compile Include="Debug\RoadInfo.cs" />

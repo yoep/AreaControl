@@ -2,18 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
-using AreaControl.Callouts.Riot;
 using LSPD_First_Response.Mod.API;
+using Rage;
 
 namespace AreaControl.Callouts
 {
     public class CalloutManager : ICalloutManager
     {
+        private readonly IRage _rage;
         private readonly ILogger _logger;
 
-        public CalloutManager(ILogger logger)
+        public CalloutManager(ILogger logger, IRage rage)
         {
             _logger = logger;
+            _rage = rage;
         }
 
         #region Properties
@@ -30,20 +32,24 @@ namespace AreaControl.Callouts
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private void Init()
         {
-            _logger.Debug("Initializing Callout Manager...");
-            _logger.Debug($"Registering {Callouts.Count} callouts...");
-
-            foreach (var callout in Callouts)
+            _rage.NewSafeFiber(() =>
             {
-                try
+                GameFiber.Sleep(1000);
+                _logger.Debug("Initializing Callout Manager...");
+                _logger.Debug($"Registering {Callouts.Count} callouts...");
+
+                foreach (var callout in Callouts)
                 {
-                    Functions.RegisterCallout(callout);
+                    try
+                    {
+                        Functions.RegisterCallout(callout);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Failed to register callout '{callout}' with error: {ex.Message}", ex);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _logger.Error($"Failed to register callout '{callout}' with error: {ex.Message}", ex);
-                }
-            }
+            }, "RegisterCallouts");
         }
     }
 }
