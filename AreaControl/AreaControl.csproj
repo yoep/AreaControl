@@ -139,7 +139,6 @@
     <Compile Include="Utils\EntityUtils.cs" />
     <Compile Include="Utils\ModelUtils.cs" />
     <Compile Include="Utils\ModIntegrationUtil.cs" />
-    <Compile Include="Utils\PlacementType.cs" />
     <Compile Include="Utils\PreviewUtils.cs" />
     <Compile Include="Utils\PropUtils.cs" />
     <Compile Include="Utils\RoadType.cs" />

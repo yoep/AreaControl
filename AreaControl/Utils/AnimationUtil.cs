@@ -17,8 +17,8 @@ namespace AreaControl.Utils
         /// <returns>Returns the animation task executor for this animation.</returns>
         public static AnimationTaskExecutor IssueTicket(ACPed ped)
         {
-            ped.Attach(PropUtils.CreateNotebook(), PlacementType.LeftHand);
-            ped.Attach(PropUtils.CreatePencil(), PlacementType.RightHand);
+            ped.Attach(PropUtils.CreateNotebook(), PedBoneId.LeftThumb2);
+            ped.Attach(PropUtils.CreatePencil(), PedBoneId.RightPinky0);
             return ped.PlayAnimation("veh@busted_low", "issue_ticket_cop", AnimationFlags.None);
         }
 
@@ -29,7 +29,7 @@ namespace AreaControl.Utils
         /// <returns>Returns the animation task executor for this animation.</returns>
         public static AnimationTaskExecutor RedirectTraffic(ACPed ped)
         {
-            ped.Attach(PropUtils.CreateWand(), PlacementType.RightHand);
+            ped.Attach(PropUtils.CreateWand(), PedBoneId.RightHand);
             var taskExecutor = ped.PlayAnimation("amb@world_human_car_park_attendant@male@base", "base", AnimationFlags.Loop);
             taskExecutor.OnCompletion += (sender, args) => ped.DeleteAttachments();
             return taskExecutor;
@@ -74,7 +74,7 @@ namespace AreaControl.Utils
 
             if (placeFromHand)
             {
-                ped.Attach(entity, PlacementType.RightHand);
+                ped.Attach(entity, PedBoneId.RightHand);
             }
 
             var executor = ped.PlayAnimation(PlaceDownObjectDictionary, PlaceDownObjectAnimation, AnimationFlags.None);

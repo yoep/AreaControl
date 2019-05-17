@@ -85,7 +85,7 @@ namespace AreaControl.Instances
         /// </summary>
         /// <param name="attachment">Set the entity to attach.</param>
         /// <param name="placement">Set the attachment placement on the ped.</param>
-        public void Attach(Entity attachment, PlacementType placement)
+        public void Attach(Entity attachment, PedBoneId placement)
         {
             Assert.NotNull(attachment, "entity cannot be null");
             _attachments.Add(attachment);
