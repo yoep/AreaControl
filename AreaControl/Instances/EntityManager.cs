@@ -68,7 +68,7 @@ namespace AreaControl.Instances
                 .Where(x => x.Instance.IsValid())
                 .ToList();
             _rage.LogTrivialDebug($"Found {managedPeds.Count} managed cops which are available");
-            
+
             peds.AddRange(managedPeds);
 
             //find game world peds
@@ -77,7 +77,7 @@ namespace AreaControl.Instances
                 .Where(x => !IsPedAlreadyManaged(x))
                 .ToList();
             _rage.LogTrivialDebug($"Found {worldPeds.Count} cops in the world which are available");
-            
+
             foreach (var worldPed in worldPeds)
             {
                 peds.Add(RegisterPed(worldPed));
@@ -116,7 +116,7 @@ namespace AreaControl.Instances
                     vehicle.DeleteBlip();
                     vehicle.Persistent = false;
                 }
-                
+
                 while (_managedVehicles.Any(x => !x.IsWandering))
                 {
                     foreach (var vehicle in GetAllManagedVehicles().Where(x => !x.IsWandering && x.AllOccupantsPresent))
@@ -219,11 +219,31 @@ namespace AreaControl.Instances
         {
             var registeredPed = new ACPed(ped, ++_lastInstanceId);
 
+            RegisterLastVehicleForPed(registeredPed);
+
             _managedPeds.Add(registeredPed);
             Functions.SetPedAsCop(ped);
             Functions.SetCopAsBusy(ped, true);
 
             return registeredPed;
+        }
+
+        private void RegisterLastVehicleForPed(ACPed ped)
+        {
+            var lastVehicle = ped.Instance.LastVehicle;
+
+            if (lastVehicle == null)
+                return;
+
+            var vehicle = GetManagedInstanceForVehicle(lastVehicle) ?? RegisterVehicle(lastVehicle);
+
+            ped.LastVehicle = vehicle;
+        }
+
+        private ACVehicle GetManagedInstanceForVehicle(Vehicle vehicle)
+        {
+            return GetAllManagedVehicles()
+                .FirstOrDefault(x => x.Instance == vehicle);
         }
 
         private static bool IsVehicleWithinRadius(Vector3 position, float radius, ACVehicle vehicle)

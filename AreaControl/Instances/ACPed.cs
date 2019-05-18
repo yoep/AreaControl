@@ -52,14 +52,14 @@ namespace AreaControl.Instances
         public bool HasLastVehicle => LastVehicle != null && LastVehicle.IsValid;
 
         /// <summary>
-        /// Get the last vehicle of this ped.
+        /// Get or set the last vehicle of this ped.
         /// </summary>
-        public ACVehicle LastVehicle { get; private set; }
+        public ACVehicle LastVehicle { get; set; }
 
         /// <summary>
         /// Get the last vehicle seat of this ped.
         /// </summary>
-        public VehicleSeat LastVehicleSeat { get; private set; }
+        public VehicleSeat LastVehicleSeat { get; private set; } = VehicleSeat.Any;
 
         #endregion
 
@@ -283,6 +283,8 @@ namespace AreaControl.Instances
                    $"{nameof(WeaponsEnabled)}: {WeaponsEnabled}";
         }
 
+        #region Functions
+
         private EventHandler TaskExecutorOnCompletion()
         {
             return (sender, args) => IsBusy = false;
@@ -293,5 +295,7 @@ namespace AreaControl.Instances
             _weaponsEnabled = weaponsEnabled;
             NativeFunction.Natives.SET_PED_CAN_SWITCH_WEAPON(Instance, weaponsEnabled);
         }
+
+        #endregion
     }
 }

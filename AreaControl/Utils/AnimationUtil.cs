@@ -29,7 +29,7 @@ namespace AreaControl.Utils
         /// <returns>Returns the animation task executor for this animation.</returns>
         public static AnimationTaskExecutor RedirectTraffic(ACPed ped)
         {
-            ped.Attach(PropUtils.CreateWand(), PedBoneId.RightHand);
+            ped.Attach(PropUtils.CreateWand(), PedBoneId.RightPhHand);
             var taskExecutor = ped.PlayAnimation("amb@world_human_car_park_attendant@male@base", "base", AnimationFlags.Loop);
             taskExecutor.OnCompletion += (sender, args) => ped.DeleteAttachments();
             return taskExecutor;

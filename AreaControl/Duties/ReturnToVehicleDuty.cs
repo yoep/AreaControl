@@ -32,7 +32,7 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         protected override void DoExecute()
         {
-            Rage.LogTrivialDebug("Executing ReturnToVehicleDuty...");
+            Logger.Debug("Executing ReturnToVehicleDuty...");
 
             Rage.NewSafeFiber(() =>
             {

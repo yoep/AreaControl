@@ -38,8 +38,8 @@ namespace AreaControl.Callouts
             var initialSpawnPoint = AllowedArea.Around2D(0f, Distance);
             _spawnPoint = RoadUtils.GetClosestRoad(initialSpawnPoint, RoadType.All).Position;
 
-            AddMinimumDistanceCheck(5f, _spawnPoint);
-            ShowCalloutAreaBlipBeforeAccepting(_spawnPoint, 15f);
+            AddMinimumDistanceCheck(10f, _spawnPoint);
+            ShowCalloutAreaBlipBeforeAccepting(_spawnPoint, 30f);
             CalloutMessage = "Riot in progress";
             CalloutPosition = _spawnPoint;
             CreateCalloutData();

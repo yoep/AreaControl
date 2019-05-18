@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AreaControl</RootNamespace>
     <AssemblyName>AreaControl</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
@@ -34,16 +34,20 @@
   <ItemGroup>
     <Reference Include="Arrest Manager, Version=7.9.2.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\Arrest Manager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="ComputerPlus, Version=1.4.1.1, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\ComputerPlus.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="LSPD First Response, Version=0.4.39.22580, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\LSPD First Response.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="RAGENativeUI, Version=1.6.3.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\RAGENativeUI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="RagePluginHook, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\RagePluginHookSDK.dll</HintPath>
