@@ -52,6 +52,12 @@ namespace AreaControl.Instances
         public bool HasLastVehicle => LastVehicle != null && LastVehicle.IsValid;
 
         /// <summary>
+        /// Check if this ped has a target.
+        /// Will return false this ped has a target but the target is dead.
+        /// </summary>
+        public bool HasTarget => Target != null && Target.IsValid() && Target.IsAlive;
+
+        /// <summary>
         /// Get or set the last vehicle of this ped.
         /// </summary>
         public ACVehicle LastVehicle { get; set; }
@@ -60,6 +66,12 @@ namespace AreaControl.Instances
         /// Get the last vehicle seat of this ped.
         /// </summary>
         public VehicleSeat LastVehicleSeat { get; private set; } = VehicleSeat.Any;
+
+        /// <summary>
+        /// Get or set the target for this ped.
+        /// This can be a vehicle or ped.
+        /// </summary>
+        public Entity Target { get; set; }
 
         #endregion
 
@@ -203,6 +215,27 @@ namespace AreaControl.Instances
             var taskExecutor = TaskUtil.PlayAnimation(Instance, animationDictionary, animationName, animationFlags);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
+        }
+
+        /// <summary>
+        /// Attack the given entity.
+        /// </summary>
+        /// <param name="entity">The entity to attack.</param>
+        public void AttackTarget(Entity entity)
+        {
+            if (entity == null)
+                return;
+
+            Target = entity;
+            
+            if (Target is Ped ped)
+            {
+                Instance.Tasks.FightAgainst(ped);
+            }
+            else
+            {
+                Instance.Tasks.FireWeaponAt(Target, 60, FiringPattern.BurstFire);
+            }
         }
 
         /// <summary>

@@ -60,12 +60,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractionLayer\CPCallStatus.cs" />
+    <Compile Include="AbstractionLayer\CPResponseType.cs" />
     <Compile Include="AbstractionLayer\IArrestManager.cs" />
+    <Compile Include="AbstractionLayer\IComputerPlus.cs" />
     <Compile Include="AbstractionLayer\ILogger.cs" />
     <Compile Include="AbstractionLayer\Implementation\ArrestManagerImpl.cs" />
+    <Compile Include="AbstractionLayer\Implementation\ComputerPlusImpl.cs" />
     <Compile Include="AbstractionLayer\Implementation\Logger.cs" />
     <Compile Include="AbstractionLayer\Implementation\RageImpl.cs" />
     <Compile Include="AbstractionLayer\NoOp\ArrestManagerNoOp.cs" />
+    <Compile Include="AbstractionLayer\NoOp\ComputerPlusNoOp.cs" />
     <Compile Include="Actions\CleanArea\CleanAreaImpl.cs" />
     <Compile Include="Actions\CleanArea\ICleanArea.cs" />
     <Compile Include="Actions\CloseRoad\AbstractCloseRoad.cs" />
@@ -145,6 +150,7 @@
     <Compile Include="Utils\ModIntegrationUtil.cs" />
     <Compile Include="Utils\PreviewUtils.cs" />
     <Compile Include="Utils\PropUtils.cs" />
+    <Compile Include="Utils\Query\EntityQuery.cs" />
     <Compile Include="Utils\RoadType.cs" />
     <Compile Include="Utils\RoadUtils.cs" />
     <Compile Include="Utils\Query\PedQuery.cs" />
@@ -161,9 +167,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AreaControl.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="AreaControl.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

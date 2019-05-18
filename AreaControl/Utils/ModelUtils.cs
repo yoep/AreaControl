@@ -47,6 +47,36 @@ namespace AreaControl.Utils
             "POLICE3"
         };
 
+        internal static readonly List<string> RiotPedModels = new List<string>
+        {
+            "a_f_m_tramp_01",
+            "a_f_m_trampbeac_01",
+            "a_f_y_skater_01",
+            "a_m_o_tramp_01",
+            "a_m_o_soucent_03",
+            "a_m_y_beach_02",
+            "a_m_o_salton_01",
+            "a_m_o_ktown_01",
+            "a_m_y_hippy_01",
+            "a_m_y_salton_01",
+            "csb_trafficwarden"
+        };
+        
+        internal static readonly List<string> RiotVehicleModels = new List<string>
+        {
+            "Asea",
+            "Intruder",
+            "Surge",
+            "Stratum",
+            "Stanier",
+            "Primo",
+            "Emperor2",
+            "Emperor3",
+            "Warrener",
+            "Taxi",
+            "Bus"
+        };
+
         #endregion
 
         /// <summary>
@@ -75,6 +105,24 @@ namespace AreaControl.Utils
             return IsCountyZone(zone)
                 ? new Model(CityVehicleModels[Random.Next(CityVehicleModels.Count)])
                 : new Model(CountyVehicleModels[Random.Next(CountyVehicleModels.Count)]);
+        }
+
+        /// <summary>
+        /// Get a ped riot model.
+        /// </summary>
+        /// <returns>Returns a model for a riot ped.</returns>
+        public static Model GetRiotPedModel()
+        {
+            return RiotPedModels[Random.Next(RiotPedModels.Count)];
+        }
+        
+        /// <summary>
+        /// Get a vehicle riot model.
+        /// </summary>
+        /// <returns>Returns a model for a riot vehicle.</returns>
+        public static Model GetRiotVehicleModel()
+        {
+            return RiotVehicleModels[Random.Next(RiotVehicleModels.Count)];
         }
 
         private static bool IsCountyZone(WorldZone zone)

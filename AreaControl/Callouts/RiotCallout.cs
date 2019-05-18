@@ -1,22 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Utils;
+using AreaControl.Utils.Query;
+using LSPD_First_Response.Mod.API;
 using LSPD_First_Response.Mod.Callouts;
 using Rage;
-using Functions = LSPD_First_Response.Mod.API.Functions;
 
 namespace AreaControl.Callouts
 {
-    [CalloutInfo("RiotCallout", CalloutProbability.Low)]
+    [CalloutInfo("Riot", CalloutProbability.Low)]
     public class RiotCallout : Callout
     {
         private static readonly Vector3 AllowedArea = new Vector3(-152.45f, -1133.04f, 24.09f);
-        private const float Distance = 1000f;
+        private const float Distance = 200f;
 
         private readonly ILogger _logger = IoC.Instance.GetInstance<ILogger>();
+        private readonly IComputerPlus _computerPlus = IoC.Instance.GetInstance<IComputerPlus>();
         private readonly List<ACPed> _mobs = new List<ACPed>();
+        private readonly List<Vehicle> _spawnedVehicles = new List<Vehicle>();
         private readonly Random _random = new Random();
         private Vector3 _spawnPoint;
         private Guid _calloutGuid;
@@ -30,13 +34,13 @@ namespace AreaControl.Callouts
 
             if (!IsPlayerWithinAllowedArea())
             {
-                _logger.Trace($"Player is not within Riot callout zone");
+                _logger.Trace("Player is not within Riot callout zone");
                 return false;
             }
 
             _logger.Trace("Player is within Riot callout zone");
             var initialSpawnPoint = AllowedArea.Around2D(0f, Distance);
-            _spawnPoint = RoadUtils.GetClosestRoad(initialSpawnPoint, RoadType.All).Position;
+            _spawnPoint = RoadUtils.GetClosestRoad(initialSpawnPoint, RoadType.MajorRoadsOnly).Position;
 
             AddMinimumDistanceCheck(10f, _spawnPoint);
             ShowCalloutAreaBlipBeforeAccepting(_spawnPoint, 30f);
@@ -48,11 +52,12 @@ namespace AreaControl.Callouts
             return base.OnBeforeCalloutDisplayed();
         }
 
+        /// <inheritdoc />
         public override bool OnCalloutAccepted()
         {
-            var numberOfPeds = _random.Next(1, 10);
+            var numberOfPeds = _random.Next(3, 15);
 
-//            ComputerPlus.API.Functions.UpdateCalloutStatus(_calloutGuid, ECallStatus.Unit_Responding);
+            _computerPlus.UpdateCalloutStatus(_calloutGuid, CPCallStatus.Unit_Responding);
 
             for (var i = 0; i < numberOfPeds; i++)
             {
@@ -62,23 +67,55 @@ namespace AreaControl.Callouts
                 _mobs.Add(acPed);
             }
 
+            CreateScenery();
+
             _logger.Trace($"Created a total of {_mobs.Count} riot members");
             return base.OnCalloutAccepted();
         }
 
+        /// <inheritdoc />
         public override void OnCalloutNotAccepted()
         {
-//            ComputerPlus.API.Functions.UpdateCalloutStatus(_calloutGuid, ECallStatus.Cancelled);
+            _computerPlus.UpdateCalloutStatus(_calloutGuid, CPCallStatus.Cancelled);
 
             base.OnCalloutNotAccepted();
         }
 
+        public override void Process()
+        {
+            var idleMobs = _mobs.Where(x => !x.HasTarget).ToList();
+
+            if (idleMobs.Count == 0)
+                return;
+
+            var entities = EntityQuery.FindAliveEntitiesWithin(_spawnPoint, 20f)
+                .Where(x => !IsMobEntity(x))
+                .OfType<Ped>()
+                .ToList();
+
+            if (entities.Count > 0)
+            {
+                _logger.Trace($"Riot, found {entities.Count} nearby entities for {idleMobs.Count} idling riot mobs");
+                foreach (var mob in idleMobs)
+                {
+                    mob.AttackTarget(entities[0]);
+                }
+            }
+            else
+            {
+                _logger.Trace("Riot, moving riot group to new location...");
+                MoveGroupToNewLocation();
+            }
+        }
+
+        /// <inheritdoc />
         public override void End()
         {
             base.End();
 
-//            ComputerPlus.API.Functions.UpdateCalloutStatus(_calloutGuid, ECallStatus.Completed);
+            _computerPlus.UpdateCalloutStatus(_calloutGuid, CPCallStatus.Completed);
             _mobs.ForEach(ped => ped.Delete());
+            _spawnedVehicles.ForEach(x => x.Dismiss());
         }
 
         #endregion
@@ -87,7 +124,11 @@ namespace AreaControl.Callouts
 
         private ACPed CreatePed(int number)
         {
-            var ped = new Ped(_spawnPoint.Around2D(0f, 5f))
+            var model = ModelUtils.GetRiotPedModel();
+
+            model.LoadAndWait();
+
+            var ped = new Ped(model, _spawnPoint.Around2D(0f, 5f), 0f)
             {
                 RelationshipGroup = RelationshipGroup.AmbientGangHillbilly,
                 CanAttackFriendlies = false,
@@ -97,7 +138,7 @@ namespace AreaControl.Callouts
             };
 
             Functions.SetPedResistanceChance(ped, 10f);
-            ped.Inventory.GiveNewWeapon(new WeaponAsset(GetWeaponForPed()), -1, false);
+            ped.Inventory.GiveNewWeapon(new WeaponAsset(GetWeaponForPed()), -1, true);
 
             return new ACPed(ped, number)
             {
@@ -105,9 +146,58 @@ namespace AreaControl.Callouts
             };
         }
 
+        private bool IsMobEntity(Entity entity)
+        {
+            return _mobs.Any(x => x.Instance == entity);
+        }
+
         private void CreateCalloutData()
         {
-//            _calloutGuid = ComputerPlus.API.Functions.CreateCallout(new CalloutData("Riot in progress", "Riot", _spawnPoint, EResponseType.Code_3));
+            _calloutGuid = _computerPlus.CreateCallout("Riot in progress", "Riot", _spawnPoint, CPResponseType.Code_3);
+        }
+
+        private void CreateScenery()
+        {
+            var numberOfVehiclesOnFire = _random.Next(1, 5);
+            var numberOfVehiclesBurnedOut = _random.Next(1, 10);
+
+            _logger.Trace($"Creating {numberOfVehiclesOnFire} vehicle on fire");
+            for (var i = 0; i < numberOfVehiclesOnFire; i++)
+            {
+                var model = ModelUtils.GetRiotVehicleModel();
+
+                model.LoadAndWait();
+
+                var vehicle = new Vehicle(model, _spawnPoint.Around2D(30f))
+                {
+                    EngineHealth = _random.Next(0, 300),
+                    IsFireProof = false,
+                    IsOnFire = true,
+                    IsPersistent = true
+                };
+
+                DamageVehicle(vehicle);
+                _spawnedVehicles.Add(vehicle);
+            }
+
+            _logger.Trace($"Creating {numberOfVehiclesBurnedOut} vehicle that have been burned out");
+            for (var i = 0; i < numberOfVehiclesBurnedOut; i++)
+            {
+                var model = ModelUtils.GetRiotVehicleModel();
+
+                model.LoadAndWait();
+
+                var vehicle = new Vehicle(model, _spawnPoint.Around2D(30f))
+                {
+                    EngineHealth = 0f,
+                    FuelTankHealth = _random.Next(50, 600),
+                    Health = 10,
+                    IsPersistent = true
+                };
+
+                DamageVehicle(vehicle);
+                _spawnedVehicles.Add(vehicle);
+            }
         }
 
         private string GetWeaponForPed()
@@ -119,8 +209,32 @@ namespace AreaControl.Callouts
                 case 2:
                     return "WEAPON_MOLOTOV";
                 default:
-                    return "WEAPON_UNARMED";
+                    return "WEAPON_BAT";
             }
+        }
+
+        private void MoveGroupToNewLocation()
+        {
+            var mobs = _mobs
+                .Where(x => x.IsValid && !Functions.IsPedArrested(x.Instance))
+                .ToList();
+
+            if (mobs.Count == 0)
+                return;
+
+            var closestRoad = RoadUtils.GetClosestRoad(mobs.First().Instance.Position, RoadType.MajorRoadsOnly);
+            var moveDirection = MathHelper.ConvertHeadingToDirection(closestRoad.Lanes[0].Heading);
+            var newRoad = RoadUtils.GetClosestRoad(closestRoad.Position + moveDirection * 30f, RoadType.MajorRoadsOnly);
+            
+            foreach (var mob in mobs)
+            {
+                mob.RunTo(newRoad.Position, newRoad.Lanes[0].Heading);
+            }
+        }
+
+        private void DamageVehicle(Vehicle vehicle)
+        {
+            vehicle.Deform(Vector3.UnitX, _random.Next(1, 20), _random.Next(5, 20));
         }
 
         private static bool IsPlayerWithinAllowedArea()

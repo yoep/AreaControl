@@ -240,7 +240,7 @@ namespace AreaControl.Instances
             ped.LastVehicle = vehicle;
         }
 
-        private ACVehicle GetManagedInstanceForVehicle(Vehicle vehicle)
+        private ACVehicle GetManagedInstanceForVehicle(Entity vehicle)
         {
             return GetAllManagedVehicles()
                 .FirstOrDefault(x => x.Instance == vehicle);

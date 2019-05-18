@@ -59,25 +59,41 @@ namespace AreaControl
         {
             var ioC = IoC.Instance;
             var rage = ioC.GetInstance<IRage>();
+            var logger = ioC.GetInstance<ILogger>();
 
-            //wait 1 tick before asking LSPDFR for the list
+            // wait 1 tick before asking LSPDFR for the list
             rage.NewSafeFiber(() =>
             {
                 rage.FiberYield();
 
-                //check Arrest Manager
+                // check Arrest Manager
                 if (ModIntegrationUtil.IsModLoaded("Arrest Manager"))
                 {
                     ioC.RegisterSingleton<IArrestManager>(typeof(ArrestManagerImpl));
-                    rage.LogTrivialDebug("ArrestManagerImpl registered for Arrest Manager");
+                    logger.Info("ArrestManagerImpl registered for Arrest Manager");
                 }
                 else
                 {
-                    rage.LogTrivial("Arrest Manager has not been loaded");
+                    logger.Warn("Arrest Manager has not been loaded");
                     rage.DisplayPluginNotification("~r~Arrest Manager has not been loaded");
 
                     ioC.RegisterSingleton<IArrestManager>(typeof(ArrestManagerNoOp));
-                    rage.LogTrivialDebug("ArrestManagerNoOp registered for Arrest Manager");
+                    logger.Info("ArrestManagerNoOp registered for Arrest Manager");
+                }
+
+                // check Computer+
+                if (ModIntegrationUtil.IsModLoaded("ComputerPlus"))
+                {
+                    ioC.RegisterSingleton<IComputerPlus>(typeof(ComputerPlusImpl));
+                    logger.Info("ComputerPlusImpl registered for Arrest Manager");
+                }
+                else
+                {
+                    logger.Warn("Computer+ has not been loaded");
+                    rage.DisplayPluginNotification("~r~Computer+ has not been loaded");
+
+                    ioC.RegisterSingleton<IComputerPlus>(typeof(ComputerPlusNoOp));
+                    logger.Info("ComputerPlusNoOp registered for Arrest Manager");
                 }
             }, "Main.CheckDependencies");
         }
@@ -96,7 +112,7 @@ namespace AreaControl
 
             rage.LogTrivialDebug("Registered " + menu.TotalItems + " menu component(s)");
         }
-        
+
         private static void InitializeCallouts()
         {
             IoC.Instance.GetInstance<ICalloutManager>();

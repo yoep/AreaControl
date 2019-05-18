@@ -33,13 +33,14 @@ Busy streets (such as highways) will be slowed down by one or more backup unit(s
 - Units will resume duty when reaching the player
 
 ### Riot (WIP)
-Citizens have started a riot in the city, keep the riot under control.
+Citizens have started a riot in the city, keep the riot under control. (Integration with Computer+)
 
 ## Planned Features
 
 - Police Smart Radio integration
 - Create crime scene
 - Create lock-down area
+- Create standoff scene
 - Close Road
     - Auto call EMS when closing the road and death bodies are present
     - Different standby states for idle police peds between code 2 and 3
@@ -49,8 +50,8 @@ Citizens have started a riot in the city, keep the riot under control.
 - [RAGE Plugin Hook](http://ragepluginhook.net/)
 - [RAGE Native UI](https://github.com/alexguirre/RAGENativeUI)
 - [LSPDFR](https://www.lcpdfr.com/files/file/7792-lspd-first-response/)
-- [Arrest Manager](https://www.lcpdfr.com/files/file/8107-arrest-manager-grab-peds-more-jail-points-prisoner-transport-more/)
-- [Computer+](https://www.lcpdfr.com/files/file/11453-lspdfr-computer/)
+- [Arrest Manager](https://www.lcpdfr.com/files/file/8107-arrest-manager-grab-peds-more-jail-points-prisoner-transport-more/) _(optional but recommended)_
+- [Computer+](https://www.lcpdfr.com/files/file/11453-lspdfr-computer/) _(optional but recommended)_
 
 ## Suggestions
 **Area Control** is in early development, so feel free to make suggestions or ask for new features.
