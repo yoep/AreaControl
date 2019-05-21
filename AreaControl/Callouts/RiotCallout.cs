@@ -88,7 +88,7 @@ namespace AreaControl.Callouts
             if (idleMobs.Count == 0)
                 return;
 
-            var entities = EntityQuery.FindAliveEntitiesWithin(_spawnPoint, 20f)
+            var entities = EntityQueryUtils.FindAliveEntitiesWithin(_spawnPoint, 20f)
                 .Where(x => !IsMobEntity(x))
                 .OfType<Ped>()
                 .ToList();

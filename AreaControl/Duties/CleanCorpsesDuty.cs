@@ -78,7 +78,7 @@ namespace AreaControl.Duties
                     .WaitForAndExecute(executor =>
                     {
                         Rage.LogTrivialDebug("Completed task executor for looking at ped " + executor);
-                        return AnimationUtil.TalkToRadio(Ped);
+                        return AnimationUtils.TalkToRadio(Ped);
                     }, 3000)
                     .WaitForAndExecute(executor =>
                     {
@@ -87,7 +87,7 @@ namespace AreaControl.Duties
                         Rage.LogTrivialDebug("Calling coroner...");
                         _arrestManager.CallCoroner(deathPed.Position, false);
 
-                        return AnimationUtil.Investigate(Ped);
+                        return AnimationUtils.Investigate(Ped);
                     }, 10000)
                     .WaitForAndExecute(executor =>
                     {
@@ -111,12 +111,12 @@ namespace AreaControl.Duties
 
         private bool IsDeadBodyInRange()
         {
-            return PedQuery.FindWithin(_position, _scanRadius).Any(x => x.IsValid() && x.IsDead);
+            return PedQueryUtils.FindWithin(_position, _scanRadius).Any(x => x.IsValid() && x.IsDead);
         }
 
         private Ped GetFirstAvailableDeathPed()
         {
-            return PedQuery.FindWithin(_position, _scanRadius).FirstOrDefault(x => x.IsValid() && x.IsDead);
+            return PedQueryUtils.FindWithin(_position, _scanRadius).FirstOrDefault(x => x.IsValid() && x.IsDead);
         }
 
         #endregion

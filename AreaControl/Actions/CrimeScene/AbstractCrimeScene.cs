@@ -10,5 +10,10 @@ namespace AreaControl.Actions.CrimeScene
         protected bool IsActive { get; set; }
 
         #endregion
+
+        #region Functions
+
+       
+        #endregion
     }
 }

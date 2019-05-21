@@ -61,7 +61,7 @@ namespace AreaControl.Settings
         {
             RedirectTrafficSettings = new RedirectTrafficSettings
             {
-                PlaceCones = file.ReadBoolean(RedirectTrafficGroupName, "PlaceCones", true)
+                PlaceSceneryItems = file.ReadBoolean(RedirectTrafficGroupName, "PlaceSceneryItems", true)
             };
         }
 

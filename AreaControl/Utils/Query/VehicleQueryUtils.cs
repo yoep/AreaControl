@@ -4,7 +4,7 @@ using Rage;
 
 namespace AreaControl.Utils.Query
 {
-    public static class VehicleQuery
+    public static class VehicleQueryUtils
     {
         /// <summary>
         /// Find police vehicles within the given range of the given position.

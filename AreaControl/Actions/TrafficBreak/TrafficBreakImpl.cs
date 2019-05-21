@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
-using AreaControl.Actions.TrafficBreak;
 using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Menu.Response;
@@ -12,7 +11,7 @@ using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
 
-namespace AreaControl.Actions.SlowDownTraffic
+namespace AreaControl.Actions.TrafficBreak
 {
     public class TrafficBreakImpl : ITrafficBreak
     {

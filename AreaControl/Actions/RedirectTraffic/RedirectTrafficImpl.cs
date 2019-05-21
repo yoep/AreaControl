@@ -142,7 +142,7 @@ namespace AreaControl.Actions.RedirectTraffic
 
         private void PlaceCones(ACPed ped, RedirectSlot redirectSlot)
         {
-            if (!_settingsManager.RedirectTrafficSettings.PlaceCones)
+            if (!_settingsManager.RedirectTrafficSettings.PlaceSceneryItems)
                 return;
 
             //walk to front of car to prevent being stuck at the side when placing cones on the right side of the vehicle

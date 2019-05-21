@@ -36,9 +36,6 @@ namespace AreaControl.Actions.CleanArea
         public bool IsAutoClosed => true;
 
         /// <inheritdoc />
-        public bool IsVisible => true;
-
-        /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
         {
             Execute();

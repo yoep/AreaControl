@@ -114,7 +114,7 @@ namespace AreaControl.Instances
         public TaskExecutor WalkTo(Vector3 position, float heading)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.GoTo(Instance, position, heading, MovementSpeed.Walk);
+            var taskExecutor = TaskUtils.GoToRage(Instance, position, heading, MovementSpeed.Walk);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -128,7 +128,7 @@ namespace AreaControl.Instances
         public TaskExecutor RunTo(Vector3 position, float heading)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.GoTo(Instance, position, heading, MovementSpeed.Run);
+            var taskExecutor = TaskUtils.GoToNative(Instance, position, heading, MovementSpeed.Run);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -140,7 +140,7 @@ namespace AreaControl.Instances
         public TaskExecutor WalkTo(Entity target)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.GoToEntity(Instance, target, MovementSpeed.Walk);
+            var taskExecutor = TaskUtils.GoToEntity(Instance, target, MovementSpeed.Walk);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -153,7 +153,7 @@ namespace AreaControl.Instances
         public TaskExecutor RunTo(Entity target)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.GoToEntity(Instance, target, MovementSpeed.Run);
+            var taskExecutor = TaskUtils.GoToEntity(Instance, target, MovementSpeed.Run);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -167,7 +167,7 @@ namespace AreaControl.Instances
         public TaskExecutor LookAt(Entity target, int duration = -1)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.LookAtEntity(Instance, target, duration);
+            var taskExecutor = TaskUtils.LookAtEntity(Instance, target, duration);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -184,7 +184,7 @@ namespace AreaControl.Instances
                 throw new VehicleNotAvailableException("Last vehicle not available for " + this);
 
             IsBusy = true;
-            var taskExecutor = TaskUtil.EnterVehicle(Instance, LastVehicle.Instance, LastVehicleSeat, speed);
+            var taskExecutor = TaskUtils.EnterVehicle(Instance, LastVehicle.Instance, LastVehicleSeat, speed);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -197,7 +197,7 @@ namespace AreaControl.Instances
         public TaskExecutor LeaveVehicle(LeaveVehicleFlags leaveVehicleFlags)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.LeaveVehicle(Instance, Instance.LastVehicle, leaveVehicleFlags);
+            var taskExecutor = TaskUtils.LeaveVehicle(Instance, Instance.LastVehicle, leaveVehicleFlags);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }
@@ -212,7 +212,7 @@ namespace AreaControl.Instances
         public AnimationTaskExecutor PlayAnimation(string animationDictionary, string animationName, AnimationFlags animationFlags)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtil.PlayAnimation(Instance, animationDictionary, animationName, animationFlags);
+            var taskExecutor = TaskUtils.PlayAnimation(Instance, animationDictionary, animationName, animationFlags);
             taskExecutor.OnCompletion += TaskExecutorOnCompletion();
             return taskExecutor;
         }

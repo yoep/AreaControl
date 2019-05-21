@@ -90,6 +90,7 @@
     <Compile Include="Actions\RedirectTraffic\RedirectSlot.cs" />
     <Compile Include="Actions\RedirectTraffic\RedirectTrafficImpl.cs" />
     <Compile Include="Actions\RedirectTraffic\RedirectTrafficPreview.cs" />
+    <Compile Include="Actions\SceneryItem.cs" />
     <Compile Include="Actions\TrafficBreak\ITrafficBreak.cs" />
     <Compile Include="Actions\TrafficBreak\TrafficBreakImpl.cs" />
     <Compile Include="AreaControl.cs" />
@@ -149,17 +150,17 @@
     <Compile Include="Settings\ISettingsManager.cs" />
     <Compile Include="Settings\RedirectTrafficSettings.cs" />
     <Compile Include="Settings\SettingsManager.cs" />
-    <Compile Include="Utils\AnimationUtil.cs" />
+    <Compile Include="Utils\AnimationUtils.cs" />
     <Compile Include="Utils\EntityUtils.cs" />
     <Compile Include="Utils\ModelUtils.cs" />
-    <Compile Include="Utils\ModIntegrationUtil.cs" />
+    <Compile Include="Utils\ModIntegrationUtils.cs" />
     <Compile Include="Utils\PreviewUtils.cs" />
     <Compile Include="Utils\PropUtils.cs" />
-    <Compile Include="Utils\Query\EntityQuery.cs" />
-    <Compile Include="Utils\RoadType.cs" />
-    <Compile Include="Utils\RoadUtils.cs" />
-    <Compile Include="Utils\Query\PedQuery.cs" />
-    <Compile Include="Utils\Query\VehicleQuery.cs" />
+    <Compile Include="Utils\Query\EntityQueryUtils.cs" />
+    <Compile Include="Utils\Query\PedQueryUtils.cs" />
+    <Compile Include="Utils\Query\VehicleQueryUtils.cs" />
+    <Compile Include="Utils\Road\RoadType.cs" />
+    <Compile Include="Utils\Road\RoadUtils.cs" />
     <Compile Include="Utils\Tasks\AbstractTaskBuilder.cs" />
     <Compile Include="Utils\Tasks\AnimationTaskExecutor.cs" />
     <Compile Include="Utils\Tasks\ExecutorEntity.cs" />
@@ -168,7 +169,7 @@
     <Compile Include="Utils\Tasks\TaskHash.cs" />
     <Compile Include="Utils\Tasks\TaskId.cs" />
     <Compile Include="Utils\Tasks\TaskIdentificationType.cs" />
-    <Compile Include="Utils\Tasks\TaskUtil.cs" />
+    <Compile Include="Utils\Tasks\TaskUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AreaControl.ini">

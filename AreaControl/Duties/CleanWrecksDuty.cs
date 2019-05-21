@@ -71,7 +71,7 @@ namespace AreaControl.Duties
                         .WaitForAndExecute(taskExecutor =>
                         {
                             Rage.LogTrivialDebug("Completed go to wreck for task " + taskExecutor);
-                            return AnimationUtil.IssueTicket(Ped);
+                            return AnimationUtils.IssueTicket(Ped);
                         }, 30000)
                         .WaitForAndExecute(taskExecutor =>
                         {
@@ -81,7 +81,7 @@ namespace AreaControl.Duties
                             Rage.LogTrivialDebug("Calling tow truck for " + wreck.Model.Name + "...");
                             _arrestManager.RequestTowTruck(wreck, false);
 
-                            return AnimationUtil.TalkToRadio(Ped);
+                            return AnimationUtils.TalkToRadio(Ped);
                         }, 5000)
                         .WaitForCompletion(3000);
                     _entityManager.RegisterDisposedWreck(wreck);
@@ -103,7 +103,7 @@ namespace AreaControl.Duties
 
         private IList<Vehicle> GetWrecks()
         {
-            return VehicleQuery
+            return VehicleQueryUtils
                 .FindVehiclesWithin(_position, SearchRange)
                 .Where(x => !_entityManager.GetAllDisposedWrecks().Contains(x))
                 .Where(IsWreck)

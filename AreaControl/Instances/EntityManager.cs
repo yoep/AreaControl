@@ -72,7 +72,7 @@ namespace AreaControl.Instances
             peds.AddRange(managedPeds);
 
             //find game world peds
-            var worldPeds = PedQuery.FindCopsWithin(position, radius)
+            var worldPeds = PedQueryUtils.FindCopsWithin(position, radius)
                 .Where(x => x.IsValid() && x.IsAlive)
                 .Where(x => !IsPedAlreadyManaged(x))
                 .ToList();
@@ -166,7 +166,7 @@ namespace AreaControl.Instances
 
         private Vehicle FindAvailablePoliceVehicleInWorld(Vector3 position, float radius, int numberOfOccupantsToSpawn)
         {
-            var vehicles = VehicleQuery.FindPoliceVehiclesWithin(position, radius);
+            var vehicles = VehicleQueryUtils.FindPoliceVehiclesWithin(position, radius);
 
             return vehicles.FirstOrDefault(x => !IsVehicleAlreadyManaged(x) && x.Occupants.Length == numberOfOccupantsToSpawn);
         }

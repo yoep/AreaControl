@@ -67,7 +67,7 @@ namespace AreaControl
                 rage.FiberYield();
 
                 // check Arrest Manager
-                if (ModIntegrationUtil.IsModLoaded("Arrest Manager"))
+                if (ModIntegrationUtils.IsModLoaded("Arrest Manager"))
                 {
                     ioC.RegisterSingleton<IArrestManager>(typeof(ArrestManagerImpl));
                     logger.Info("ArrestManagerImpl registered for Arrest Manager");
@@ -82,7 +82,7 @@ namespace AreaControl
                 }
 
                 // check Computer+
-                if (ModIntegrationUtil.IsModLoaded("ComputerPlus"))
+                if (ModIntegrationUtils.IsModLoaded("ComputerPlus"))
                 {
                     ioC.RegisterSingleton<IComputerPlus>(typeof(ComputerPlusImpl));
                     logger.Info("ComputerPlusImpl registered for Arrest Manager");

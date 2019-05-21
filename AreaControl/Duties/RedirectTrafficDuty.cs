@@ -75,7 +75,7 @@ namespace AreaControl.Duties
                 .WaitForCompletion(20000);
             Rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
             Rage.LogTrivialDebug("Starting to play redirect traffic animation...");
-            _animationTaskExecutor = AnimationUtil.RedirectTraffic(Ped);
+            _animationTaskExecutor = AnimationUtils.RedirectTraffic(Ped);
             _animationTaskExecutor.OnCompletion += (sender, args) =>
             {
                 if (Ped.IsValid)

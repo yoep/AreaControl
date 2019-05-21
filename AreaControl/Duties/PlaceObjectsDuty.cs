@@ -54,7 +54,7 @@ namespace AreaControl.Duties
                         .WaitForAndExecute(executor =>
                         {
                             Rage.LogTrivialDebug("Completed walk to place object for " + executor);
-                            return AnimationUtil.PlaceDownObject(Ped, placeObject.Instance, _placeFromHand);
+                            return AnimationUtils.PlaceDownObject(Ped, placeObject.Instance, _placeFromHand);
                         }, 20000)
                         .WaitForCompletion(2500);
 

@@ -4,7 +4,7 @@ using Rage;
 
 namespace AreaControl.Utils.Query
 {
-    public static class EntityQuery
+    public static class EntityQueryUtils
     {
         /// <summary>
         /// Find entities around the given position which are still alive.

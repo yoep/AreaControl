@@ -21,6 +21,8 @@ namespace AreaControl.Actions.RedirectTraffic
             CreateCones();
         }
 
+        #region Properties
+
         /// <summary>
         /// Get the position of the redirect slot.
         /// </summary>
@@ -40,7 +42,7 @@ namespace AreaControl.Actions.RedirectTraffic
         /// Get the heading of the ped for the redirect slot.
         /// </summary>
         public float PedHeading { get; }
-        
+
         /// <summary>
         /// Get if the cones should be placed on the right side of the vehicle.
         /// </summary>
@@ -50,6 +52,8 @@ namespace AreaControl.Actions.RedirectTraffic
         /// Get the cones to place for this redirect traffic slot.
         /// </summary>
         public IReadOnlyList<Cone> Cones => _cones.AsReadOnly();
+
+        #endregion
 
         #region IPreviewSupport implementation
 
@@ -81,6 +85,8 @@ namespace AreaControl.Actions.RedirectTraffic
 
         #endregion
 
+        #region Methods
+
         public void ClearSlotFromTraffic()
         {
             EntityUtils.CleanArea(Position, 5f);
@@ -92,6 +98,8 @@ namespace AreaControl.Actions.RedirectTraffic
                 $"{nameof(Position)}: {Position}, {nameof(Heading)}: {Heading}, {nameof(PedPosition)}: {PedPosition}, {nameof(PedHeading)}: {PedHeading}, " +
                 $"{nameof(IsPreviewActive)}: {IsPreviewActive}";
         }
+
+        #endregion
 
         private void CreateCones()
         {
@@ -109,25 +117,14 @@ namespace AreaControl.Actions.RedirectTraffic
             _cones.Add(new Cone(thirdCone, moveHeading));
         }
 
-        public class Cone : IPreviewSupport
+        public class Cone : SceneryItem, IPreviewSupport
         {
             private Object _previewObject;
 
-            public Cone(Vector3 position, float heading)
+            public Cone(Vector3 position, float heading) 
+                : base(position, heading)
             {
-                Position = position;
-                Heading = heading;
             }
-
-            /// <summary>
-            /// Get the position of the cone.
-            /// </summary>
-            public Vector3 Position { get; }
-
-            /// <summary>
-            /// Get the heading of the cone placement.
-            /// </summary>
-            public float Heading { get; }
 
             #region IPreviewSupport implementation
 

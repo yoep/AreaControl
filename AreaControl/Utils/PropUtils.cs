@@ -7,6 +7,8 @@ namespace AreaControl.Utils
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public static class PropUtils
     {
+        #region Ped items
+
         public static Object CreateWand()
         {
             var model = new Model("prop_parking_wand_01");
@@ -30,6 +32,34 @@ namespace AreaControl.Utils
             var model = new Model("prop_pencil_01");
             return new Object(model, Vector3.Zero);
         }
+
+        public static Object CreateProtestSign1()
+        {
+            var model = new Model("prop_cs_protest_sign_01");
+            return new Object(model, Vector3.Zero);
+        }
+
+        public static Object CreateProtestSign2()
+        {
+            var model = new Model("prop_cs_protest_sign_02");
+            return new Object(model, Vector3.Zero);
+        }
+
+        public static Object CreateProtestSign2B()
+        {
+            var model = new Model("prop_cs_protest_sign_02b");
+            return new Object(model, Vector3.Zero);
+        }
+
+        public static Object CreateProtestSign3()
+        {
+            var model = new Model("prop_cs_protest_sign_03");
+            return new Object(model, Vector3.Zero);
+        }
+
+        #endregion
+
+        #region Street items
 
         public static Object CreateSmallBlankCone(Vector3 position)
         {
@@ -63,23 +93,37 @@ namespace AreaControl.Utils
         {
             return new Object(new Model("prop_ld_barrier_01"), position);
         }
-        
+
         public static Object CreateWorkerBarrierArrowRight(Vector3 position)
         {
             return new Object(new Model("prop_mp_arrow_barrier_01"), position);
         }
-        
-        public static Object CreatePoliceDoNotCrossBarrier(Vector3 position)
+
+        public static Object RedirectTrafficArrowLeft(Vector3 position, float heading)
         {
-            return CreatePoliceDoNotCrossBarrier(position, 0f);
+            return new Object(new Model("prop_trafficdiv_01"), position, heading);
         }
-        
-        public static Object CreatePoliceDoNotCrossBarrier(Vector3 position, float heading)
+
+        public static Object RedirectTrafficArrowBoth(Vector3 position, float heading)
+        {
+            return new Object(new Model("prop_trafficdiv_02"), position, heading);
+        }
+
+        public static Object StoppedVehiclesSign(Vector3 position, float heading)
+        {
+            return new Object(new Model("prop_consign_02a"), position, heading);
+        }
+
+        public static Object CreatePoliceDoNotCrossBarrier(Vector3 position, float heading = 0f)
         {
             var barrier = new Object(new Model("prop_barrier_work05"), position, heading);
             PlaceCorrectlyOnGround(barrier);
             return barrier;
         }
+
+        #endregion
+
+        #region Methods
 
         public static bool PlaceCorrectlyOnGround(Object instance)
         {
@@ -100,5 +144,7 @@ namespace AreaControl.Utils
         {
             EntityUtils.Remove(entity);
         }
+
+        #endregion
     }
 }

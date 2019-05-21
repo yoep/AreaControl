@@ -213,7 +213,7 @@ namespace AreaControl.Utils.Tasks
         {
             foreach (var executorEntity in ExecutorEntities.Where(x => !x.CompletedTask))
             {
-                executorEntity.CompletedTask = TaskUtil.IsTaskActive(executorEntity.Ped, (int) TaskId);
+                executorEntity.CompletedTask = TaskUtils.IsTaskActive(executorEntity.Ped, (int) TaskId);
             }
         }
 
@@ -221,7 +221,7 @@ namespace AreaControl.Utils.Tasks
         {
             foreach (var executorEntity in ExecutorEntities.Where(x => !x.CompletedTask))
             {
-                var status = TaskUtil.GetScriptTaskStatus(executorEntity.Ped, (uint) TaskHash);
+                var status = TaskUtils.GetScriptTaskStatus(executorEntity.Ped, (uint) TaskHash);
                 var lastStatus = executorEntity.CompletionStatus;
                 executorEntity.CompletionStatus = status;
 
@@ -242,7 +242,7 @@ namespace AreaControl.Utils.Tasks
 
             foreach (var value in Enum.GetValues(typeof(TaskHash)))
             {
-                var status = TaskUtil.GetScriptTaskStatus(executorEntity.Ped, (uint) value);
+                var status = TaskUtils.GetScriptTaskStatus(executorEntity.Ped, (uint) value);
 
                 if (status == (int) TaskStatus.None)
                     rage.LogTrivial("Task Hash suggestion is " + value + "(" + (uint) value + ") for original task hash " + TaskHash);

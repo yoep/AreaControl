@@ -87,7 +87,6 @@ namespace AreaControl
 
         /// <summary>
         /// Unregister everything in this IoC.
-        /// Should only be used for unit testing.
         /// </summary>
         public IoC UnregisterAll()
         {
@@ -269,7 +268,12 @@ namespace AreaControl
                     InvokePostConstruct(instance);
 
                     if (definition.IsSingleton)
+                    {
+                        if (_singletons.ContainsKey(definition))
+                            throw new IoCException($"Definition '{definition.Type}' with implementation '{definition.ImplementationType}' is already defined as a singleton");
+                        
                         _singletons.Add(definition, instance);
+                    }
 
                     instances.Add(new KeyValuePair<ComponentDefinition, object>(definition, instance));
                 }

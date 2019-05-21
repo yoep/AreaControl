@@ -83,7 +83,7 @@ namespace AreaControl.Instances
         public TaskExecutor DriveToPosition(Vector3 position, float speed, VehicleDrivingFlags drivingFlags, float acceptedDistance)
         {
             ChangeStateToBusy();
-            var executor = TaskUtil.DriveToPosition(Driver.Instance, Instance, position, speed, drivingFlags, acceptedDistance);
+            var executor = TaskUtils.DriveToPosition(Driver.Instance, Instance, position, speed, drivingFlags, acceptedDistance);
             executor.OnCompletion += (sender, args) => Occupants.ForEach(x => x.IsBusy = false);
             return executor;
         }

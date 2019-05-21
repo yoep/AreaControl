@@ -7,7 +7,7 @@ using Rage.Native;
 namespace AreaControl.Utils.Tasks
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public static class TaskUtil
+    public static class TaskUtils
     {
         /// <summary>
         /// Go straight to the given position.
@@ -18,7 +18,7 @@ namespace AreaControl.Utils.Tasks
         /// <param name="speed">Set the speed of the ped.</param>
         /// <param name="timeout">Set the max. time the ped can take</param>
         /// <returns>Returns the task executor.</returns>
-        public static TaskExecutor GoTo(Ped ped, Vector3 position, float heading, MovementSpeed speed, int timeout = 30000)
+        public static TaskExecutor GoToNative(Ped ped, Vector3 position, float heading, MovementSpeed speed, int timeout = 30000)
         {
             Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(position, "position cannot be null");
@@ -33,7 +33,7 @@ namespace AreaControl.Utils.Tasks
         }
 
         /// <summary>
-        /// Go to the given entity.
+        /// Go to the given entity using GTA V native function.
         /// </summary>
         /// <param name="ped">Set the ped that needs to executed the task.</param>
         /// <param name="target">Set the target entity to go to.</param>
@@ -41,7 +41,7 @@ namespace AreaControl.Utils.Tasks
         /// <param name="acceptedDistance">Set the accepted distance from the target</param>
         /// <param name="timeout">Set the max. time the ped can take</param>
         /// <returns>Returns the task executor.</returns>
-        public static TaskExecutor GoTo(Ped ped, Entity target, MovementSpeed speed, float acceptedDistance, int timeout = 30000)
+        public static TaskExecutor GoToNative(Ped ped, Entity target, MovementSpeed speed, float acceptedDistance, int timeout = 30000)
         {
             Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(target, "target cannot be null");
@@ -51,6 +51,47 @@ namespace AreaControl.Utils.Tasks
             return TaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Hash)
                 .TaskHash(TaskHash.TASK_GOTO_ENTITY)
+                .ExecutorEntities(new List<Ped> {ped})
+                .Build();
+        }
+
+        /// <summary>
+        /// Go to the given entity using the Rage task invoker.
+        /// </summary>
+        /// <param name="ped">Set the ped that needs to executed the task.</param>
+        /// <param name="target">Set the target entity to go to.</param>
+        /// <param name="speed">Set the speed of the ped.</param>
+        /// <param name="timeout">Set the max. time the ped can take</param>
+        /// <returns>Returns the task executor.</returns>
+        public static TaskExecutor GoToRage(Ped ped, Entity target, MovementSpeed speed, int timeout = 30000)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.NotNull(target, "target cannot be null");
+            var pedPosition = ped.Position;
+            var targetPosition = target.Position;
+            var heading = MathHelper.ConvertDirectionToHeading(pedPosition - targetPosition);
+
+            return GoToRage(ped, targetPosition, heading, speed, 0f, timeout);
+        }
+
+        /// <summary>
+        /// Go to the given entity using the Rage task invoker.
+        /// </summary>
+        /// <param name="ped">Set the ped that needs to executed the task.</param>
+        /// <param name="position">Set the position to go to.</param>
+        /// <param name="heading">Set the heading to take when arriving.</param>
+        /// <param name="speed">Set the speed of the ped.</param>
+        /// <param name="acceptedDistance">Set the accepted distance from the target (default = 0).</param>
+        /// <param name="timeout">Set the max. time the ped can take.</param>
+        /// <returns>Returns the task executor.</returns>
+        public static TaskExecutor GoToRage(Ped ped, Vector3 position, float heading, MovementSpeed speed, float acceptedDistance = 0f, int timeout = 30000)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            Assert.NotNull(position, "position cannot be null");
+            var task = ped.Tasks.GoStraightToPosition(position, speed.Value, heading, acceptedDistance, timeout);
+
+            return RageTaskExecutorBuilder.Builder()
+                .Task(task)
                 .ExecutorEntities(new List<Ped> {ped})
                 .Build();
         }

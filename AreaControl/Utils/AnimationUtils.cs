@@ -5,7 +5,7 @@ using Rage;
 
 namespace AreaControl.Utils
 {
-    public static class AnimationUtil
+    public static class AnimationUtils
     {
         private const string PlaceDownObjectDictionary = "pickup_object";
         private const string PlaceDownObjectAnimation = "putdown_low";

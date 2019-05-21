@@ -7,7 +7,6 @@ using AreaControl.Actions.CleanArea;
 using AreaControl.Actions.CloseRoad;
 using AreaControl.Actions.CrimeScene;
 using AreaControl.Actions.RedirectTraffic;
-using AreaControl.Actions.SlowDownTraffic;
 using AreaControl.Actions.TrafficBreak;
 using AreaControl.Callouts;
 using AreaControl.Debug;
@@ -56,6 +55,7 @@ namespace AreaControl
         private static void InitializeIoContainer()
         {
             IoC.Instance
+                .UnregisterAll()
                 .Register<IRage>(typeof(RageImpl))
                 .Register<ILogger>(typeof(Logger))
                 .RegisterSingleton<IMenu>(typeof(MenuImpl))
@@ -80,7 +80,7 @@ namespace AreaControl
                 .RegisterSingleton<IRedirectTrafficPreview>(typeof(RedirectTrafficPreview))
                 .RegisterSingleton<ICrimeScenePreview>(typeof(CrimeScenePreview))
                 .RegisterSingleton<IRoadInfo>(typeof(RoadInfo))
-                .RegisterSingleton<IRoadPreview>(typeof(RoadPreview));
+                .Register<IRoadPreview>(typeof(RoadPreview));
         }
 
         [Conditional("DEBUG")]

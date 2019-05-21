@@ -41,7 +41,7 @@ namespace AreaControl.Utils.Tasks
 
             foreach (var entity in ExecutorEntities)
             {
-                TaskUtil.StopAnimation(entity.Ped, AnimationDictionary.Name, AnimationName);
+                TaskUtils.StopAnimation(entity.Ped, AnimationDictionary.Name, AnimationName);
             }
         }
 

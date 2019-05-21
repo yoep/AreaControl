@@ -4,7 +4,7 @@ using LSPD_First_Response.Mod.API;
 
 namespace AreaControl.Utils
 {
-    public static class ModIntegrationUtil
+    public static class ModIntegrationUtils
     {
         public static bool IsModLoaded(string assemblyName)
         {

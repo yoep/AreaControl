@@ -5,7 +5,7 @@ using Rage;
 
 namespace AreaControl.Utils.Query
 {
-    public static class PedQuery
+    public static class PedQueryUtils
     {
         /// <summary>
         /// Find human ped's around the given position.
