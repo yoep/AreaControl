@@ -45,10 +45,10 @@ namespace AreaControl.Menu.Response
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private void Init()
         {
+            
             ((UIMenuListItem) MenuItem).OnListChanged += OnChanged;
         }
 
-        //TODO: Synchronize menu items
         private void OnChanged(UIMenuItem sender, int newindex)
         {
             var selectedValue = GetSelectedValue();

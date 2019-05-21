@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
+using AreaControl.Actions.TrafficBreak;
 using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Menu.Response;
@@ -13,7 +14,7 @@ using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.SlowDownTraffic
 {
-    public class SlowDownTrafficImpl : ISlowDownTraffic
+    public class TrafficBreakImpl : ITrafficBreak
     {
         private const float DistanceFromPlayer = 250f;
         private const string DispatchAudio = "WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION";
@@ -23,7 +24,7 @@ namespace AreaControl.Actions.SlowDownTraffic
         private readonly IEntityManager _entityManager;
         private readonly List<TaskExecutor> _taskExecutors = new List<TaskExecutor>();
 
-        public SlowDownTrafficImpl(IRage rage, IResponseManager responseManager, IEntityManager entityManager)
+        public TrafficBreakImpl(IRage rage, IResponseManager responseManager, IEntityManager entityManager)
         {
             _rage = rage;
             _responseManager = responseManager;

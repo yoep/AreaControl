@@ -5,8 +5,10 @@ using AreaControl.AbstractionLayer;
 using AreaControl.AbstractionLayer.Implementation;
 using AreaControl.Actions.CleanArea;
 using AreaControl.Actions.CloseRoad;
+using AreaControl.Actions.CrimeScene;
 using AreaControl.Actions.RedirectTraffic;
 using AreaControl.Actions.SlowDownTraffic;
+using AreaControl.Actions.TrafficBreak;
 using AreaControl.Callouts;
 using AreaControl.Debug;
 using AreaControl.Duties;
@@ -62,12 +64,12 @@ namespace AreaControl
                 .RegisterSingleton<IDutyManager>(typeof(DutyManager))
                 .RegisterSingleton<ISettingsManager>(typeof(SettingsManager))
                 .RegisterSingleton<ICalloutManager>(typeof(CalloutManager))
-                .Register<IResponseSelector>(typeof(AreaControlResponseSelector))
                 .Register<IResponseSelector>(typeof(StreetControlResponseSelector))
                 .Register<ICleanArea>(typeof(CleanAreaImpl))
+                .Register<ICrimeScene>(typeof(CrimeSceneImpl))
                 .Register<ICloseRoad>(typeof(CloseRoadImpl))
                 .Register<IRedirectTraffic>(typeof(RedirectTrafficImpl))
-                .Register<ISlowDownTraffic>(typeof(SlowDownTrafficImpl));
+                .Register<ITrafficBreak>(typeof(TrafficBreakImpl));
         }
 
         [Conditional("DEBUG")]
@@ -75,9 +77,10 @@ namespace AreaControl
         {
             IoC.Instance
                 .RegisterSingleton<ICloseRoadPreview>(typeof(CloseRoadPreview))
+                .RegisterSingleton<IRedirectTrafficPreview>(typeof(RedirectTrafficPreview))
+                .RegisterSingleton<ICrimeScenePreview>(typeof(CrimeScenePreview))
                 .RegisterSingleton<IRoadInfo>(typeof(RoadInfo))
-                .RegisterSingleton<IRoadPreview>(typeof(RoadPreview))
-                .Register<IMenuComponent>(typeof(RedirectTrafficPreview));
+                .RegisterSingleton<IRoadPreview>(typeof(RoadPreview));
         }
 
         [Conditional("DEBUG")]

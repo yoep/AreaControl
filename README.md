@@ -25,12 +25,15 @@ Redirects the traffic from the side of the road. This will make it safer for you
 - Call one backup vehicle which will redirect the traffic
 - Auto places cones for redirecting the traffic (optional)
 
-### Slow Down Traffic
+### Traffic Break
 Busy streets (such as highways) will be slowed down by one or more backup unit(s) which will drive from a distance behind the player to the player.
 
-- Call backup unit(s) for slowing down the traffic
+- Call backup unit(s) for the traffic break
 - Slows down the traffic in the direction of the player
 - Units will resume duty when reaching the player
+
+### Crime Scene (WIP)
+Create a dynamic crime scene in the area of the player.
 
 ### Riot (WIP)
 Citizens have started a riot in the city, keep the riot under control. (Integration with Computer+)
@@ -38,7 +41,6 @@ Citizens have started a riot in the city, keep the riot under control. (Integrat
 ## Planned Features
 
 - Police Smart Radio integration
-- Create crime scene
 - Create lock-down area
 - Create standoff scene
 - Close Road

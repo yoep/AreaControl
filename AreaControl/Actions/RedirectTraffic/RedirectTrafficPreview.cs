@@ -1,12 +1,11 @@
 using AreaControl.AbstractionLayer;
 using AreaControl.Debug;
-using AreaControl.Instances;
 using AreaControl.Menu;
 using RAGENativeUI.Elements;
 
 namespace AreaControl.Actions.RedirectTraffic
 {
-    public class RedirectTrafficPreview : AbstractRedirectTraffic, IPreviewSupport
+    public class RedirectTrafficPreview : AbstractRedirectTraffic, IRedirectTrafficPreview
     {
         private readonly IRage _rage;
         private readonly IRoadPreview _roadPreview;

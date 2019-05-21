@@ -20,11 +20,6 @@ namespace AreaControl.Menu
         bool IsAutoClosed { get; }
 
         /// <summary>
-        /// Get if the menu component is visible in the menu.
-        /// </summary>
-        bool IsVisible { get; }
-
-        /// <summary>
         /// Is triggered when the component menu item has been selected.
         /// </summary>
         /// <param name="sender">The menu that activated the menu item.</param>

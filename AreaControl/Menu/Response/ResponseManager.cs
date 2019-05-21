@@ -1,3 +1,4 @@
+using AreaControl.AbstractionLayer;
 using Rage;
 
 namespace AreaControl.Menu.Response
@@ -9,10 +10,13 @@ namespace AreaControl.Menu.Response
         private const float VehicleNormalSpeed = 30f;
         private const float VehicleEmergencySpeed = 45f;
 
+        private readonly ILogger _logger;
+
         #region Constructors
 
-        public ResponseManager()
+        public ResponseManager(ILogger logger)
         {
+            _logger = logger;
             ResponseCode = ResponseCode.Code2;
         }
 
@@ -42,6 +46,7 @@ namespace AreaControl.Menu.Response
             var code = int.Parse(selectedValue.Substring(selectedValue.Length - 2));
 
             ResponseCode = code == (int) ResponseCode.Code2 ? ResponseCode.Code2 : ResponseCode.Code3;
+            _logger.Debug($"Response code has been changed to {ResponseCode}");
         }
 
         public string GetResponseCodeValue(ResponseCode code)
