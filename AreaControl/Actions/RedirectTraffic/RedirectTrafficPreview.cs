@@ -26,9 +26,6 @@ namespace AreaControl.Actions.RedirectTraffic
         public override MenuType Type => MenuType.DEBUG;
 
         /// <inheritdoc />
-        public override bool IsVisible => true;
-
-        /// <inheritdoc />
         public override void OnMenuActivation(IMenu sender)
         {
             if (IsActive)

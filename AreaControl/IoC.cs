@@ -251,11 +251,13 @@ namespace AreaControl
             {
                 var definitions = GetDefinitionsFor(type);
 
+                // check if any definitions could be found for the given type
                 if (definitions.Count == 0)
                     return new List<KeyValuePair<ComponentDefinition, object>>();
 
                 var singletonDefinition = GetSingletonDefinitionFor(type);
 
+                // check a singleton definition type could be found for the given type and the singleton instance is already present
                 if (singletonDefinition != null && _singletons.ContainsKey(singletonDefinition))
                     return new List<KeyValuePair<ComponentDefinition, object>>
                         {new KeyValuePair<ComponentDefinition, object>(singletonDefinition, _singletons[singletonDefinition])};
@@ -264,16 +266,25 @@ namespace AreaControl
 
                 foreach (var definition in definitions)
                 {
-                    var instance = InitializeInstanceType(definition.ImplementationType);
-                    InvokePostConstruct(instance);
-
+                    // Check if the definition is a singleton and the instance already exists, if so, return it.
+                    // A 'type' can define 'subtypes' that might have been declared as a singleton on one of it's subtypes
+                    // which means that the 'type' itself won't have the singleton definition, but one of it's subtype's might be one
                     if (definition.IsSingleton)
                     {
                         if (_singletons.ContainsKey(definition))
-                            throw new IoCException($"Definition '{definition.Type}' with implementation '{definition.ImplementationType}' is already defined as a singleton");
-                        
-                        _singletons.Add(definition, instance);
+                        {
+                            instances.Add(new KeyValuePair<ComponentDefinition, object>(definition, _singletons[definition]));
+                            continue;
+                        }
                     }
+
+                    // otherwise, create a new instance for the definition
+                    var instance = InitializeInstanceType(definition.ImplementationType);
+                    InvokePostConstruct(instance);
+
+                    // check if we need to store a singleton instance for the definition
+                    if (definition.IsSingleton)
+                        _singletons.Add(definition, instance);
 
                     instances.Add(new KeyValuePair<ComponentDefinition, object>(definition, instance));
                 }

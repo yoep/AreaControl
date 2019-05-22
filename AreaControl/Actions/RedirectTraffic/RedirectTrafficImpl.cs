@@ -52,9 +52,6 @@ namespace AreaControl.Actions.RedirectTraffic
         public override MenuType Type => MenuType.STREET_CONTROL;
 
         /// <inheritdoc />
-        public override bool IsVisible => true;
-
-        /// <inheritdoc />
         public override void OnMenuActivation(IMenu sender)
         {
             if (IsActive)
@@ -106,7 +103,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 vehicle.Driver.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
                 vehicle.EnableSirens();
 
-                PlaceCones(vehicle.Driver, _redirectSlot);
+                PlaceSceneryItems(vehicle.Driver, _redirectSlot);
                 AssignRedirectTrafficDutyToDriver(vehicle, _redirectSlot);
             }, "RedirectTrafficImpl.RedirectTraffic");
         }
@@ -140,7 +137,7 @@ namespace AreaControl.Actions.RedirectTraffic
             _dutyManager.RegisterDuty(driver, new RedirectTrafficDuty(redirectSlot.PedPosition, redirectSlot.PedHeading, _responseManager.ResponseCode));
         }
 
-        private void PlaceCones(ACPed ped, RedirectSlot redirectSlot)
+        private void PlaceSceneryItems(ACPed ped, RedirectSlot redirectSlot)
         {
             if (!_settingsManager.RedirectTrafficSettings.PlaceSceneryItems)
                 return;
@@ -152,11 +149,15 @@ namespace AreaControl.Actions.RedirectTraffic
                     .WaitForCompletion(5000);
             }
 
+            // add cones to place object duty
             foreach (var cone in redirectSlot.Cones)
             {
                 _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(cone.Position, 0f,
                     (pos, heading) => PropUtils.CreateSmallConeWithStripes(pos)));
             }
+            
+            // add sign to place object duty
+            _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(redirectSlot.Sign.Position, redirectSlot.Sign.Heading, PropUtils.StoppedVehiclesSign));
 
             _dutyManager.RegisterDuty(ped,
                 new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, true));

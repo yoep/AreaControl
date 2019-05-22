@@ -38,6 +38,8 @@ namespace AreaControl
                 Main.Initialize();
                 logger.Info("Initialized");
                 rage.DisplayPluginNotification("has been loaded");
+
+                Functions.OnOnDutyStateChanged += OnDutyStateChanged;
             }
             catch (Exception ex)
             {
@@ -50,6 +52,12 @@ namespace AreaControl
         public override void Finally()
         {
             Main.Unload();
+        }
+
+        private static void OnDutyStateChanged(bool isOnDuty)
+        {
+            if (!isOnDuty)
+                Main.Unload();
         }
 
         private static void InitializeIoContainer()

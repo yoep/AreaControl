@@ -111,7 +111,9 @@ namespace AreaControl.Utils
 
         public static Object StoppedVehiclesSign(Vector3 position, float heading)
         {
-            return new Object(new Model("prop_consign_02a"), position, heading);
+            var instance = new Object(new Model("prop_consign_02a"), position, heading);
+            PlaceCorrectlyOnGround(instance);
+            return instance;
         }
 
         public static Object CreatePoliceDoNotCrossBarrier(Vector3 position, float heading = 0f)

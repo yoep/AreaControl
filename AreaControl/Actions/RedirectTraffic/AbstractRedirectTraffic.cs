@@ -24,9 +24,6 @@ namespace AreaControl.Actions.RedirectTraffic
         public bool IsAutoClosed => true;
 
         /// <inheritdoc />
-        public abstract bool IsVisible { get; }
-
-        /// <inheritdoc />
         public abstract void OnMenuActivation(IMenu sender);
 
         /// <inheritdoc />
@@ -36,16 +33,16 @@ namespace AreaControl.Actions.RedirectTraffic
 
         protected static RedirectSlot DetermineRedirectSlot()
         {
-            var initialPosition = GetInitialPosition();
-            var closestRoad = RoadUtils.GetClosestRoad(initialPosition, RoadType.All);
+            var playerPosition = GetInitialPosition();
+            var closestRoad = RoadUtils.GetClosestRoad(playerPosition, RoadType.All);
 
             //first lane = right side, last lane = left side
-            var closestLane = RoadUtils.GetClosestLane(closestRoad, initialPosition);
+            var closestLane = RoadUtils.GetClosestLane(closestRoad, playerPosition);
             var moveDirection = MathHelper.ConvertHeadingToDirection(RoadUtils.OppositeHeading(closestLane.Heading));
             var isLeftSideOfRoad = MultipleLanesInSameDirection(closestRoad, closestLane) && IsClosestToLeftLane(closestRoad, closestLane);
             var lanePosition = isLeftSideOfRoad ? closestLane.LeftSide : closestLane.RightSide;
 
-            return new RedirectSlot(lanePosition + moveDirection * VehicleDistanceFromPlayer, closestLane.Heading, isLeftSideOfRoad);
+            return new RedirectSlot(lanePosition + moveDirection * CalculateDistance(lanePosition, playerPosition), closestLane.Heading, isLeftSideOfRoad);
         }
 
         private static Vector3 GetInitialPosition()
@@ -70,6 +67,11 @@ namespace AreaControl.Actions.RedirectTraffic
             return road.Lanes
                 .Where(x => x != lane)
                 .Any(x => Math.Abs(lane.Heading - x.Heading) < 1f);
+        }
+
+        private static float CalculateDistance(Vector3 lanePosition, Vector3 playerPosition)
+        {
+            return Vector3.Distance2D(lanePosition, playerPosition) + VehicleDistanceFromPlayer;
         }
     }
 }

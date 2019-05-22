@@ -10,6 +10,7 @@ namespace AreaControl.Actions.RedirectTraffic
         private const float PedDistanceFromVehicle = 3f;
         private readonly List<Entity> _previewObjects = new List<Entity>();
         private readonly List<Cone> _cones = new List<Cone>();
+        private StoppedVehiclesSign _sign;
 
         public RedirectSlot(Vector3 position, float heading, bool placeConesOnRightSide)
         {
@@ -18,7 +19,8 @@ namespace AreaControl.Actions.RedirectTraffic
             PedHeading = RoadUtils.OppositeHeading(Heading);
             PedPosition = Position + MathHelper.ConvertHeadingToDirection(PedHeading) * PedDistanceFromVehicle;
             PlaceConesRightSide = placeConesOnRightSide;
-            CreateCones();
+
+            Init();
         }
 
         #region Properties
@@ -53,6 +55,11 @@ namespace AreaControl.Actions.RedirectTraffic
         /// </summary>
         public IReadOnlyList<Cone> Cones => _cones.AsReadOnly();
 
+        /// <summary>
+        /// Get the stopped vehicles sign to place for this redirect traffic slot.
+        /// </summary>
+        public StoppedVehiclesSign Sign => _sign;
+
         #endregion
 
         #region IPreviewSupport implementation
@@ -70,6 +77,7 @@ namespace AreaControl.Actions.RedirectTraffic
             _previewObjects.Add(new Ped(new Model("s_m_y_cop_01"), PedPosition, PedHeading));
             _previewObjects.ForEach(PreviewUtils.TransformToPreview);
             _cones.ForEach(x => x.CreatePreview());
+            _sign.CreatePreview();
         }
 
         /// <inheritdoc />
@@ -81,6 +89,7 @@ namespace AreaControl.Actions.RedirectTraffic
             _previewObjects.ForEach(EntityUtils.Remove);
             _previewObjects.Clear();
             _cones.ForEach(x => x.DeletePreview());
+            _sign.DeletePreview();
         }
 
         #endregion
@@ -101,6 +110,14 @@ namespace AreaControl.Actions.RedirectTraffic
 
         #endregion
 
+        #region Functions
+
+        private void Init()
+        {
+            CreateCones();
+            CreateSign();
+        }
+
         private void CreateCones()
         {
             var headingToMove = PlaceConesRightSide ? -90f : 90f;
@@ -117,11 +134,22 @@ namespace AreaControl.Actions.RedirectTraffic
             _cones.Add(new Cone(thirdCone, moveHeading));
         }
 
+        private void CreateSign()
+        {
+            var headingBehindVehicle = PedHeading;
+            var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(headingBehindVehicle);
+            var positionBehindVehicle = Position + directionBehindVehicle * 8f;
+
+            _sign = new StoppedVehiclesSign(positionBehindVehicle, RoadUtils.OppositeHeading(headingBehindVehicle));
+        }
+
+        #endregion
+
         public class Cone : SceneryItem, IPreviewSupport
         {
             private Object _previewObject;
 
-            public Cone(Vector3 position, float heading) 
+            public Cone(Vector3 position, float heading)
                 : base(position, heading)
             {
             }
@@ -138,6 +166,43 @@ namespace AreaControl.Actions.RedirectTraffic
                     return;
 
                 _previewObject = PropUtils.CreateSmallConeWithStripes(Position);
+                PreviewUtils.TransformToPreview(_previewObject);
+            }
+
+            /// <inheritdoc />
+            public void DeletePreview()
+            {
+                if (!IsPreviewActive)
+                    return;
+
+                PropUtils.Remove(_previewObject);
+                _previewObject = null;
+            }
+
+            #endregion
+        }
+
+        public class StoppedVehiclesSign : SceneryItem, IPreviewSupport
+        {
+            private Object _previewObject;
+
+            public StoppedVehiclesSign(Vector3 position, float heading)
+                : base(position, heading)
+            {
+            }
+
+            #region IPreviewSupport
+
+            /// <inheritdoc />
+            public bool IsPreviewActive => _previewObject != null;
+
+            /// <inheritdoc />
+            public void CreatePreview()
+            {
+                if (IsPreviewActive)
+                    return;
+
+                _previewObject = PropUtils.StoppedVehiclesSign(Position, Heading);
                 PreviewUtils.TransformToPreview(_previewObject);
             }
 
