@@ -82,6 +82,7 @@
     <Compile Include="Actions\CrimeScene\AbstractCrimeScene.cs" />
     <Compile Include="Actions\CrimeScene\CrimeSceneImpl.cs" />
     <Compile Include="Actions\CrimeScene\CrimeScenePreview.cs" />
+    <Compile Include="Actions\CrimeScene\CrimeSceneSlot.cs" />
     <Compile Include="Actions\CrimeScene\ICrimeScene.cs" />
     <Compile Include="Actions\CrimeScene\ICrimeScenePreview.cs" />
     <Compile Include="Actions\RedirectTraffic\AbstractRedirectTraffic.cs" />
@@ -90,7 +91,6 @@
     <Compile Include="Actions\RedirectTraffic\RedirectSlot.cs" />
     <Compile Include="Actions\RedirectTraffic\RedirectTrafficImpl.cs" />
     <Compile Include="Actions\RedirectTraffic\RedirectTrafficPreview.cs" />
-    <Compile Include="Actions\SceneryItem.cs" />
     <Compile Include="Actions\TrafficBreak\ITrafficBreak.cs" />
     <Compile Include="Actions\TrafficBreak\TrafficBreakImpl.cs" />
     <Compile Include="AreaControl.cs" />
@@ -125,6 +125,10 @@
     <Compile Include="Instances\IEntityManager.cs" />
     <Compile Include="Instances\IPreviewSupport.cs" />
     <Compile Include="Instances\MovementSpeed.cs" />
+    <Compile Include="Instances\Scenery\Barrier.cs" />
+    <Compile Include="Instances\Scenery\Cone.cs" />
+    <Compile Include="Instances\Scenery\SceneryItem.cs" />
+    <Compile Include="Instances\Scenery\StoppedVehiclesSign.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IoCException.cs" />
     <Compile Include="Main.cs" />

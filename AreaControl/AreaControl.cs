@@ -23,6 +23,7 @@ namespace AreaControl
         public const string ClearArea = "Clear surrounding area";
         public const string ClearAreaDescription = "Clear the surrounding area fo death bodies and wrecks";
         public const string CrimeScene = "Crime scene";
+        public const string CrimeScenePreview = "Crime scene " + DebugIndicatorText;
         public const string CrimeSceneDescription = "Create a crime scene in the nearby area";
         
         public const string SlowDownTraffic = "Slow down traffic";

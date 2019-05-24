@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using AreaControl.Instances;
+using AreaControl.Instances.Scenery;
 using AreaControl.Utils;
+using AreaControl.Utils.Road;
 using Rage;
 
 namespace AreaControl.Actions.RedirectTraffic
@@ -144,79 +146,5 @@ namespace AreaControl.Actions.RedirectTraffic
         }
 
         #endregion
-
-        public class Cone : SceneryItem, IPreviewSupport
-        {
-            private Object _previewObject;
-
-            public Cone(Vector3 position, float heading)
-                : base(position, heading)
-            {
-            }
-
-            #region IPreviewSupport implementation
-
-            /// <inheritdoc />
-            public bool IsPreviewActive => _previewObject != null;
-
-            /// <inheritdoc />
-            public void CreatePreview()
-            {
-                if (IsPreviewActive)
-                    return;
-
-                _previewObject = PropUtils.CreateSmallConeWithStripes(Position);
-                PreviewUtils.TransformToPreview(_previewObject);
-            }
-
-            /// <inheritdoc />
-            public void DeletePreview()
-            {
-                if (!IsPreviewActive)
-                    return;
-
-                PropUtils.Remove(_previewObject);
-                _previewObject = null;
-            }
-
-            #endregion
-        }
-
-        public class StoppedVehiclesSign : SceneryItem, IPreviewSupport
-        {
-            private Object _previewObject;
-
-            public StoppedVehiclesSign(Vector3 position, float heading)
-                : base(position, heading)
-            {
-            }
-
-            #region IPreviewSupport
-
-            /// <inheritdoc />
-            public bool IsPreviewActive => _previewObject != null;
-
-            /// <inheritdoc />
-            public void CreatePreview()
-            {
-                if (IsPreviewActive)
-                    return;
-
-                _previewObject = PropUtils.StoppedVehiclesSign(Position, Heading);
-                PreviewUtils.TransformToPreview(_previewObject);
-            }
-
-            /// <inheritdoc />
-            public void DeletePreview()
-            {
-                if (!IsPreviewActive)
-                    return;
-
-                PropUtils.Remove(_previewObject);
-                _previewObject = null;
-            }
-
-            #endregion
-        }
     }
 }

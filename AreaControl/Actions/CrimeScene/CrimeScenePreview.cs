@@ -1,3 +1,4 @@
+using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
 using RAGENativeUI.Elements;
 
@@ -5,10 +6,20 @@ namespace AreaControl.Actions.CrimeScene
 {
     public class CrimeScenePreview : AbstractCrimeScene, ICrimeScenePreview
     {
+        private readonly IRage _rage;
+        private readonly ILogger _logger;
+        private CrimeSceneSlot _crimeSceneSlot;
+
+        public CrimeScenePreview(IRage rage, ILogger logger)
+        {
+            _rage = rage;
+            _logger = logger;
+        }
+
         #region IMenuComponent
 
         /// <inheritdoc />
-        public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.CrimeScene, AreaControl.CrimeSceneDescription);
+        public UIMenuItem MenuItem { get; } = new UIMenuItem(AreaControl.CrimeScenePreview, AreaControl.CrimeSceneDescription);
 
         /// <inheritdoc />
         public MenuType Type => MenuType.DEBUG;
@@ -20,11 +31,11 @@ namespace AreaControl.Actions.CrimeScene
         {
             if (IsActive)
             {
-                RemoveCrimeScene();
+                DeletePreview();
             }
             else
             {
-                CreateCrimeScene();
+                CreatePreview();
             }
         }
 
@@ -33,30 +44,35 @@ namespace AreaControl.Actions.CrimeScene
         #region IPreviewSupport
 
         /// <inheritdoc />
-        public bool IsPreviewActive { get; }
+        public bool IsPreviewActive => IsActive;
 
         /// <inheritdoc />
         public void CreatePreview()
         {
-           
+            _rage.NewSafeFiber(() =>
+            {
+                _crimeSceneSlot = DetermineCrimeSceneSlot();
+                _logger.Debug($"Created {_crimeSceneSlot.Barriers.Count} barriers for the crime scene");
+                
+                _crimeSceneSlot.CreatePreview();
+                _crimeSceneSlot.StartPoint.CreatePreview();
+                _crimeSceneSlot.EndPoint.CreatePreview();
+                
+                IsActive = true;
+            }, "CrimeScenePreview.CreatePreview");
         }
 
         /// <inheritdoc />
         public void DeletePreview()
         {
-            
-        }
-
-        #endregion
-
-        #region Functions
-
-        private void RemoveCrimeScene()
-        {
-        }
-
-        private void CreateCrimeScene()
-        {
+            _rage.NewSafeFiber(() =>
+            {
+                _crimeSceneSlot.DeletePreview();
+                _crimeSceneSlot.StartPoint.DeletePreview();
+                _crimeSceneSlot.EndPoint.DeletePreview();
+                _crimeSceneSlot = null;
+                IsActive = false;
+            }, "CrimeScenePreview.DeletePreview");
         }
 
         #endregion

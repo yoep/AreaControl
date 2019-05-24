@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using AreaControl.Menu;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
+using AreaControl.Utils.Road;
 using Rage;
 
 namespace AreaControl.Duties
@@ -80,7 +80,7 @@ namespace AreaControl.Duties
         {
             private Object _instance;
 
-            public PlaceObject(Vector3 position, float heading, System.Func<Vector3, float, Object> spawnInstance)
+            public PlaceObject(Vector3 position, float heading, System.Func<Object> spawnInstance)
             {
                 SpawnInstance = spawnInstance;
                 Position = position;
@@ -105,13 +105,13 @@ namespace AreaControl.Duties
                 get
                 {
                     if (_instance == null)
-                        _instance = SpawnInstance.Invoke(Position, Heading);
+                        _instance = SpawnInstance.Invoke();
 
                     return _instance;
                 }
             }
 
-            private System.Func<Vector3, float, Object> SpawnInstance { get; }
+            private System.Func<Object> SpawnInstance { get; }
         }
     }
 }

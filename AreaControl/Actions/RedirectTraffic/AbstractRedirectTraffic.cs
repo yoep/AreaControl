@@ -3,6 +3,7 @@ using System.Linq;
 using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Utils;
+using AreaControl.Utils.Road;
 using Rage;
 using RAGENativeUI.Elements;
 
@@ -39,7 +40,7 @@ namespace AreaControl.Actions.RedirectTraffic
             //first lane = right side, last lane = left side
             var closestLane = RoadUtils.GetClosestLane(closestRoad, playerPosition);
             var moveDirection = MathHelper.ConvertHeadingToDirection(RoadUtils.OppositeHeading(closestLane.Heading));
-            var isLeftSideOfRoad = MultipleLanesInSameDirection(closestRoad, closestLane) && IsClosestToLeftLane(closestRoad, closestLane);
+            var isLeftSideOfRoad = RoadUtils.HasMultipleLanesInSameDirection(closestRoad, closestLane) && RoadUtils.IsLeftSideLane(closestRoad, closestLane);
             var lanePosition = isLeftSideOfRoad ? closestLane.LeftSide : closestLane.RightSide;
 
             return new RedirectSlot(lanePosition + moveDirection * CalculateDistance(lanePosition, playerPosition), closestLane.Heading, isLeftSideOfRoad);
@@ -52,21 +53,6 @@ namespace AreaControl.Actions.RedirectTraffic
             
             // use the players vehicle for determining the redirect traffic slot
             return lastVehicle != null ? lastVehicle.Position : player.Position;
-        }
-
-        private static bool IsClosestToLeftLane(Road road, Road.Lane lane)
-        {
-            var distanceRightSide = Vector3.Distance2D(road.RightSide, lane.Position);
-            var distanceLeftSide = Vector3.Distance2D(road.LeftSide, lane.Position);
-
-            return distanceLeftSide < distanceRightSide;
-        }
-
-        private static bool MultipleLanesInSameDirection(Road road, Road.Lane lane)
-        {
-            return road.Lanes
-                .Where(x => x != lane)
-                .Any(x => Math.Abs(lane.Heading - x.Heading) < 1f);
         }
 
         private static float CalculateDistance(Vector3 lanePosition, Vector3 playerPosition)

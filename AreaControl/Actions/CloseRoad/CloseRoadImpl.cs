@@ -8,6 +8,7 @@ using AreaControl.Menu;
 using AreaControl.Menu.Response;
 using AreaControl.Settings;
 using AreaControl.Utils;
+using AreaControl.Utils.Road;
 using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
@@ -217,13 +218,9 @@ namespace AreaControl.Actions.CloseRoad
             if (!_settingsManager.CloseRoadSettings.PlaceBarriers)
                 return;
 
-            var objects = new List<PlaceObjectsDuty.PlaceObject>();
-
-            foreach (var barrier in slot.Barriers)
-            {
-                barrier.Object = new PlaceObjectsDuty.PlaceObject(barrier.Position, barrier.Heading, PropUtils.CreatePoliceDoNotCrossBarrier);
-                objects.Add(barrier.Object);
-            }
+            var objects = slot.Barriers
+                .Select(barrier => barrier.Object)
+                .ToList();
 
             var placeObjectsDuty = new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), objects, _responseManager.ResponseCode, false);
             Logger.Debug("Created place barriers duty " + placeObjectsDuty);

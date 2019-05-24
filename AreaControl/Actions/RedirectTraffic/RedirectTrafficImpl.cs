@@ -7,6 +7,7 @@ using AreaControl.Menu;
 using AreaControl.Menu.Response;
 using AreaControl.Settings;
 using AreaControl.Utils;
+using AreaControl.Utils.Road;
 using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
@@ -152,12 +153,11 @@ namespace AreaControl.Actions.RedirectTraffic
             // add cones to place object duty
             foreach (var cone in redirectSlot.Cones)
             {
-                _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(cone.Position, 0f,
-                    (pos, heading) => PropUtils.CreateSmallConeWithStripes(pos)));
+                _placedObjects.Add(cone.Object);
             }
             
             // add sign to place object duty
-            _placedObjects.Add(new PlaceObjectsDuty.PlaceObject(redirectSlot.Sign.Position, redirectSlot.Sign.Heading, PropUtils.StoppedVehiclesSign));
+            _placedObjects.Add(redirectSlot.Sign.Object);
 
             _dutyManager.RegisterDuty(ped,
                 new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, true));

@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using AreaControl.Duties;
 using AreaControl.Instances;
+using AreaControl.Instances.Scenery;
 using AreaControl.Utils;
+using AreaControl.Utils.Road;
 using Rage;
 
 namespace AreaControl.Actions.CloseRoad
@@ -109,21 +110,6 @@ namespace AreaControl.Actions.CloseRoad
                    $"{nameof(Heading)}: {Heading}, " + Environment.NewLine +
                    $"{nameof(PedPosition)}: {PedPosition}, " + Environment.NewLine +
                    $"{nameof(PedHeading)}: {PedHeading}";
-        }
-
-        public class Barrier
-        {
-            public Barrier(Vector3 position, float heading)
-            {
-                Position = position;
-                Heading = heading;
-            }
-
-            public Vector3 Position { get; }
-
-            public float Heading { get; }
-
-            public PlaceObjectsDuty.PlaceObject Object { get; set; }
         }
     }
 }

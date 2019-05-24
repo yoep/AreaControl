@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
-using AreaControl.Instances;
+using System.Linq;
 using Rage;
 using Rage.Native;
 
-namespace AreaControl.Utils
+namespace AreaControl.Utils.Road
 {
     public static class RoadUtils
     {
@@ -15,18 +16,18 @@ namespace AreaControl.Utils
         /// <param name="position">Set the position to use as reference.</param>
         /// <param name="roadType">Set the road type.</param>
         /// <returns>Returns the position of the closest road.</returns>
-        public static Road GetClosestRoad(Vector3 position, RoadType roadType)
+        public static Instances.Road GetClosestRoad(Vector3 position, RoadType roadType)
         {
-            Road closestRoad = null;
+            Instances.Road closestRoad = null;
             var closestRoadDistance = 99999f;
-            
+
             foreach (var road in GetNearbyRoads(position, roadType))
             {
                 var roadDistanceToPosition = Vector3.Distance2D(road.Position, position);
 
-                if (roadDistanceToPosition > closestRoadDistance) 
+                if (roadDistanceToPosition > closestRoadDistance)
                     continue;
-                
+
                 closestRoad = road;
                 closestRoadDistance = roadDistanceToPosition;
             }
@@ -40,12 +41,12 @@ namespace AreaControl.Utils
         /// <param name="road">Set the road to get the closest lane of.</param>
         /// <param name="closestToPoint">Set the point.</param>
         /// <returns>Returns the closest lane of the road in regards to the given point.</returns>
-        public static Road.Lane GetClosestLane(Road road, Vector3 closestToPoint)
+        public static Instances.Road.Lane GetClosestLane(Instances.Road road, Vector3 closestToPoint)
         {
-            Assert.NotNull(road,"road cannot be null");
-            Assert.NotNull(closestToPoint,"closestToPoint cannot be null");
+            Assert.NotNull(road, "road cannot be null");
+            Assert.NotNull(closestToPoint, "closestToPoint cannot be null");
             var distanceClosestLane = 9999f;
-            Road.Lane closestLane = null;
+            Instances.Road.Lane closestLane = null;
 
             foreach (var lane in road.Lanes)
             {
@@ -67,7 +68,7 @@ namespace AreaControl.Utils
         /// <param name="position">Set the position to use as reference.</param>
         /// <param name="roadType">Set the road type.</param>
         /// <returns>Returns the position of the closest road.</returns>
-        public static IEnumerable<Road> GetNearbyRoads(Vector3 position, RoadType roadType)
+        public static IEnumerable<Instances.Road> GetNearbyRoads(Vector3 position, RoadType roadType)
         {
             Assert.NotNull(position, "position cannot be null");
             Assert.NotNull(roadType, "roadType cannot be null");
@@ -80,7 +81,7 @@ namespace AreaControl.Utils
             NativeFunction.Natives.GET_CLOSEST_ROAD(position.X, position.Y, position.Z, 1f, 1, out road1, out road2, out numberOfLanes1, out numberOfLanes2,
                 out junctionIndication, (int) roadType);
 
-            return new List<Road>
+            return new List<Instances.Road>
             {
                 DiscoverRoad(road1, numberOfLanes1, numberOfLanes2, junctionIndication),
                 DiscoverRoad(road2, numberOfLanes1, numberOfLanes2, junctionIndication)
@@ -97,11 +98,38 @@ namespace AreaControl.Utils
             return (heading + 180) % 360;
         }
 
+        /// <summary>
+        /// Check if the given lane is the left side lane of the road.
+        /// </summary>
+        /// <param name="road">The road to determine the lane side of.</param>
+        /// <param name="lane">The lane on the road to verify.</param>
+        /// <returns>Returns true if the given lane is the left lane of the road, else false.</returns>
+        public static bool IsLeftSideLane(Instances.Road road, Instances.Road.Lane lane)
+        {
+            var distanceRightSide = Vector3.Distance2D(road.RightSide, lane.Position);
+            var distanceLeftSide = Vector3.Distance2D(road.LeftSide, lane.Position);
+
+            return distanceLeftSide < distanceRightSide;
+        }
+
+        /// <summary>
+        /// Check if the road has multiple lanes in the same direction as the given lane.
+        /// </summary>
+        /// <param name="road">The road to verify the lanes of.</param>
+        /// <param name="lane">The lane to check for same direction.</param>
+        /// <returns>Returns true if the road has multiple lanes going in the same direction as the given lane.</returns>
+        public static bool HasMultipleLanesInSameDirection(Instances.Road road, Instances.Road.Lane lane)
+        {
+            return road.Lanes
+                .Where(x => x != lane)
+                .Any(x => Math.Abs(lane.Heading - x.Heading) < 1f);
+        }
+
         #endregion
 
         #region Functions
 
-        private static Road DiscoverRoad(Vector3 roadPosition, int numberOfLanes1, int numberOfLanes2, float junctionIndication)
+        private static Instances.Road DiscoverRoad(Vector3 roadPosition, int numberOfLanes1, int numberOfLanes2, float junctionIndication)
         {
             var rightSideHeading = GetVehicleNode(roadPosition).Heading;
             var roadRightSide = GetLastPointOnTheLane(roadPosition, rightSideHeading - 90f);
@@ -124,11 +152,11 @@ namespace AreaControl.Utils
                 .Build();
         }
 
-        private static List<Road.Lane> DiscoverLanes(Vector3 roadRightSide, Vector3 roadLeftSide, Vector3 roadMiddle, float rightSideHeading,
+        private static List<Instances.Road.Lane> DiscoverLanes(Vector3 roadRightSide, Vector3 roadLeftSide, Vector3 roadMiddle, float rightSideHeading,
             int numberOfLanes1, int numberOfLanes2)
         {
             var singleDirection = IsSingleDirectionRoad(numberOfLanes1, numberOfLanes2);
-            var lanes = new List<Road.Lane>();
+            var lanes = new List<Instances.Road.Lane>();
 
             if (singleDirection)
             {
@@ -148,11 +176,12 @@ namespace AreaControl.Utils
             return lanes;
         }
 
-        private static IEnumerable<Road.Lane> CreateLanes(Vector3 roadRightSide, float rightSideHeading, int numberOfLanes, float laneWidth, bool isOpposite)
+        private static IEnumerable<Instances.Road.Lane> CreateLanes(Vector3 roadRightSide, float rightSideHeading, int numberOfLanes, float laneWidth,
+            bool isOpposite)
         {
             var lastRightPosition = roadRightSide;
             var moveDirection = MathHelper.ConvertHeadingToDirection(rightSideHeading + 90f);
-            var lanes = new List<Road.Lane>();
+            var lanes = new List<Instances.Road.Lane>();
 
             for (var index = 1; index <= numberOfLanes; index++)
             {
@@ -273,7 +302,7 @@ namespace AreaControl.Utils
 
     internal class RoadBuilder
     {
-        private readonly List<Road.Lane> _lanes = new List<Road.Lane>();
+        private readonly List<Instances.Road.Lane> _lanes = new List<Instances.Road.Lane>();
         private Vector3 _position;
         private Vector3 _rightSide;
         private Vector3 _leftSide;
@@ -329,19 +358,19 @@ namespace AreaControl.Utils
             return this;
         }
 
-        public RoadBuilder Lanes(List<Road.Lane> lanes)
+        public RoadBuilder Lanes(List<Instances.Road.Lane> lanes)
         {
             Assert.NotNull(lanes, "lanes cannot be null");
             _lanes.AddRange(lanes);
             return this;
         }
 
-        public Road Build()
+        public Instances.Road Build()
         {
             Assert.NotNull(_position, "position has not been set");
             Assert.NotNull(_rightSide, "rightSide has not been set");
             Assert.NotNull(_leftSide, "leftSide has not been set");
-            return new Road(_position, _rightSide, _leftSide, _lanes.AsReadOnly(), _numberOfLanes1, _numberOfLanes2, _junctionIndicator);
+            return new Instances.Road(_position, _rightSide, _leftSide, _lanes.AsReadOnly(), _numberOfLanes1, _numberOfLanes2, _junctionIndicator);
         }
     }
 
@@ -404,9 +433,9 @@ namespace AreaControl.Utils
             return this;
         }
 
-        public Road.Lane Build()
+        public Instances.Road.Lane Build()
         {
-            return new Road.Lane(_number, _heading, _rightSide, _leftSide, _nodePosition, _width);
+            return new Instances.Road.Lane(_number, _heading, _rightSide, _leftSide, _nodePosition, _width);
         }
     }
 }

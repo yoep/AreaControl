@@ -89,9 +89,9 @@ namespace AreaControl.Utils
             return instance;
         }
 
-        public static Object CreateBarrier(Vector3 position)
+        public static Object CreateBarrier(Vector3 position, float heading = 0f)
         {
-            return new Object(new Model("prop_ld_barrier_01"), position);
+            return new Object(new Model("prop_ld_barrier_01"), position, heading);
         }
 
         public static Object CreateWorkerBarrierArrowRight(Vector3 position)
