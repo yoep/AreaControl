@@ -51,12 +51,17 @@ namespace AreaControl.Utils
         /// </summary>
         /// <param name="position">Set the position to clean.</param>
         /// <param name="radius">Set the area around the position to clean.</param>
-        public static void CleanArea(Vector3 position, float radius)
+        /// <param name="excludeEmergencyVehicles">Set if emergency vehicles should be excluded from the cleanup.</param>
+        public static void CleanArea(Vector3 position, float radius, bool excludeEmergencyVehicles = false)
         {
             Assert.NotNull(position, "position cannot be null");
+            var queryFlags = GetEntitiesFlags.ConsiderAllVehicles | GetEntitiesFlags.ExcludePlayerPed;
+
+            if (excludeEmergencyVehicles)
+                queryFlags |= GetEntitiesFlags.ExcludeAmbulances | GetEntitiesFlags.ExcludeFiretrucks | GetEntitiesFlags.ExcludePoliceCars;
+
             var entitiesToClean = World
-                .GetEntities(position, radius,
-                    GetEntitiesFlags.ConsiderGroundVehicles | GetEntitiesFlags.ConsiderAllObjects | GetEntitiesFlags.ExcludePlayerPed)
+                .GetEntities(position, radius, queryFlags)
                 .Where(x => x.IsValid())
                 .Where(x => x != Game.LocalPlayer.LastVehicle);
 

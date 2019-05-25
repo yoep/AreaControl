@@ -1,4 +1,5 @@
 using AreaControl.AbstractionLayer;
+using AreaControl.Actions.Model;
 using AreaControl.Menu;
 using RAGENativeUI.Elements;
 

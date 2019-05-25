@@ -69,6 +69,7 @@ namespace AreaControl.Utils
                     .Build();
 
             var originalPosition = new Vector3(entity.Position.X, entity.Position.Y, entity.Position.Z);
+            var originalHeading = entity.Heading;
             entity.MakePersistent();
             entity.Position = Vector3.Zero;
 
@@ -86,6 +87,7 @@ namespace AreaControl.Utils
                     return;
 
                 entity.Position = originalPosition;
+                entity.Heading = originalHeading;
                 PropUtils.PlaceCorrectlyOnGround(entity);
             };
             return executor;

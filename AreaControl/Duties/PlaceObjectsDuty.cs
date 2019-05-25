@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
-using AreaControl.Utils.Road;
 using Rage;
 
 namespace AreaControl.Duties
@@ -41,11 +40,12 @@ namespace AreaControl.Duties
             {
                 foreach (var placeObject in _objects)
                 {
-                    var headingBehindObject = RoadUtils.OppositeHeading(placeObject.Heading);
-                    var positionBehindCone = placeObject.Position + MathHelper.ConvertHeadingToDirection(headingBehindObject) * 0.8f;
+                    var playerPosition = Game.LocalPlayer.Character.Position;
+                    var headingPlayerToObjectPosition = MathHelper.ConvertDirectionToHeading(placeObject.Position - playerPosition);
+                    var positionBehindObject = placeObject.Position + MathHelper.ConvertHeadingToDirection(headingPlayerToObjectPosition) * 0.8f;
                     var walkToExecutor = _responseCode == ResponseCode.Code2
-                        ? Ped.WalkTo(positionBehindCone, placeObject.Heading)
-                        : Ped.RunTo(positionBehindCone, placeObject.Heading);
+                        ? Ped.WalkTo(positionBehindObject, headingPlayerToObjectPosition)
+                        : Ped.RunTo(positionBehindObject, headingPlayerToObjectPosition);
 
                     if (IsAborted)
                         break;

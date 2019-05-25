@@ -29,9 +29,6 @@ namespace AreaControl.Menu.Response
         public bool IsAutoClosed => false;
 
         /// <inheritdoc />
-        public bool IsVisible => true;
-
-        /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
         {
             _responseManager.UpdateResponseCode(GetSelectedValue());
@@ -45,11 +42,10 @@ namespace AreaControl.Menu.Response
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private void Init()
         {
-            
             ((UIMenuListItem) MenuItem).OnListChanged += OnChanged;
         }
 
-        private void OnChanged(UIMenuItem sender, int newindex)
+        private void OnChanged(UIMenuItem sender, int newIndex)
         {
             var selectedValue = GetSelectedValue();
             _responseManager.UpdateResponseCode(selectedValue);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AreaControl.AbstractionLayer;
+using AreaControl.Actions.Model;
 using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Menu;
@@ -17,7 +18,7 @@ namespace AreaControl.Actions.RedirectTraffic
     public class RedirectTrafficImpl : AbstractRedirectTraffic
     {
         private const float ScanRadius = 250f;
-        private const float VehiclePositionTolerance = 0.5f;
+        private const float VehiclePositionTolerance = 1f;
         private const float VehicleHeadingTolerance = 20f;
         private const string DispatchAudio = "WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION";
 

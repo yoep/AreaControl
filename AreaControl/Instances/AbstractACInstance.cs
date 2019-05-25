@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using AreaControl.AbstractionLayer;
 using AreaControl.Utils;
 using Rage;
 
@@ -8,6 +9,8 @@ namespace AreaControl.Instances
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public abstract class AbstractACInstance<TType> : IACEntity where TType : Entity
     {
+        protected readonly ILogger Logger = IoC.Instance.GetInstance<ILogger>();
+        
         private readonly float _blipScale;
 
         #region Constructors

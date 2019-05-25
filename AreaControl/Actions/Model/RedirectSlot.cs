@@ -5,7 +5,7 @@ using AreaControl.Utils;
 using AreaControl.Utils.Road;
 using Rage;
 
-namespace AreaControl.Actions.RedirectTraffic
+namespace AreaControl.Actions.Model
 {
     public class RedirectSlot : IPreviewSupport
     {
@@ -64,7 +64,7 @@ namespace AreaControl.Actions.RedirectTraffic
 
         #endregion
 
-        #region IPreviewSupport implementation
+        #region IPreviewSupport
 
         /// <inheritdoc />
         public bool IsPreviewActive => _previewObjects.Count > 0;
@@ -76,7 +76,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 return;
 
             _previewObjects.Add(new Vehicle("POLICE", Position, Heading));
-            _previewObjects.Add(new Ped(new Model("s_m_y_cop_01"), PedPosition, PedHeading));
+            _previewObjects.Add(new Ped(new Rage.Model("s_m_y_cop_01"), PedPosition, PedHeading));
             _previewObjects.ForEach(PreviewUtils.TransformToPreview);
             _cones.ForEach(x => x.CreatePreview());
             _sign.CreatePreview();
@@ -100,7 +100,7 @@ namespace AreaControl.Actions.RedirectTraffic
 
         public void ClearSlotFromTraffic()
         {
-            EntityUtils.CleanArea(Position, 5f);
+            EntityUtils.CleanArea(Position, 5f, true);
         }
 
         public override string ToString()
@@ -123,7 +123,7 @@ namespace AreaControl.Actions.RedirectTraffic
         private void CreateCones()
         {
             var headingToMove = PlaceConesRightSide ? -90f : 90f;
-            var headingThirdCone = PlaceConesRightSide ? -40f : 40f;
+            var headingThirdCone = PlaceConesRightSide ? -25f : 25f;
             var directionLeftOfVehicle = MathHelper.ConvertHeadingToDirection(Heading + headingToMove);
             var moveHeading = PedHeading;
             var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(moveHeading);

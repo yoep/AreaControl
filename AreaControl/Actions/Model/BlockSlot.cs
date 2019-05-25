@@ -6,7 +6,7 @@ using AreaControl.Utils;
 using AreaControl.Utils.Road;
 using Rage;
 
-namespace AreaControl.Actions.CloseRoad
+namespace AreaControl.Actions.Model
 {
     public class BlockSlot : IPreviewSupport
     {
@@ -23,6 +23,8 @@ namespace AreaControl.Actions.CloseRoad
 
             CreateBarriers();
         }
+        
+        #region Properties
 
         /// <summary>
         /// Get the heading of the block slot.
@@ -53,6 +55,8 @@ namespace AreaControl.Actions.CloseRoad
         /// Get the barriers for this road block slot.
         /// </summary>
         public IReadOnlyList<Barrier> Barriers => _barriers.AsReadOnly();
+        
+        #endregion
 
         #region IPreviewSupport
 
@@ -63,7 +67,7 @@ namespace AreaControl.Actions.CloseRoad
         public void CreatePreview()
         {
             _previewObjects.Add(new Vehicle("POLICE", Position, Heading));
-            _previewObjects.Add(new Ped(new Model("s_m_y_cop_01"), PedPosition, PedHeading));
+            _previewObjects.Add(new Ped(new Rage.Model("s_m_y_cop_01"), PedPosition, PedHeading));
             _barriers.ForEach(x => _previewObjects.Add(PropUtils.CreatePoliceDoNotCrossBarrier(x.Position, x.Heading)));
 
             _previewObjects.ForEach(PreviewUtils.TransformToPreview);

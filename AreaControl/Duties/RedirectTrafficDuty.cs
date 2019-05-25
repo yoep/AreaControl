@@ -1,4 +1,3 @@
-using AreaControl.Menu;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
@@ -70,17 +69,34 @@ namespace AreaControl.Duties
 
         private void PlayRedirectTrafficAnimation()
         {
-            var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(_position, _heading) : Ped.RunTo(_position, _heading);
-            var taskExecutor = goToExecutor
-                .WaitForCompletion(20000);
-            Rage.LogTrivialDebug("Completed walk to redirect traffic position with " + taskExecutor);
-            Rage.LogTrivialDebug("Starting to play redirect traffic animation...");
+            var goToTaskExecutor = CreateGoToTask().WaitForCompletion(10000);
+            Logger.Trace("Completed walk to redirect traffic position with " + goToTaskExecutor);
+
+            Logger.Trace("Starting to play redirect traffic animation...");
             _animationTaskExecutor = AnimationUtils.RedirectTraffic(Ped);
             _animationTaskExecutor.OnCompletion += (sender, args) =>
             {
                 if (Ped.IsValid)
                     PlayRedirectTrafficAnimation();
             };
+        }
+
+        private TaskExecutor CreateGoToTask()
+        {
+            var goToExecutor = _code == ResponseCode.Code2
+                ? Ped.WalkTo(_position, _heading)
+                : Ped.RunTo(_position, _heading);
+
+            goToExecutor.OnAborted += (sender, args) => OnGoToAborted();
+
+            return goToExecutor;
+        }
+
+        private void OnGoToAborted()
+        {
+            // warp player into correct position as the go to task executor has been aborted
+            Logger.Trace("Warping ped into position for RedirectTrafficDuty as the task executor has been aborted");
+            Ped.WarpTo(_position, _heading);
         }
 
         #endregion

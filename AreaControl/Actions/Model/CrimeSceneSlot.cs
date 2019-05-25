@@ -4,14 +4,15 @@ using AreaControl.Instances.Scenery;
 using AreaControl.Utils.Road;
 using Rage;
 
-namespace AreaControl.Actions.CrimeScene
+namespace AreaControl.Actions.Model
 {
     public class CrimeSceneSlot : IPreviewSupport
     {
         private const float DistanceBetweenBarriers = 3f;
 
         private readonly List<Barrier> _barriers = new List<Barrier>();
-
+        private BlockSlot _blockSlot;
+            
         public CrimeSceneSlot(Road startPoint, Road endPoint, Vector3 originalPlayerPosition)
         {
             StartPoint = startPoint;
@@ -25,7 +26,6 @@ namespace AreaControl.Actions.CrimeScene
             Init();
         }
 
-
         #region Properties
 
         /// <summary>
@@ -33,6 +33,9 @@ namespace AreaControl.Actions.CrimeScene
         /// </summary>
         public Road StartPoint { get; }
 
+        /// <summary>
+        /// Get the start lane of the crime scene.
+        /// </summary>
         public Road.Lane StartLane { get; }
 
         /// <summary>
@@ -40,6 +43,9 @@ namespace AreaControl.Actions.CrimeScene
         /// </summary>
         public Road EndPoint { get; }
 
+        /// <summary>
+        /// Get the end lane of the crime scene.
+        /// </summary>
         public Road.Lane EndLane { get; }
 
         /// <summary>
@@ -59,17 +65,19 @@ namespace AreaControl.Actions.CrimeScene
         #region IPreviewSupport
 
         /// <inheritdoc />
-        public bool IsPreviewActive { get; }
+        public bool IsPreviewActive => _blockSlot.IsPreviewActive;
 
         /// <inheritdoc />
         public void CreatePreview()
         {
+            _blockSlot.CreatePreview();
             _barriers.ForEach(x => x.CreatePreview());
         }
 
         /// <inheritdoc />
         public void DeletePreview()
         {
+            _blockSlot.DeletePreview();
             _barriers.ForEach(x => x.DeletePreview());
         }
 
@@ -83,6 +91,10 @@ namespace AreaControl.Actions.CrimeScene
             var moveDirection = MathHelper.ConvertHeadingToDirection(StartLane.Heading);
             var lastPosition = IsLeftSideOfRoad ? StartLane.RightSide : StartLane.LeftSide;
             
+            // create a block slot at the start lane of the crime scene
+            _blockSlot = new BlockSlot(StartLane.Position, StartLane.Heading);
+            
+            // create barriers in the length of the crime scene
             for (var i = 0; i < sceneDistance / DistanceBetweenBarriers; i++)
             {
                 var position = lastPosition + moveDirection * DistanceBetweenBarriers;

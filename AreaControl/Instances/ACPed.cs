@@ -25,6 +25,7 @@ namespace AreaControl.Instances
         public ACPed(Ped instance, long id)
             : base(instance, id, 0.75f)
         {
+            instance.KeepTasks = true;
         }
 
         #endregion
@@ -114,8 +115,8 @@ namespace AreaControl.Instances
         public TaskExecutor WalkTo(Vector3 position, float heading)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtils.GoToRage(Instance, position, heading, MovementSpeed.Walk);
-            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            var taskExecutor = TaskUtils.GoToNative(Instance, position, heading, MovementSpeed.Walk);
+            taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
             return taskExecutor;
         }
 
@@ -129,7 +130,7 @@ namespace AreaControl.Instances
         {
             IsBusy = true;
             var taskExecutor = TaskUtils.GoToNative(Instance, position, heading, MovementSpeed.Run);
-            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
             return taskExecutor;
         }
 
@@ -141,7 +142,7 @@ namespace AreaControl.Instances
         {
             IsBusy = true;
             var taskExecutor = TaskUtils.GoToEntity(Instance, target, MovementSpeed.Walk);
-            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
             return taskExecutor;
         }
 
@@ -154,7 +155,7 @@ namespace AreaControl.Instances
         {
             IsBusy = true;
             var taskExecutor = TaskUtils.GoToEntity(Instance, target, MovementSpeed.Run);
-            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
             return taskExecutor;
         }
 
@@ -168,7 +169,7 @@ namespace AreaControl.Instances
         {
             IsBusy = true;
             var taskExecutor = TaskUtils.LookAtEntity(Instance, target, duration);
-            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
             return taskExecutor;
         }
 
@@ -185,7 +186,7 @@ namespace AreaControl.Instances
 
             IsBusy = true;
             var taskExecutor = TaskUtils.EnterVehicle(Instance, LastVehicle.Instance, LastVehicleSeat, speed);
-            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
             return taskExecutor;
         }
 
@@ -197,8 +198,8 @@ namespace AreaControl.Instances
         public TaskExecutor LeaveVehicle(LeaveVehicleFlags leaveVehicleFlags)
         {
             IsBusy = true;
-            var taskExecutor = TaskUtils.LeaveVehicle(Instance, Instance.LastVehicle, leaveVehicleFlags);
-            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            var taskExecutor = TaskUtils.LeaveVehicleNative(Instance, leaveVehicleFlags);
+            taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
             return taskExecutor;
         }
 
@@ -213,7 +214,7 @@ namespace AreaControl.Instances
         {
             IsBusy = true;
             var taskExecutor = TaskUtils.PlayAnimation(Instance, animationDictionary, animationName, animationFlags);
-            taskExecutor.OnCompletion += TaskExecutorOnCompletion();
+            taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
             return taskExecutor;
         }
 
@@ -227,7 +228,7 @@ namespace AreaControl.Instances
                 return;
 
             Target = entity;
-            
+
             if (Target is Ped ped)
             {
                 Instance.Tasks.FightAgainst(ped);
@@ -236,6 +237,17 @@ namespace AreaControl.Instances
             {
                 Instance.Tasks.FireWeaponAt(Target, 60, FiringPattern.BurstFire);
             }
+        }
+
+        /// <summary>
+        /// Warp the ped into the given position.
+        /// </summary>
+        /// <param name="position">The new position of the ped.</param>
+        /// <param name="heading">The new heading of the ped.</param>
+        public void WarpTo(Vector3 position, float heading)
+        {
+            Instance.Position = position;
+            Instance.Heading = heading;
         }
 
         /// <summary>
@@ -303,7 +315,15 @@ namespace AreaControl.Instances
         public void WanderAround()
         {
             IsBusy = false;
-            Instance.Tasks.Wander();
+
+            try
+            {
+                Instance.Tasks.Wander();
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"Ped task wander around failed with error: {ex.Message}", ex);
+            }
         }
 
         #endregion
@@ -318,7 +338,7 @@ namespace AreaControl.Instances
 
         #region Functions
 
-        private EventHandler TaskExecutorOnCompletion()
+        private EventHandler TaskExecutorOnCompletionOrAborted()
         {
             return (sender, args) => IsBusy = false;
         }

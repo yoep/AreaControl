@@ -117,7 +117,10 @@ namespace AreaControl.Utils.Tasks
             Assert.NotNull(_executorEntities, "executor entities have not been set");
             Assert.NotNull(_animationDictionary, "animationDictionary type has not been set");
             Assert.NotNull(_animationName, "animationName has not been set");
-            Assert.NotNull(_rageAnimationTask, "rageAnimationTask has not been set");
+
+            // if the task is not being aborted, check if the rage animation task is present
+            if (!_isAborted)
+                Assert.NotNull(_rageAnimationTask, "rageAnimationTask has not been set");
 
             return new AnimationTaskExecutor(ConvertExecutorEntities(), _animationDictionary, _animationName, _rageAnimationTask, _isAborted);
         }

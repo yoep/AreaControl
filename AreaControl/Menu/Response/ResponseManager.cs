@@ -45,8 +45,8 @@ namespace AreaControl.Menu.Response
         {
             var code = int.Parse(selectedValue.Substring(selectedValue.Length - 2));
 
+            _logger.Trace($"Changing response code state from {ResponseCode} to {code}");
             ResponseCode = code == (int) ResponseCode.Code2 ? ResponseCode.Code2 : ResponseCode.Code3;
-            _logger.Debug($"Response code has been changed to {ResponseCode}");
         }
 
         public string GetResponseCodeValue(ResponseCode code)

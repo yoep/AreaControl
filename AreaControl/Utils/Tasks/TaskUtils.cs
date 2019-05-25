@@ -160,21 +160,37 @@ namespace AreaControl.Utils.Tasks
         }
 
         /// <summary>
-        /// Leave the given vehicle.
+        /// Leave the given vehicle using the native function.
         /// </summary>
         /// <param name="ped">Set the ped to execute the given action.</param>
         /// <param name="vehicle">Set the vehicle to leave.</param>
         /// <param name="leaveVehicleFlags">Set the task flags.</param>
         /// <returns>Returns the task executor for this task.</returns>
-        public static TaskExecutor LeaveVehicle(Ped ped, Vehicle vehicle, LeaveVehicleFlags leaveVehicleFlags)
+        public static TaskExecutor LeaveVehicleNative(Ped ped, LeaveVehicleFlags leaveVehicleFlags)
         {
             Assert.NotNull(ped, "ped cannot be null");
-            Assert.NotNull(vehicle, "vehicle cannot be null");
-            NativeFunction.Natives.TASK_LEAVE_VEHICLE(ped, vehicle, (int) leaveVehicleFlags);
+            NativeFunction.Natives.TASK_LEAVE_VEHICLE(ped, ped.LastVehicle, (int) leaveVehicleFlags);
 
             return TaskExecutorBuilder.Builder()
                 .IdentificationType(TaskIdentificationType.Hash)
                 .TaskHash(TaskHash.TASK_LEAVE_VEHICLE)
+                .ExecutorEntities(new List<Ped> {ped})
+                .Build();
+        }
+        
+        /// <summary>
+        /// Leave the given vehicle using the RAGE function.
+        /// </summary>
+        /// <param name="ped">Set the ped to execute the given action.</param>
+        /// <param name="leaveVehicleFlags">Set the task flags.</param>
+        /// <returns>Returns the task executor for this task.</returns>
+        public static TaskExecutor LeaveVehicleRage(Ped ped, LeaveVehicleFlags leaveVehicleFlags)
+        {
+            Assert.NotNull(ped, "ped cannot be null");
+            var task = ped.Tasks.LeaveVehicle(leaveVehicleFlags);
+
+            return RageTaskExecutorBuilder.Builder()
+                .Task(task)
                 .ExecutorEntities(new List<Ped> {ped})
                 .Build();
         }

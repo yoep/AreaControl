@@ -315,8 +315,12 @@ namespace AreaControl
 
         private static void InvokePostConstruct(object instance)
         {
-            var postConstructMethod = instance.GetType()
-                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            var instanceType = instance.GetType();
+            var types = new List<Type> {instanceType};
+            types.AddRange(GetAllBaseTypes(instanceType));
+            
+            var postConstructMethod = types
+                .SelectMany(x => x.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                 .SingleOrDefault(x => x.GetCustomAttribute<PostConstruct>() != null);
 
             if (postConstructMethod == null)
@@ -335,6 +339,22 @@ namespace AreaControl
             {
                 throw new IoCException(PostConstructName + " failed with error:" + Environment.NewLine + ex.Message, ex);
             }
+        }
+
+        private static IEnumerable<Type> GetAllBaseTypes(Type type)
+        {
+            var baseTypes = new List<Type>();
+            var baseType = type.BaseType;
+
+            // if given type doesn't have a base type, return the empty list
+            if (baseType == null) 
+                return baseTypes;
+            
+            // otherwise, add the base type as first element in the list and request all other base types of this base type
+            baseTypes.Add(baseType);
+            baseTypes.AddRange(GetAllBaseTypes(baseType));
+
+            return baseTypes;
         }
 
         private bool AreAllParametersRegistered(ConstructorInfo constructor)

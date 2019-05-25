@@ -23,7 +23,7 @@ Closes the road closest to the player & cleans the road area from wrecks and dea
 Redirects the traffic from the side of the road. This will make it safer for you to work.
 
 - Call one backup vehicle which will redirect the traffic
-- Auto places cones for redirecting the traffic (optional)
+- Auto places cones and signs for redirecting the traffic (optional)
 
 ### Traffic Break
 Busy streets (such as highways) will be slowed down by one or more backup unit(s) which will drive from a distance behind the player to the player.
@@ -35,8 +35,18 @@ Busy streets (such as highways) will be slowed down by one or more backup unit(s
 ### Crime Scene (WIP)
 Create a dynamic crime scene in the area of the player.
 
+- Call backup unit(s) for closing down the surrounding area
+    - Backup unit will place down barriers and signs
+    - Backup unit will place down spots
+- Call EMS & Firetruck
+
 ### Riot (WIP)
 Citizens have started a riot in the city, keep the riot under control. (Integration with Computer+)
+The rioting citizens will move through the streets in groups and attack nearby vehicles and citizens.
+
+- Spawns rioting citizens with bats and molotov's
+- Spawns riot scenery items (burning vehicles & trash bins)
+- Backup unit will close down nearby intersections
 
 ## Planned Features
 
@@ -47,6 +57,7 @@ Citizens have started a riot in the city, keep the riot under control. (Integrat
     - Auto call EMS when closing the road and death bodies are present
     - Different standby states for idle police peds between code 2 and 3
 - Protest Callout
+- More configuration options
 
 ## Dependencies
 - [RAGE Plugin Hook](http://ragepluginhook.net/)

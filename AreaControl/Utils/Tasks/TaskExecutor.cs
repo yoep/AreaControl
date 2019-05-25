@@ -15,6 +15,7 @@ namespace AreaControl.Utils.Tasks
             TaskId = taskId;
             TaskHash = taskHash;
             ExecutorEntities = executorEntities;
+            
             Init();
         }
 
@@ -177,7 +178,8 @@ namespace AreaControl.Utils.Tasks
         {
             GameFiber.StartNew(() =>
             {
-                while (!IsCompleted | !IsAborted)
+                // keep checking the state of the task when the task has not yet been completed or aborted
+                while (!IsCompleted && !IsAborted)
                 {
                     switch (IdentificationType)
                     {
@@ -197,7 +199,7 @@ namespace AreaControl.Utils.Tasks
                     if (ExecutorEntities.All(x => x.CompletedTask))
                         IsCompleted = true;
 
-                    GameFiber.Sleep(50);
+                    GameFiber.Wait(100);
                 }
 
                 if (IsCompleted)
