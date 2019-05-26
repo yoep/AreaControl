@@ -32,6 +32,10 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Albo1125.Common, Version=6.6.4.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Libs\Albo1125.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Arrest Manager, Version=7.9.2.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Libs\Arrest Manager.dll</HintPath>
       <Private>False</Private>
@@ -83,8 +87,11 @@
     <Compile Include="Actions\CrimeScene\CrimeScenePreview.cs" />
     <Compile Include="Actions\CrimeScene\ICrimeScene.cs" />
     <Compile Include="Actions\CrimeScene\ICrimeScenePreview.cs" />
+    <Compile Include="Actions\Model\AbstractVehicleSlot.cs" />
+    <Compile Include="Actions\Model\AmbulanceSlot.cs" />
     <Compile Include="Actions\Model\BlockSlot.cs" />
     <Compile Include="Actions\Model\CrimeSceneSlot.cs" />
+    <Compile Include="Actions\Model\FireTruckSlot.cs" />
     <Compile Include="Actions\Model\RedirectSlot.cs" />
     <Compile Include="Actions\RedirectTraffic\AbstractRedirectTraffic.cs" />
     <Compile Include="Actions\RedirectTraffic\IRedirectTraffic.cs" />
@@ -127,7 +134,8 @@
     <Compile Include="Instances\MovementSpeed.cs" />
     <Compile Include="Instances\Scenery\Barrier.cs" />
     <Compile Include="Instances\Scenery\Cone.cs" />
-    <Compile Include="Instances\Scenery\SceneryItem.cs" />
+    <Compile Include="Instances\Scenery\AbstractPlaceableSceneryItem.cs" />
+    <Compile Include="Instances\Scenery\GroundFloodLight.cs" />
     <Compile Include="Instances\Scenery\StoppedVehiclesSign.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IoCException.cs" />
@@ -156,6 +164,7 @@
     <Compile Include="Settings\SettingsManager.cs" />
     <Compile Include="Utils\AnimationUtils.cs" />
     <Compile Include="Utils\EntityUtils.cs" />
+    <Compile Include="Utils\GameTimeUtils.cs" />
     <Compile Include="Utils\ModelUtils.cs" />
     <Compile Include="Utils\ModIntegrationUtils.cs" />
     <Compile Include="Utils\PreviewUtils.cs" />
@@ -174,6 +183,7 @@
     <Compile Include="Utils\Tasks\TaskId.cs" />
     <Compile Include="Utils\Tasks\TaskIdentificationType.cs" />
     <Compile Include="Utils\Tasks\TaskUtils.cs" />
+    <Compile Include="Utils\TimePeriod.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AreaControl.ini">

@@ -141,7 +141,9 @@ namespace AreaControl.Actions.RedirectTraffic
 
         private void PlaceSceneryItems(ACPed ped, RedirectSlot redirectSlot)
         {
-            if (!_settingsManager.RedirectTrafficSettings.PlaceSceneryItems)
+            var redirectTrafficSettings = GetRedirectTrafficSettings();
+
+            if (!redirectTrafficSettings.PlaceSceneryItems)
                 return;
 
             //walk to front of car to prevent being stuck at the side when placing cones on the right side of the vehicle
@@ -156,12 +158,21 @@ namespace AreaControl.Actions.RedirectTraffic
             {
                 _placedObjects.Add(cone.Object);
             }
-            
+
             // add sign to place object duty
             _placedObjects.Add(redirectSlot.Sign.Object);
 
+            // add sign light to place object duty of required
+            if (redirectTrafficSettings.AlwaysPlaceLight || GameTimeUtils.TimePeriod == TimePeriod.Evening || GameTimeUtils.TimePeriod == TimePeriod.Night)
+                _placedObjects.Add(redirectSlot.SignLight.Object);
+
             _dutyManager.RegisterDuty(ped,
                 new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, true));
+        }
+
+        private RedirectTrafficSettings GetRedirectTrafficSettings()
+        {
+            return _settingsManager.RedirectTrafficSettings;
         }
 
         private static Vector3 GetSpawnPosition(RedirectSlot redirectSlot)

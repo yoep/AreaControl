@@ -8,14 +8,14 @@ namespace AreaControl.Instances.Scenery
     /// <summary>
     /// Object item that is part of an action's scenery.
     /// </summary>
-    public abstract class SceneryItem : IPreviewSupport
+    public abstract class AbstractPlaceableSceneryItem : IPreviewSupport
     {
         private PlaceObjectsDuty.PlaceObject _placeObject;
         private Object _previewObject;
 
         #region Constructors
 
-        protected SceneryItem(Vector3 position, float heading)
+        protected AbstractPlaceableSceneryItem(Vector3 position, float heading)
         {
             Position = position;
             Heading = heading;

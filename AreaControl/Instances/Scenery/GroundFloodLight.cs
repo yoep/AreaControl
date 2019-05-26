@@ -3,20 +3,16 @@ using Rage;
 
 namespace AreaControl.Instances.Scenery
 {
-    public class Cone: AbstractPlaceableSceneryItem
+    public class GroundFloodLight : AbstractPlaceableSceneryItem
     {
-        public Cone(Vector3 position, float heading)
+        public GroundFloodLight(Vector3 position, float heading) 
             : base(position, heading)
         {
         }
 
-        #region Functions
-
         protected override Object CreateItemInstance()
         {
-            return PropUtils.CreateSmallConeWithStripes(Position);
+            return PropUtils.CreateGroundFloodLight(Position, Heading);
         }
-
-        #endregion
     }
 }

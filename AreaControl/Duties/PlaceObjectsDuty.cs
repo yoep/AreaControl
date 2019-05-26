@@ -40,12 +40,11 @@ namespace AreaControl.Duties
             {
                 foreach (var placeObject in _objects)
                 {
-                    var playerPosition = Game.LocalPlayer.Character.Position;
-                    var headingPlayerToObjectPosition = MathHelper.ConvertDirectionToHeading(placeObject.Position - playerPosition);
-                    var positionBehindObject = placeObject.Position + MathHelper.ConvertHeadingToDirection(headingPlayerToObjectPosition) * 0.8f;
+                    var directionPlayerToObject = GetPlayerDirectionToObject(placeObject);
+                    var positionBehindObject = placeObject.Position - directionPlayerToObject * 0.8f;
                     var walkToExecutor = _responseCode == ResponseCode.Code2
-                        ? Ped.WalkTo(positionBehindObject, headingPlayerToObjectPosition)
-                        : Ped.RunTo(positionBehindObject, headingPlayerToObjectPosition);
+                        ? Ped.WalkTo(positionBehindObject, placeObject.Heading)
+                        : Ped.RunTo(positionBehindObject, placeObject.Heading);
 
                     if (IsAborted)
                         break;
@@ -72,6 +71,15 @@ namespace AreaControl.Duties
         {
             base.Abort();
             Rage.NewSafeFiber(() => Ped.DeleteAttachments(), "PlaceObjectsDuty.Abort");
+        }
+
+        #endregion
+
+        #region Functions
+
+        private static Vector3 GetPlayerDirectionToObject(PlaceObject placeObject)
+        {
+            return MathHelper.ConvertHeadingToDirection(placeObject.Heading);
         }
 
         #endregion

@@ -123,6 +123,26 @@ namespace AreaControl.Utils
             return barrier;
         }
 
+        public static Object CreateGeneratorWithLights(Vector3 position, float heading = 0f)
+        {
+            return new Object(new Model("prop_generator_03b"), position, heading);
+        }
+
+        public static Object CreateFloodLight(Vector3 position, float heading = 0f)
+        {
+            return new Object(new Model("prop_worklight_03a"), position, heading);
+        }
+
+        public static Object CreateFloodLights(Vector3 position, float heading = 0f)
+        {
+            return new Object(new Model("prop_worklight_03b"), position, heading);
+        }
+
+        public static Object CreateGroundFloodLight(Vector3 position, float heading = 0f)
+        {
+            return new Object(new Model("prop_worklight_02a"), position, heading);
+        }
+
         #endregion
 
         #region Methods

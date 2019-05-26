@@ -12,7 +12,6 @@ namespace AreaControl.Actions.Model
         private const float PedDistanceFromVehicle = 3f;
         private readonly List<Entity> _previewObjects = new List<Entity>();
         private readonly List<Cone> _cones = new List<Cone>();
-        private StoppedVehiclesSign _sign;
 
         public RedirectSlot(Vector3 position, float heading, bool placeConesOnRightSide)
         {
@@ -60,7 +59,12 @@ namespace AreaControl.Actions.Model
         /// <summary>
         /// Get the stopped vehicles sign to place for this redirect traffic slot.
         /// </summary>
-        public StoppedVehiclesSign Sign => _sign;
+        public StoppedVehiclesSign Sign { get; private set; }
+
+        /// <summary>
+        /// Get the light for the sign.
+        /// </summary>
+        public GroundFloodLight SignLight { get; private set; }
 
         #endregion
 
@@ -79,7 +83,8 @@ namespace AreaControl.Actions.Model
             _previewObjects.Add(new Ped(new Rage.Model("s_m_y_cop_01"), PedPosition, PedHeading));
             _previewObjects.ForEach(PreviewUtils.TransformToPreview);
             _cones.ForEach(x => x.CreatePreview());
-            _sign.CreatePreview();
+            Sign.CreatePreview();
+            SignLight.CreatePreview();
         }
 
         /// <inheritdoc />
@@ -91,7 +96,8 @@ namespace AreaControl.Actions.Model
             _previewObjects.ForEach(EntityUtils.Remove);
             _previewObjects.Clear();
             _cones.ForEach(x => x.DeletePreview());
-            _sign.DeletePreview();
+            Sign.DeletePreview();
+            SignLight.DeletePreview();
         }
 
         #endregion
@@ -139,10 +145,12 @@ namespace AreaControl.Actions.Model
         private void CreateSign()
         {
             var headingBehindVehicle = PedHeading;
-            var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(headingBehindVehicle);
-            var positionBehindVehicle = Position + directionBehindVehicle * 8f;
+            var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(headingBehindVehicle + 10f);
+            var positionSign = Position + directionBehindVehicle * 8f;
+            var positionLight = positionSign + directionBehindVehicle * 2f;
 
-            _sign = new StoppedVehiclesSign(positionBehindVehicle, RoadUtils.OppositeHeading(headingBehindVehicle));
+            Sign = new StoppedVehiclesSign(positionSign, RoadUtils.OppositeHeading(headingBehindVehicle));
+            SignLight = new GroundFloodLight(positionLight, headingBehindVehicle);
         }
 
         #endregion

@@ -3,7 +3,7 @@ using Rage;
 
 namespace AreaControl.Instances.Scenery
 {
-    public class StoppedVehiclesSign : SceneryItem
+    public class StoppedVehiclesSign : AbstractPlaceableSceneryItem
     {
         public StoppedVehiclesSign(Vector3 position, float heading)
             : base(position, heading)

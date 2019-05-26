@@ -63,6 +63,7 @@ The rioting citizens will move through the streets in groups and attack nearby v
 - [RAGE Plugin Hook](http://ragepluginhook.net/)
 - [RAGE Native UI](https://github.com/alexguirre/RAGENativeUI)
 - [LSPDFR](https://www.lcpdfr.com/files/file/7792-lspd-first-response/)
+- [Albo1125.Common](https://www.lcpdfr.com/files/file/10294-albo1125common/)
 - [Arrest Manager](https://www.lcpdfr.com/files/file/8107-arrest-manager-grab-peds-more-jail-points-prisoner-transport-more/) _(optional but recommended)_
 - [Computer+](https://www.lcpdfr.com/files/file/11453-lspdfr-computer/) _(optional but recommended)_
 

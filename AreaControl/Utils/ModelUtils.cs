@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Albo1125.Common.CommonLibrary;
 using LSPD_First_Response.Engine.Scripting;
 using LSPD_First_Response.Mod.API;
 using Rage;
@@ -61,23 +62,10 @@ namespace AreaControl.Utils
             "a_m_y_salton_01",
             "csb_trafficwarden"
         };
-        
-        internal static readonly List<string> RiotVehicleModels = new List<string>
-        {
-            "Asea",
-            "Intruder",
-            "Surge",
-            "Stratum",
-            "Stanier",
-            "Primo",
-            "Emperor2",
-            "Emperor3",
-            "Warrener",
-            "Taxi",
-            "Bus"
-        };
 
         #endregion
+
+        #region Methods
 
         /// <summary>
         /// Get a local ped model for the given position.
@@ -108,6 +96,24 @@ namespace AreaControl.Utils
         }
 
         /// <summary>
+        /// Get the ambulance vehicle model.
+        /// </summary>
+        /// <returns>Returns the ambulance model.</returns>
+        public static Model GetAmbulance()
+        {
+            return new Model("AMBULANCE");
+        }
+
+        /// <summary>
+        /// Get the firetruck vehicle model.
+        /// </summary>
+        /// <returns>Returns the firetruck model.</returns>
+        public static Model GetFireTruck()
+        {
+            return new Model("FIRETRUK");
+        }
+
+        /// <summary>
         /// Get a ped riot model.
         /// </summary>
         /// <returns>Returns a model for a riot ped.</returns>
@@ -115,15 +121,19 @@ namespace AreaControl.Utils
         {
             return RiotPedModels[Random.Next(RiotPedModels.Count)];
         }
-        
+
         /// <summary>
         /// Get a vehicle riot model.
         /// </summary>
         /// <returns>Returns a model for a riot vehicle.</returns>
         public static Model GetRiotVehicleModel()
         {
-            return RiotVehicleModels[Random.Next(RiotVehicleModels.Count)];
+            var cars = CommonVariables.CarsToSelectFrom;
+            
+            return cars[Random.Next(cars.Length)];
         }
+
+        #endregion
 
         private static bool IsCountyZone(WorldZone zone)
         {

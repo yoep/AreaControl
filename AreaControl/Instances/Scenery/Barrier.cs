@@ -3,7 +3,7 @@ using Rage;
 
 namespace AreaControl.Instances.Scenery
 {
-    public class Barrier : SceneryItem
+    public class Barrier : AbstractPlaceableSceneryItem
     {
         public Barrier(Vector3 position, float heading)
             : base(position, heading)
