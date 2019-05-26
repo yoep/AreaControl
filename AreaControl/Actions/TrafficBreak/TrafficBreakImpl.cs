@@ -11,6 +11,7 @@ using AreaControl.Utils.Tasks;
 using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
+using VehicleType = AreaControl.Instances.VehicleType;
 
 namespace AreaControl.Actions.TrafficBreak
 {
@@ -93,7 +94,7 @@ namespace AreaControl.Actions.TrafficBreak
                     var laneNearPlayer = applicableLanesNearPlayer[i];
                     var laneBehindPlayer = GetLaneFromIndex(applicableLanesBehindPlayer, i);
 
-                    var vehicle = _entityManager.FindVehicleWithinOrCreateAt(laneBehindPlayer.Position, laneBehindPlayer.Position, 30f, 1);
+                    var vehicle = _entityManager.FindVehicleWithinOrCreateAt(laneBehindPlayer.Position, laneBehindPlayer.Position, VehicleType.Police, 30f, 1);
                     vehicle.EnableSirens();
 
                     var executor = vehicle.DriveToPosition(laneNearPlayer.Position, 15f, VehicleDrivingFlags.Emergency, 10f);

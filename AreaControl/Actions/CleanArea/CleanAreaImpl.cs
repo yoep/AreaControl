@@ -49,7 +49,7 @@ namespace AreaControl.Actions.CleanArea
         {
             _rage.NewSafeFiber(() =>
             {
-                var allCops = _entityManager.FindPedsWithin(Game.LocalPlayer.Character.Position, SearchPedRadius);
+                var allCops = _entityManager.FindPedsWithin(Game.LocalPlayer.Character.Position, SearchPedRadius, PedType.Cop);
                 var availableCops = allCops
                     .Where(x => !x.IsBusy)
                     .ToList();

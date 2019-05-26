@@ -56,6 +56,8 @@ The rioting citizens will move through the streets in groups and attack nearby v
 - Close Road
     - Auto call EMS when closing the road and death bodies are present
     - Different standby states for idle police peds between code 2 and 3
+- Crime Scene 
+    - Determine crime severity based on surroundings (FBI presence or not)
 - Protest Callout
 - More configuration options
 

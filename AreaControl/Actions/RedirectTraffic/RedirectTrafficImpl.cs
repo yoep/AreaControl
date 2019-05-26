@@ -12,6 +12,7 @@ using AreaControl.Utils.Road;
 using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
+using VehicleType = AreaControl.Instances.VehicleType;
 
 namespace AreaControl.Actions.RedirectTraffic
 {
@@ -98,7 +99,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
 
                 var spawnPosition = GetSpawnPosition(_redirectSlot);
-                var vehicle = _entityManager.FindVehicleWithinOrCreateAt(_redirectSlot.Position, spawnPosition, ScanRadius, 1);
+                var vehicle = _entityManager.FindVehicleWithinOrCreateAt(_redirectSlot.Position, spawnPosition, VehicleType.Police, ScanRadius, 1);
 
                 MoveToSlot(_redirectSlot, vehicle);
 

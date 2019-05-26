@@ -15,14 +15,20 @@ namespace AreaControl.Instances
     {
         #region Constructors
 
-        public ACVehicle(Vehicle instance, long id)
+        public ACVehicle(Vehicle instance, VehicleType type, long id)
             : base(instance, id, 1f)
         {
+            Type = type;
         }
 
         #endregion
 
         #region Properties
+        
+        /// <summary>
+        /// Get the type of the vehicle.
+        /// </summary>
+        public VehicleType Type { get; }
 
         /// <summary>
         /// Get or set the Area Controlled passengers of this vehicle.

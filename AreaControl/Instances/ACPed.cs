@@ -22,15 +22,21 @@ namespace AreaControl.Instances
 
         #region Constructors
 
-        public ACPed(Ped instance, long id)
+        public ACPed(Ped instance, PedType type, long id)
             : base(instance, id, 0.75f)
         {
+            Type = type;
             instance.KeepTasks = true;
         }
 
         #endregion
 
         #region Properties
+        
+        /// <summary>
+        /// Get the type of the ped.
+        /// </summary>
+        public PedType Type { get; }
 
         /// <summary>
         /// Get or set if this vehicle is busy.

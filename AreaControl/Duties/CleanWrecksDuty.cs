@@ -105,7 +105,7 @@ namespace AreaControl.Duties
         {
             return VehicleQueryUtils
                 .FindVehiclesWithin(_position, SearchRange)
-                .Where(x => !_entityManager.GetAllDisposedWrecks().Contains(x))
+                .Where(x => !_entityManager.DisposedWrecks.Contains(x))
                 .Where(IsWreck)
                 .Where(x => !IsBannedModel(x))
                 .ToList();

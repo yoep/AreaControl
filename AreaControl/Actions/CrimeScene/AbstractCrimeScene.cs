@@ -8,7 +8,7 @@ namespace AreaControl.Actions.CrimeScene
 {
     public abstract class AbstractCrimeScene
     {
-        private static float DistanceFromPlayer = 15f;
+        private const float DistanceFromPlayer = 15f;
 
         #region Properties
 

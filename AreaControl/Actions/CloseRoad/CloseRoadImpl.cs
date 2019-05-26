@@ -13,6 +13,7 @@ using AreaControl.Utils.Road;
 using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
+using VehicleType = AreaControl.Instances.VehicleType;
 
 namespace AreaControl.Actions.CloseRoad
 {
@@ -138,7 +139,7 @@ namespace AreaControl.Actions.CloseRoad
                     {
                         //get position behind the slot
                         var positionBehindSlot = GetPositionBehindSlot(slot, index);
-                        var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, ScanRadius, 2);
+                        var vehicle = _entityManager.FindVehicleWithinOrCreateAt(slot.Position, positionBehindSlot.Position, VehicleType.Police, ScanRadius, 2);
                         vehicle.SetOccupantsBusyState(true);
                         Logger.Debug($"Using vehicle {vehicle} for block slot {index}");
 

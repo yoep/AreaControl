@@ -72,7 +72,7 @@ namespace AreaControl.Utils
         /// </summary>
         /// <param name="position">Set the position to get the local model for.</param>
         /// <returns>Returns the local ped model.</returns>
-        public static Model GetLocalPed(Vector3 position)
+        public static Model GetLocalCop(Vector3 position)
         {
             var zone = GetZone(position);
 
@@ -96,12 +96,30 @@ namespace AreaControl.Utils
         }
 
         /// <summary>
+        /// Get the medic model.
+        /// </summary>
+        /// <returns>Returns the medic model.</returns>
+        public static Model GetMedic()
+        {
+            return new Model("s_m_m_paramedic_01");
+        }
+
+        /// <summary>
         /// Get the ambulance vehicle model.
         /// </summary>
         /// <returns>Returns the ambulance model.</returns>
         public static Model GetAmbulance()
         {
             return new Model("AMBULANCE");
+        }
+
+        /// <summary>
+        /// Get the fireman model.
+        /// </summary>
+        /// <returns>Returns the fireman model.</returns>
+        public static Model GetFireman()
+        {
+            return new Model("s_m_y_fireman_01");
         }
 
         /// <summary>

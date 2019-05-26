@@ -15,9 +15,7 @@ namespace AreaControl.Instances
     {
         private readonly IRage _rage;
         private readonly ILogger _logger;
-        private readonly List<ACVehicle> _managedVehicles = new List<ACVehicle>();
         private readonly List<ACPed> _managedPeds = new List<ACPed>();
-        private readonly List<Vehicle> _disposedWrecks = new List<Vehicle>();
         private bool _isActive = true;
         private long _lastInstanceId;
 
@@ -31,15 +29,26 @@ namespace AreaControl.Instances
 
         #endregion
 
+        #region Properties
+
+        /// <inheritdoc />
+        public List<ACVehicle> ManagedVehicles { get; } = new List<ACVehicle>();
+
+        /// <inheritdoc />
+        public List<Vehicle> DisposedWrecks { get; } = new List<Vehicle>();
+
+        #endregion
+
         #region Methods
 
         /// <inheritdoc />
-        public ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, float radius, int numberOfOccupantsToSpawn)
+        public ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, VehicleType type, float radius, int numberOfOccupantsToSpawn)
         {
             Assert.NotNull(position, "position cannot be null");
+            Assert.NotNull(type, "type cannot be null");
             Assert.IsPositive(radius, "radius must be a positive number");
             Assert.IsPositive(numberOfOccupantsToSpawn, "numberOfOccupantsToSpawn must be a positive number");
-            var controlledVehicle = FindAvailableManagedVehicle(position, radius);
+            var controlledVehicle = FindAvailableManagedVehicle(position, type, radius);
 
             if (controlledVehicle != null)
             {
@@ -49,61 +58,43 @@ namespace AreaControl.Instances
 
             var vehicle = FindAvailablePoliceVehicleInWorld(position, radius, numberOfOccupantsToSpawn);
 
-            return vehicle != null ? RegisterVehicle(vehicle) : CreateVehicleWithOccupants(GetStreetAt(spawnPosition), numberOfOccupantsToSpawn);
+            return vehicle != null
+                ? RegisterVehicle(vehicle, type)
+                : CreateVehicleWithOccupants(GetStreetAt(spawnPosition), type, numberOfOccupantsToSpawn);
         }
 
         /// <inheritdoc />
         public ACVehicle FindManagedVehicle(Vehicle instance)
         {
-            return _managedVehicles.FirstOrDefault(x => x.Instance == instance);
+            return ManagedVehicles.FirstOrDefault(x => x.Instance == instance);
         }
 
         /// <inheritdoc />
-        public IReadOnlyList<ACPed> FindPedsWithin(Vector3 position, float radius)
+        public IReadOnlyList<ACPed> FindPedsWithin(Vector3 position, float radius, PedType type)
         {
             var peds = new List<ACPed>();
 
-            //find managed peds
+            // find managed peds
             var managedPeds = _managedPeds
-                .Where(x => IsPedWithinRadius(position, radius, x))
+                .Where(x => IsPedWithinRadius(position, radius, x) && x.Type == type)
                 .Where(x => x.Instance.IsValid())
                 .ToList();
-            _rage.LogTrivialDebug($"Found {managedPeds.Count} managed cops which are available");
+            _logger.Trace($"Found {managedPeds.Count} managed {type} which are available in the area");
 
             peds.AddRange(managedPeds);
 
-            //find game world peds
-            var worldPeds = PedQueryUtils.FindCopsWithin(position, radius)
-                .Where(x => x.IsValid() && x.IsAlive)
-                .Where(x => !IsPedAlreadyManaged(x))
-                .ToList();
-            _rage.LogTrivialDebug($"Found {worldPeds.Count} cops in the world which are available");
-
-            foreach (var worldPed in worldPeds)
-            {
-                peds.Add(RegisterPed(worldPed));
-            }
+            // only search in the game world when the type is Cop
+            if (type == PedType.Cop)
+                peds.AddRange(FindCopsInGameWorld(position, radius));
 
             return peds;
-        }
-
-        /// <inheritdoc />
-        public IReadOnlyList<ACVehicle> GetAllManagedVehicles()
-        {
-            return _managedVehicles.AsReadOnly();
-        }
-
-        /// <inheritdoc />
-        public IReadOnlyList<Vehicle> GetAllDisposedWrecks()
-        {
-            return _disposedWrecks.AsReadOnly();
         }
 
         /// <inheritdoc />
         public void RegisterDisposedWreck(Vehicle instance)
         {
             Assert.NotNull(instance, "instance cannot be null");
-            _disposedWrecks.Add(instance);
+            DisposedWrecks.Add(instance);
         }
 
         /// <inheritdoc />
@@ -112,15 +103,15 @@ namespace AreaControl.Instances
             _rage.NewSafeFiber(() =>
             {
                 _logger.Trace("Clearing vehicle blips...");
-                foreach (var vehicle in GetAllManagedVehicles())
+                foreach (var vehicle in ManagedVehicles)
                 {
                     vehicle.DeleteBlip();
                     vehicle.Persistent = false;
                 }
 
-                while (_managedVehicles.Any(x => !x.IsWandering))
+                while (ManagedVehicles.Any(x => !x.IsWandering))
                 {
-                    foreach (var vehicle in GetAllManagedVehicles().Where(x => !x.IsWandering && x.AllOccupantsPresent))
+                    foreach (var vehicle in ManagedVehicles.Where(x => !x.IsWandering && x.AllOccupantsPresent))
                     {
                         vehicle.DisableSirens();
                         vehicle.Wander();
@@ -134,7 +125,7 @@ namespace AreaControl.Instances
         /// <inheritdoc />
         public void Dispose()
         {
-            _managedVehicles.ForEach(x => x.Delete());
+            ManagedVehicles.ForEach(x => x.Delete());
             _managedPeds.ForEach(x => x.Delete());
             _isActive = false;
         }
@@ -152,13 +143,13 @@ namespace AreaControl.Instances
             {
                 while (_isActive)
                 {
-                    var vehiclesToBeRemoved = _managedVehicles.Where(x => !x.IsValid).ToList();
+                    var vehiclesToBeRemoved = ManagedVehicles.Where(x => !x.IsValid).ToList();
                     var pedsToBeRemoved = _managedPeds.Where(x => !x.IsValid).ToList();
-                    var disposedWrecksToBeRemoved = _disposedWrecks.Where(x => !x.IsValid()).ToList();
+                    var disposedWrecksToBeRemoved = DisposedWrecks.Where(x => !x.IsValid()).ToList();
 
-                    vehiclesToBeRemoved.ForEach(x => _managedVehicles.Remove(x));
+                    vehiclesToBeRemoved.ForEach(x => ManagedVehicles.Remove(x));
                     pedsToBeRemoved.ForEach(x => _managedPeds.Remove(x));
-                    disposedWrecksToBeRemoved.ForEach(x => _disposedWrecks.Remove(x));
+                    disposedWrecksToBeRemoved.ForEach(x => DisposedWrecks.Remove(x));
 
                     GameFiber.Sleep(2000);
                 }
@@ -174,7 +165,7 @@ namespace AreaControl.Instances
 
         private bool IsVehicleAlreadyManaged(Vehicle instance)
         {
-            return _managedVehicles.Any(x => x.Instance == instance);
+            return ManagedVehicles.Any(x => x.Instance == instance);
         }
 
         private bool IsPedAlreadyManaged(Ped instance)
@@ -182,26 +173,26 @@ namespace AreaControl.Instances
             return _managedPeds.Any(x => x.Instance == instance);
         }
 
-        private ACVehicle FindAvailableManagedVehicle(Vector3 position, float radius)
+        private ACVehicle FindAvailableManagedVehicle(Vector3 position, VehicleType type, float radius)
         {
-            _rage.LogTrivialDebug("Searching for managed vehicle at position " + position);
-            return _managedVehicles
-                .Where(e => e.IsValid)
+            _logger.Trace($"Searching for managed vehicle {type} at position {position}");
+            return ManagedVehicles
+                .Where(e => e.IsValid && e.Type == type)
                 .Where(e => IsVehicleWithinRadius(position, radius, e))
                 .FirstOrDefault(e => !e.IsBusy);
         }
 
-        private ACVehicle RegisterVehicle(Vehicle vehicle)
+        private ACVehicle RegisterVehicle(Vehicle vehicle, VehicleType type)
         {
-            var registeredVehicle = new ACVehicle(vehicle, ++_lastInstanceId);
+            var registeredVehicle = new ACVehicle(vehicle, type, ++_lastInstanceId);
             var driver = vehicle.Driver;
 
             _rage.LogTrivialDebug("Registering a new vehicle in entity manager " + registeredVehicle);
-            _managedVehicles.Add(registeredVehicle);
+            ManagedVehicles.Add(registeredVehicle);
 
             foreach (var occupant in vehicle.Occupants)
             {
-                var ped = RegisterPed(occupant);
+                var ped = RegisterPed(occupant, VehicleTypeToPedType(type));
 
                 if (occupant == driver)
                 {
@@ -216,9 +207,9 @@ namespace AreaControl.Instances
             return registeredVehicle;
         }
 
-        private ACPed RegisterPed(Ped ped)
+        private ACPed RegisterPed(Ped ped, PedType type)
         {
-            var registeredPed = new ACPed(ped, ++_lastInstanceId);
+            var registeredPed = new ACPed(ped, type, ++_lastInstanceId);
 
             RegisterLastVehicleForPed(registeredPed);
 
@@ -236,15 +227,57 @@ namespace AreaControl.Instances
             if (lastVehicle == null)
                 return;
 
-            var vehicle = GetManagedInstanceForVehicle(lastVehicle) ?? RegisterVehicle(lastVehicle);
+            var vehicle = GetManagedInstanceForVehicle(lastVehicle) ?? RegisterVehicle(lastVehicle, PedTypeToVehicleType(ped.Type));
 
             ped.LastVehicle = vehicle;
         }
 
         private ACVehicle GetManagedInstanceForVehicle(Entity vehicle)
         {
-            return GetAllManagedVehicles()
-                .FirstOrDefault(x => x.Instance == vehicle);
+            return ManagedVehicles.FirstOrDefault(x => x.Instance == vehicle);
+        }
+
+        private PedType VehicleTypeToPedType(VehicleType type)
+        {
+            switch (type)
+            {
+                case VehicleType.Ambulance:
+                    return PedType.Medic;
+                case VehicleType.FireTruck:
+                    return PedType.Fireman;
+                default:
+                    return PedType.Cop;
+            }
+        }
+
+        private VehicleType PedTypeToVehicleType(PedType type)
+        {
+            switch (type)
+            {
+                case PedType.Medic:
+                    return VehicleType.Ambulance;
+                case PedType.Fireman:
+                    return VehicleType.FireTruck;
+                default:
+                    return VehicleType.Police;
+            }
+        }
+
+        private IEnumerable<ACPed> FindCopsInGameWorld(Vector3 position, float radius)
+        {
+            var peds = new List<ACPed>();
+            var worldPeds = PedQueryUtils.FindCopsWithin(position, radius)
+                .Where(x => x.IsValid() && x.IsAlive)
+                .Where(x => !IsPedAlreadyManaged(x))
+                .ToList();
+            _logger.Trace($"Found {worldPeds.Count} cops in the world which are available in the area");
+
+            foreach (var worldPed in worldPeds)
+            {
+                peds.Add(RegisterPed(worldPed, PedType.Cop));
+            }
+
+            return peds;
         }
 
         private static bool IsVehicleWithinRadius(Vector3 position, float radius, ACVehicle vehicle)
@@ -267,14 +300,16 @@ namespace AreaControl.Instances
             return World.GetNextPositionOnStreet(position);
         }
 
-        private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition, int numberOfOccupantsToSpawn)
+        private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition, VehicleType type, int numberOfOccupantsToSpawn)
         {
+            var pedType = VehicleTypeToPedType(type);
             var closestRoad = RoadUtils.GetClosestRoad(spawnPosition, RoadType.All);
-            var vehicle = RegisterVehicle(new Vehicle(ModelUtils.GetLocalVehicle(spawnPosition), closestRoad.Position, closestRoad.Lanes.First().Heading));
+            var gameVehicle = new Vehicle(ModelUtils.GetLocalVehicle(spawnPosition), closestRoad.Position, closestRoad.Lanes.First().Heading);
+            var vehicle = RegisterVehicle(gameVehicle, type);
 
             for (var i = 0; i < numberOfOccupantsToSpawn; i++)
             {
-                var ped = RegisterPed(CreatePed(spawnPosition));
+                var ped = RegisterPed(CreatePed(spawnPosition, pedType), pedType);
 
                 switch (i)
                 {
@@ -298,14 +333,31 @@ namespace AreaControl.Instances
             return vehicle;
         }
 
-        private static Ped CreatePed(Vector3 spawnPosition)
+        private static Ped CreatePed(Vector3 spawnPosition, PedType type)
         {
-            return new Ped(ModelUtils.GetLocalPed(spawnPosition), spawnPosition, 3f)
+            var model = GetPedModel(spawnPosition, type);
+
+            return new Ped(model, spawnPosition, 3f)
             {
                 IsPersistent = true,
                 BlockPermanentEvents = true,
                 KeepTasks = true
             };
+        }
+
+        private static Model GetPedModel(Vector3 spawnPosition, PedType type)
+        {
+            switch (type)
+            {
+                case PedType.Fireman:
+                    return ModelUtils.GetFireman();
+                case PedType.Medic:
+                    return ModelUtils.GetMedic();
+                case PedType.Cop:
+                    return ModelUtils.GetLocalCop(spawnPosition);
+                default:
+                    return ModelUtils.GetRiotPedModel();
+            }
         }
 
         #endregion

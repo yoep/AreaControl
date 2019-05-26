@@ -141,7 +141,7 @@ namespace AreaControl.Callouts
             Functions.SetPedResistanceChance(ped, 10f);
             ped.Inventory.GiveNewWeapon(new WeaponAsset(GetWeaponForPed()), -1, true);
 
-            return new ACPed(ped, number)
+            return new ACPed(ped, PedType.Mob, number)
             {
                 IsFriendly = false
             };

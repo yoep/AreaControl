@@ -6,15 +6,26 @@ namespace AreaControl.Instances
     public interface IEntityManager
     {
         /// <summary>
+        /// Get all managed vehicles by this entity manager.
+        /// </summary>
+        List<ACVehicle> ManagedVehicles { get; }
+
+        /// <summary>
+        /// Get disposed wrecks.
+        /// </summary>
+        List<Vehicle> DisposedWrecks { get; }
+
+        /// <summary>
         /// Find a <see cref="Vehicle"/> within the given range of the position.
         /// If no <see cref="Vehicle"/> found within the range, create a new one.
         /// </summary>
         /// <param name="position">Set the position to search from.</param>
         /// <param name="spawnPosition">Set the spawn position for the created vehicle.</param>
+        /// <param name="type">The vehicle type to search for.</param>
         /// <param name="radius">Set the range around the position to search within.</param>
         /// <param name="numberOfOccupantsToSpawn">Set the number of occupants to spawn if it needs to be created.</param>
         /// <returns>Returns a Area Controlled vehicle within the given range of the position.</returns>
-        ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, float radius, int numberOfOccupantsToSpawn);
+        ACVehicle FindVehicleWithinOrCreateAt(Vector3 position, Vector3 spawnPosition, VehicleType type, float radius, int numberOfOccupantsToSpawn);
 
         /// <summary>
         /// Get the managed vehicle for the given game vehicle if found.
@@ -26,29 +37,18 @@ namespace AreaControl.Instances
         /// <summary>
         /// Find <see cref="Ped"/>'s within the given range of the position.
         /// </summary>
-        /// <param name="position">Set the position to search around.</param>
-        /// <param name="radius">Set the radius to search within.</param>
+        /// <param name="position">The position to search around.</param>
+        /// <param name="radius">The radius to search within.</param>
+        /// <param name="type">The ped type to find.</param>
         /// <returns>Returns a list of managed peds within the given area if found, else an empty list.</returns>
-        IReadOnlyList<ACPed> FindPedsWithin(Vector3 position, float radius);
-
-        /// <summary>
-        /// Get all current managed vehicles from this entity manager.
-        /// </summary>
-        /// <returns>Returns the list of managed vehicles.</returns>
-        IReadOnlyList<ACVehicle> GetAllManagedVehicles();
-
-        /// <summary>
-        /// Get all current disposed wrecks.
-        /// </summary>
-        /// <returns>Returns the list of disposed wrecks.</returns>
-        IReadOnlyList<Vehicle> GetAllDisposedWrecks();
+        IReadOnlyList<ACPed> FindPedsWithin(Vector3 position, float radius, PedType type);
 
         /// <summary>
         /// Register the given vehicle instance as a disposed wreck.
         /// </summary>
         /// <param name="instance">Set the instance to register.</param>
         void RegisterDisposedWreck(Vehicle instance);
-        
+
         /// <summary>
         /// Dismiss all managed vehicles and let them wander around again.
         /// This will make the vehicles and peds be managed by Rage, but this manager will still keep the reference to the instances for potential later use.

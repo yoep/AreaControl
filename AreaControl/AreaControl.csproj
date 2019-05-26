@@ -132,11 +132,13 @@
     <Compile Include="Instances\IEntityManager.cs" />
     <Compile Include="Instances\IPreviewSupport.cs" />
     <Compile Include="Instances\MovementSpeed.cs" />
+    <Compile Include="Instances\PedType.cs" />
     <Compile Include="Instances\Scenery\Barrier.cs" />
     <Compile Include="Instances\Scenery\Cone.cs" />
     <Compile Include="Instances\Scenery\AbstractPlaceableSceneryItem.cs" />
     <Compile Include="Instances\Scenery\GroundFloodLight.cs" />
     <Compile Include="Instances\Scenery\StoppedVehiclesSign.cs" />
+    <Compile Include="Instances\VehicleType.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IoCException.cs" />
     <Compile Include="Main.cs" />
