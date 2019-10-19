@@ -100,9 +100,12 @@ namespace AreaControl.Actions.RedirectTraffic
                 var spawnPosition = GetSpawnPosition(_redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(_redirectSlot.Position, spawnPosition, VehicleType.Police, ScanRadius, 1);
 
+                vehicle.CreateBlip();
+                
                 MoveToSlot(_redirectSlot, vehicle);
 
                 vehicle.Driver.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
+                vehicle.Driver.CreateBlip();
                 vehicle.EnableSirens();
 
                 PlaceSceneryItems(vehicle.Driver, _redirectSlot);

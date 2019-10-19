@@ -32,7 +32,7 @@ namespace AreaControl.Instances
         #endregion
 
         #region Properties
-        
+
         /// <summary>
         /// Get the type of the ped.
         /// </summary>
@@ -92,6 +92,8 @@ namespace AreaControl.Instances
         public void WarpIntoVehicle(ACVehicle vehicle, VehicleSeat seat)
         {
             Assert.NotNull(vehicle, "vehicle cannot be null");
+            if (IsInvalid)
+                return;
 
             LastVehicle = vehicle;
             IsBusy = true;
@@ -107,6 +109,9 @@ namespace AreaControl.Instances
         public void Attach(Entity attachment, PedBoneId placement)
         {
             Assert.NotNull(attachment, "entity cannot be null");
+            if (IsInvalid)
+                return;
+            
             _attachments.Add(attachment);
 
             EntityUtils.AttachEntity(attachment, Instance, placement);
