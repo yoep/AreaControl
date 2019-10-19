@@ -1,5 +1,8 @@
 using System;
+using System.Threading;
 using AreaControl.AbstractionLayer;
+using AreaControl.Duties.Exceptions;
+using AreaControl.Duties.Flags;
 using AreaControl.Instances;
 
 namespace AreaControl.Duties
@@ -9,11 +12,21 @@ namespace AreaControl.Duties
         protected readonly IRage Rage = IoC.Instance.GetInstance<IRage>();
         protected readonly ILogger Logger = IoC.Instance.GetInstance<ILogger>();
         private ACPed _ped;
+        private IGameFiberWrapper _executionThread;
+
+        #region Constructor
+
+        protected AbstractDuty(long id)
+        {
+            Id = id;
+        }
+
+        #endregion
 
         #region Properties
 
         /// <inheritdoc />
-        public long Id { get; protected set; }
+        public long Id { get; }
 
         /// <inheritdoc />
         public abstract bool IsAvailable { get; }
@@ -28,12 +41,18 @@ namespace AreaControl.Duties
         public DutyState State { get; protected set; } = DutyState.Initializing;
 
         /// <inheritdoc />
+        public abstract DutyTypeFlag Type { get; }
+
+        /// <inheritdoc />
+        public abstract DutyGroupFlag Groups { get; }
+
+        /// <inheritdoc />
         public EventHandler OnCompletion { get; set; }
 
         /// <inheritdoc />
         public virtual ACPed Ped
         {
-            get { return _ped; }
+            get => _ped;
             set
             {
                 _ped = value;
@@ -59,24 +78,33 @@ namespace AreaControl.Duties
             State = DutyState.Active;
             Ped.IsBusy = true;
 
-            try
-            {
-                DoExecute();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.Message, ex);
-            }
+            _executionThread = Rage.NewSafeFiber(() =>
+                {
+                    try
+                    {
+                        DoExecute();
+                        Complete();
+                    }
+                    catch (ThreadAbortException)
+                    {
+                        // no-op
+                    }
+                    catch (ThreadInterruptedException)
+                    {
+                        // no-op
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex.Message, ex);
+                        Abort(false);
+                    }
+                }, GetType().Name + ".ExecuteThread");
         }
 
         /// <inheritdoc />
         public virtual void Abort()
         {
-            if (State == DutyState.Completed)
-                return;
-
-            State = DutyState.Aborted;
-            Ped.IsBusy = false;
+            Abort(true);
         }
 
         public override string ToString()
@@ -101,14 +129,32 @@ namespace AreaControl.Duties
         /// </summary>
         protected abstract void DoExecute();
 
-        protected virtual void CompleteDuty()
+        /// <summary>
+        /// Complete this duty.
+        /// This method will invoke the #OnCompletion event handler if present and update the ped & duty state. 
+        /// </summary>
+        protected virtual void Complete()
         {
+            // check if the duty hasn't already been completed
             if (State != DutyState.Active)
                 return;
 
             Ped.IsBusy = false;
             State = DutyState.Completed;
             OnCompletion?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void Abort(bool terminateExecutionThread)
+        {
+            if (State == DutyState.Completed)
+                return;
+
+            // check if the execution thread needs to be aborted
+            if (terminateExecutionThread && _executionThread != null && _executionThread.IsAlive)
+                _executionThread.Abort();
+
+            State = DutyState.Aborted;
+            Ped.IsBusy = false;
         }
 
         #endregion

@@ -37,8 +37,10 @@ Create a dynamic crime scene in the area of the player.
 
 - Call backup unit(s) for closing down the surrounding area
     - Backup unit will place down barriers and signs
-    - Backup unit will place down spots
-- Call EMS & Firetruck
+- Call EMS
+    - EMS will try to reanimate dead bodies
+- Call FireTruck
+    -  Firemen will place down spots
 
 ### Riot (WIP)
 Citizens have started a riot in the city, keep the riot under control. (Integration with Computer+)

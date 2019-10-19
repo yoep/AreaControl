@@ -24,6 +24,7 @@ namespace AreaControl.Actions.RedirectTraffic
         private const string DispatchAudio = "WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION";
 
         private readonly IRage _rage;
+        private readonly ILogger _logger;
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
         private readonly IDutyManager _dutyManager;
@@ -35,13 +36,14 @@ namespace AreaControl.Actions.RedirectTraffic
         #region Constructor
 
         public RedirectTrafficImpl(IRage rage, IEntityManager entityManager, IResponseManager responseManager, IDutyManager dutyManager,
-            ISettingsManager settingsManager)
+            ISettingsManager settingsManager, ILogger logger)
         {
             _rage = rage;
             _entityManager = entityManager;
             _responseManager = responseManager;
             _dutyManager = dutyManager;
             _settingsManager = settingsManager;
+            _logger = logger;
         }
 
         #endregion
@@ -139,7 +141,8 @@ namespace AreaControl.Actions.RedirectTraffic
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, RedirectSlot redirectSlot)
         {
             var driver = vehicle.Driver;
-            _dutyManager.RegisterDuty(driver, new RedirectTrafficDuty(redirectSlot.PedPosition, redirectSlot.PedHeading, _responseManager.ResponseCode));
+            
+            _dutyManager.NewRedirectTrafficDuty(driver, redirectSlot.PedPosition, redirectSlot.PedHeading, _responseManager.ResponseCode);
         }
 
         private void PlaceSceneryItems(ACPed ped, RedirectSlot redirectSlot)
@@ -167,7 +170,11 @@ namespace AreaControl.Actions.RedirectTraffic
 
             // add sign light to place object duty of required
             if (redirectTrafficSettings.AlwaysPlaceLight || GameTimeUtils.TimePeriod == TimePeriod.Evening || GameTimeUtils.TimePeriod == TimePeriod.Night)
+            {
+                _logger.Trace("Current game time " + GameTimeUtils.GetCurrentHour() + " (" + GameTimeUtils.TimePeriod + ")");
+                _logger.Debug("Placing down redirect traffic light...");
                 _placedObjects.Add(redirectSlot.SignLight.Object);
+            }
 
             _dutyManager.NewPlaceObjectsDuty(ped, _placedObjects, _responseManager.ResponseCode, true);
         }

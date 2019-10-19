@@ -8,7 +8,8 @@ namespace AreaControl.Duties
     /// </summary>
     public abstract class AbstractOnPursuitAwareDuty : AbstractDuty
     {
-        protected AbstractOnPursuitAwareDuty()
+        protected AbstractOnPursuitAwareDuty(long id)
+            : base(id)
         {
             Events.OnPursuitStarted += OnPursuitStarted;
             Events.OnPursuitEnded += OnPursuitEnded;
@@ -19,7 +20,7 @@ namespace AreaControl.Duties
         /// </summary>
         /// <param name="pursuitHandle">The LSPDFR pursuit handle.</param>
         protected abstract void OnPursuitStarted(LHandle pursuitHandle);
-        
+
         /// <summary>
         /// Event that is being invoked when a pursuit is ended in the game world.
         /// </summary>

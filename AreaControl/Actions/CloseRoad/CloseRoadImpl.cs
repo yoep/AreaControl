@@ -4,6 +4,7 @@ using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Actions.Model;
 using AreaControl.Duties;
+using AreaControl.Duties.Flags;
 using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Menu.Response;
@@ -142,7 +143,7 @@ namespace AreaControl.Actions.CloseRoad
 
                         MoveToSlot(vehicle, slot);
                         AssignDutiesToDriver(vehicle.Driver, slot);
-                        AssignAvailableDutiesToPassengers(vehicle, slot);
+                        AssignAvailableDutiesToPassengers(vehicle);
                     }, "BlockSlot#" + i);
             }
         }
@@ -174,10 +175,11 @@ namespace AreaControl.Actions.CloseRoad
         {
             ped.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
             AssignPlaceBarriersDuty(ped, slot);
-            _dutyManager.RegisterDuty(ped, new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode));
+
+            _dutyManager.NewRedirectTrafficDuty(ped, slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode);
         }
 
-        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, PoliceSlot slot)
+        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle)
         {
             var passengers = vehicle.Passengers;
             passengers.ForEach(x =>
@@ -196,14 +198,13 @@ namespace AreaControl.Actions.CloseRoad
                 .Select(barrier => barrier.Object)
                 .ToList();
 
-            
-            var placeObjectsDuty =_dutyManager.NewPlaceObjectsDuty(ped, objects, _responseManager.ResponseCode, false);
+            var placeObjectsDuty = _dutyManager.NewPlaceObjectsDuty(ped, objects, _responseManager.ResponseCode, false);
             Logger.Debug("Created place barriers duty " + placeObjectsDuty);
         }
 
         private void AssignNextAvailableDutyToPed(ACPed ped)
         {
-            var nextAvailableDuty = _dutyManager.NextAvailableOrIdleDuty(ped, GetDutyTypes());
+            var nextAvailableDuty = _dutyManager.NextAvailableDuty(ped, DutyTypeFlag.CleanDuties);
 
             if (nextAvailableDuty.GetType() != typeof(ReturnToVehicleDuty))
             {
@@ -223,21 +224,9 @@ namespace AreaControl.Actions.CloseRoad
         private void RegisterDutyListenerForIdlePed(ACPed ped)
         {
             var dutyListener = _dutyManager[ped];
-            dutyListener.DutyTypes.Add(DutyType.CleanCorpses);
-            dutyListener.DutyTypes.Add(DutyType.CleanWrecks);
+
+            dutyListener.DutyTypes = DutyTypeFlag.CleanDuties;
             dutyListener.OnDutyAvailable += (sender, args) => ActivateNonIdleDuty(ped, args.AvailableDuty);
-        }
-
-        private IEnumerable<DutyType> GetDutyTypes()
-        {
-            var duties = new List<DutyType>();
-
-            if (_settingsManager.CloseRoadSettings.AutoCleanBodies)
-                duties.Add(DutyType.CleanCorpses);
-            if (_settingsManager.CloseRoadSettings.AutoCleanWrecks)
-                duties.Add(DutyType.CleanWrecks);
-
-            return duties;
         }
 
         private static Road GetPositionBehindSlot(PoliceSlot slot, int index)

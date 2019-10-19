@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using AreaControl.Duties.Flags;
 using AreaControl.Instances;
 
 namespace AreaControl.Duties
@@ -12,10 +12,10 @@ namespace AreaControl.Duties
         ACPed Ped { get; }
         
         /// <summary>
-        /// Get the list of duty types to check the availability of.
-        /// Additional duty types can be added to this list.
+        /// Get or set the duty types to check the availability of.
+        /// If <see cref="DutyTypeFlag.None"/>, the list of duties is fetched based on the <see cref="PedType"/> of the ped.
         /// </summary>
-        IList<DutyType> DutyTypes { get; }
+        DutyTypeFlag DutyTypes { get; set; }
 
         /// <summary>
         /// Register an event that will be triggered when a new duty is available.

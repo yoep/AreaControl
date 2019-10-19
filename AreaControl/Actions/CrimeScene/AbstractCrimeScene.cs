@@ -10,7 +10,7 @@ namespace AreaControl.Actions.CrimeScene
     public abstract class AbstractCrimeScene
     {
         private const float DistanceFromPlayer = 15f;
-        private const float SpawnDistance = 150f;
+        private const float SpawnDistance = 200f;
 
         #region Properties
 
@@ -45,12 +45,12 @@ namespace AreaControl.Actions.CrimeScene
         
         protected Vector3 GetSpawnPositionFireTruck(Vector3 position, float crimeSceneHeading)
         {
-           return GetSpawnPosition(position, crimeSceneHeading, 10f);
+           return GetSpawnPosition(position, crimeSceneHeading, 20f);
         }
         
         protected Vector3 GetSpawnPositionAmbulance(Vector3 position, float crimeSceneHeading)
         {
-           return GetSpawnPosition(position, crimeSceneHeading, 20f);
+           return GetSpawnPosition(position, crimeSceneHeading, 40f);
         }
 
         private Vector3 GetSpawnPosition(Vector3 position, float crimeSceneHeading, float distance)

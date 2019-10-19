@@ -9,12 +9,14 @@ namespace AreaControl.Utils.Tasks
 {
     public class TaskExecutor
     {
-        internal TaskExecutor(TaskIdentificationType identificationType, TaskId taskId, TaskHash taskHash, IEnumerable<ExecutorEntity> executorEntities)
+        internal TaskExecutor(TaskIdentificationType identificationType, TaskId taskId, TaskHash taskHash, IEnumerable<ExecutorEntity> executorEntities,
+            bool isAborted)
         {
             IdentificationType = identificationType;
             TaskId = taskId;
             TaskHash = taskHash;
             ExecutorEntities = executorEntities;
+            IsAborted = isAborted;
             
             Init();
         }
@@ -290,7 +292,7 @@ namespace AreaControl.Utils.Tasks
         {
             Assert.NotNull(_identificationType, "identification type has not been set");
             Assert.NotNull(_executorEntities, "executor entities have not been set");
-            return new TaskExecutor(_identificationType, _taskId, _taskHash, ConvertExecutorEntities());
+            return new TaskExecutor(_identificationType, _taskId, _taskHash, ConvertExecutorEntities(), _isAborted);
         }
     }
 }

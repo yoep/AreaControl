@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AreaControl.Instances;
 using AreaControl.Instances.Scenery;
@@ -8,11 +9,12 @@ namespace AreaControl.Actions.Model
 {
     public class CrimeSceneSlot : IPreviewSupport
     {
-        private const float DistanceBetweenBarriers = 3f;
+        private const float DistanceBetweenBarriers = 6f;
+        private const float DistanceBetweenCones = 3f;
         private const float DistanceFireTruckFromStart = 10f;
         private const float DistanceAmbulanceFromStart = 20f;
 
-        private readonly List<Barrier> _barriers = new List<Barrier>();
+        private readonly List<ISceneryItem> _barriersWithCones = new List<ISceneryItem>();
 
         public CrimeSceneSlot(Road startPoint, Road endPoint, Vector3 originalPlayerPosition)
         {
@@ -77,7 +79,7 @@ namespace AreaControl.Actions.Model
         /// <summary>
         /// Get the crime scene barriers.
         /// </summary>
-        public IReadOnlyList<Barrier> Barriers => _barriers.AsReadOnly();
+        public IReadOnlyList<ISceneryItem> BarriersAndCones => _barriersWithCones.AsReadOnly();
 
         #endregion
 
@@ -92,7 +94,7 @@ namespace AreaControl.Actions.Model
             Police.CreatePreview();
             Firetruck.CreatePreview();
             Ambulance.CreatePreview();
-            _barriers.ForEach(x => x.CreatePreview());
+            _barriersWithCones.ForEach(x => x.CreatePreview());
         }
 
         /// <inheritdoc />
@@ -101,7 +103,7 @@ namespace AreaControl.Actions.Model
             Police.DeletePreview();
             Firetruck.DeletePreview();
             Ambulance.DeletePreview();
-            _barriers.ForEach(x => x.DeletePreview());
+            _barriersWithCones.ForEach(x => x.DeletePreview());
         }
 
         #endregion
@@ -110,35 +112,38 @@ namespace AreaControl.Actions.Model
 
         private void Init()
         {
+            InitializeBarriersAndCones();
             InitializePoliceSlot();
-            InitializeBarriers();
             InitializeFiretruckSlot();
             InitializeAmbulanceSlot();
+        }
+
+        private void InitializeBarriersAndCones()
+        {
+            var startDistance = 2.5f;
+            var numberOfBarriers = Math.Floor((Vector3.Distance2D(StartPoint.Position, EndPoint.Position) - startDistance) / DistanceBetweenBarriers);
+            var moveDirection = MathHelper.ConvertHeadingToDirection(StartLane.Heading);
+            var lastPosition = IsLeftSideOfRoad ? StartLane.RightSide : StartLane.LeftSide;
+            
+            // set gap between car and first barrier
+            lastPosition += moveDirection * startDistance;
+
+            // create barriers in the length of the crime scene
+            for(var i = 0; i < numberOfBarriers; i++)
+            {
+                var barrierPosition = lastPosition + moveDirection * DistanceBetweenBarriers;
+                var conePosition = lastPosition + moveDirection * DistanceBetweenCones;
+
+                _barriersWithCones.Add(new ConeWithLight(conePosition, StartLane.Heading + 90f));
+                _barriersWithCones.Add(new Barrier(barrierPosition, StartLane.Heading + 90f));
+                lastPosition = barrierPosition;
+            }
         }
 
         private void InitializePoliceSlot()
         {
             // create a police slot at the start lane of the crime scene
             Police = new PoliceSlot(StartLane.Position, StartLane.Heading);
-        }
-
-        private void InitializeBarriers()
-        {
-            var sceneDistance = Vector3.Distance(StartPoint.Position, EndPoint.Position);
-            var moveDirection = MathHelper.ConvertHeadingToDirection(StartLane.Heading);
-            var lastPosition = IsLeftSideOfRoad ? StartLane.RightSide : StartLane.LeftSide;
-            
-            // set gap between car and first barrier
-            lastPosition += moveDirection * 2.5f;
-
-            // create barriers in the length of the crime scene
-            for (var i = 0; i < sceneDistance / DistanceBetweenBarriers; i++)
-            {
-                var position = lastPosition + moveDirection * DistanceBetweenBarriers;
-
-                _barriers.Add(new Barrier(position, StartLane.Heading + 90f));
-                lastPosition = position;
-            }
         }
 
         private void InitializeFiretruckSlot()

@@ -51,9 +51,6 @@ namespace AreaControl.Actions.TrafficBreak
         public bool IsAutoClosed => true;
 
         /// <inheritdoc />
-        public bool IsVisible => true;
-
-        /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
         {
             if (IsActive)
@@ -96,7 +93,7 @@ namespace AreaControl.Actions.TrafficBreak
                     var vehicle = _entityManager.FindVehicleWithinOrCreateAt(laneBehindPlayer.Position, laneBehindPlayer.Position, VehicleType.Police, 30f, 1);
                     vehicle.EnableSirens();
 
-                    var executor = vehicle.DriveToPosition(laneNearPlayer.Position, 15f, VehicleDrivingFlags.Emergency, 10f);
+                    var executor = vehicle.DriveToPosition(laneNearPlayer.Position, 15f, VehicleDrivingFlags.Emergency, 5f);
                     executor.OnCompletionOrAborted += (sender, args) =>
                     {
                         vehicle.DisableSirens();

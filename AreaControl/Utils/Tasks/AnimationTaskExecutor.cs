@@ -8,12 +8,11 @@ namespace AreaControl.Utils.Tasks
     {
         internal AnimationTaskExecutor(IEnumerable<ExecutorEntity> executorEntities, AnimationDictionary animationDictionary, string animationName,
             AnimationTask rageTask, bool isAborted)
-            : base(TaskIdentificationType.Animation, TaskId.Unknown, TaskHash.Unknown, executorEntities)
+            : base(TaskIdentificationType.Animation, TaskId.Unknown, TaskHash.Unknown, executorEntities, isAborted)
         {
             AnimationDictionary = animationDictionary;
             AnimationName = animationName;
             RageTask = rageTask;
-            IsAborted = isAborted;
         }
 
         /// <summary>
@@ -76,7 +75,6 @@ namespace AreaControl.Utils.Tasks
         private AnimationDictionary _animationDictionary;
         private AnimationTask _rageAnimationTask;
         private string _animationName;
-        private bool _isAborted;
 
         private AnimationTaskExecutorBuilder()
         {
@@ -102,12 +100,6 @@ namespace AreaControl.Utils.Tasks
         public AnimationTaskExecutorBuilder RageTask(AnimationTask rageAnimationTask)
         {
             _rageAnimationTask = rageAnimationTask;
-            return this;
-        }
-
-        public AnimationTaskExecutorBuilder IsAborted(bool value)
-        {
-            _isAborted = value;
             return this;
         }
 

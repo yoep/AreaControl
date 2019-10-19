@@ -1,4 +1,5 @@
 using System;
+using AreaControl.Duties.Flags;
 using AreaControl.Instances;
 
 namespace AreaControl.Duties
@@ -6,7 +7,7 @@ namespace AreaControl.Duties
     public interface IDuty
     {
         /// <summary>
-        /// Get the unique id of this duty.
+        /// Get the unique ID of this duty.
         /// </summary>
         long Id { get; }
         
@@ -34,12 +35,22 @@ namespace AreaControl.Duties
         DutyState State { get; }
         
         /// <summary>
+        /// Get the type of this duty.
+        /// </summary>
+        DutyTypeFlag Type { get; }
+        
+        /// <summary>
+        /// Get the groups to which this duty applies.
+        /// </summary>
+        DutyGroupFlag Groups { get; }
+        
+        /// <summary>
         /// Add an event handler to the on completion event.
         /// </summary>
         EventHandler OnCompletion { get; set; }
         
         /// <summary>
-        /// Get or set the ped for this duty.
+        /// Get the ped that is or will execute this duty.
         /// </summary>
         ACPed Ped { get; set; }
 

@@ -53,12 +53,13 @@ namespace AreaControl.Actions.CrimeScene
             _rage.NewSafeFiber(() =>
             {
                 _crimeSceneSlot = DetermineCrimeSceneSlot();
-                _logger.Debug($"Created {_crimeSceneSlot.Barriers.Count} barriers for the crime scene");
+                _logger.Debug($"Created {_crimeSceneSlot.BarriersAndCones.Count} barriers for the crime scene");
                 
                 _crimeSceneSlot.CreatePreview();
                 _crimeSceneSlot.StartPoint.CreatePreview();
                 _crimeSceneSlot.EndPoint.CreatePreview();
-                
+
+                MenuItem.Text = AreaControl.CrimeScenePreviewRemove;
                 IsActive = true;
             }, "CrimeScenePreview.CreatePreview");
         }
@@ -72,6 +73,8 @@ namespace AreaControl.Actions.CrimeScene
                 _crimeSceneSlot.StartPoint.DeletePreview();
                 _crimeSceneSlot.EndPoint.DeletePreview();
                 _crimeSceneSlot = null;
+                
+                MenuItem.Text = AreaControl.CrimeScenePreview;
                 IsActive = false;
             }, "CrimeScenePreview.DeletePreview");
         }

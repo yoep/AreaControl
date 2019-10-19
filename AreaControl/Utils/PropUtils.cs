@@ -89,6 +89,13 @@ namespace AreaControl.Utils
             return instance;
         }
 
+        public static Object CreateConeWithLight(Vector3 position, float heading = 0f)
+        {
+            var instance = new Object(new Model("prop_air_conelight"), position, heading);
+            PlaceCorrectlyOnGround(instance);
+            return instance;
+        }
+
         public static Object CreateBarrier(Vector3 position, float heading = 0f)
         {
             return new Object(new Model("prop_ld_barrier_01"), position, heading);
@@ -141,6 +148,18 @@ namespace AreaControl.Utils
         public static Object CreateGroundFloodLight(Vector3 position, float heading = 0f)
         {
             return new Object(new Model("prop_worklight_02a"), position, heading);
+        }
+
+        public static Object CreateRedGroundLight(Vector3 position)
+        {
+            var instance = new Object(new Model("prop_air_lights_02b"), position);
+            PlaceCorrectlyOnGround(instance);
+            return instance;
+        }
+
+        public static Object CreateMedKit(Vector3 position)
+        {
+            return new Object(new Model("prop_ld_health_pack"), position);
         }
 
         #endregion

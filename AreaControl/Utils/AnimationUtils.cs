@@ -9,6 +9,8 @@ namespace AreaControl.Utils
     {
         private const string PlaceDownObjectDictionary = "pickup_object";
         private const string PlaceDownObjectAnimation = "putdown_low";
+        private const string GiveObjectDictionary = "mp_common";
+        private const string GiveObjectAnimation = "givetake1_a";
 
         /// <summary>
         /// Attach props for animation and play the issue ticket.
@@ -90,6 +92,22 @@ namespace AreaControl.Utils
                 entity.Heading = originalHeading;
                 PropUtils.PlaceCorrectlyOnGround(entity);
             };
+            return executor;
+        }
+
+        /// <summary>
+        /// Let the ped give the given object instance. 
+        /// </summary>
+        /// <param name="ped">The ped that executes the animation.</param>
+        /// <param name="instance">The object instance that is being given.</param>
+        /// <returns>Returns the animation task executor.</returns>
+        public static AnimationTaskExecutor GiveObject(ACPed ped, Object instance)
+        {
+            ped.Attach(instance, PedBoneId.RightHand);
+
+            var executor = ped.PlayAnimation(GiveObjectDictionary, GiveObjectAnimation, AnimationFlags.UpperBodyOnly);
+            executor.OnCompletion += (sender, args) => ped.DeleteAttachments();
+
             return executor;
         }
     }

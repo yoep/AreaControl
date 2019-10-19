@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties;
+using AreaControl.Duties.Flags;
 using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Settings;
@@ -19,16 +19,18 @@ namespace AreaControl.Actions.CleanArea
         private const float SpawnDistance = 150f;
 
         private readonly IRage _rage;
+        private readonly ILogger _logger;
         private readonly IEntityManager _entityManager;
         private readonly IDutyManager _dutyManager;
         private readonly ISettingsManager _settingsManager;
 
-        public CleanAreaImpl(IRage rage, IEntityManager entityManager, IDutyManager dutyManager, ISettingsManager settingsManager)
+        public CleanAreaImpl(IRage rage, IEntityManager entityManager, IDutyManager dutyManager, ISettingsManager settingsManager, ILogger logger)
         {
             _rage = rage;
             _entityManager = entityManager;
             _dutyManager = dutyManager;
             _settingsManager = settingsManager;
+            _logger = logger;
         }
 
         #region IMenuComponent
@@ -62,7 +64,7 @@ namespace AreaControl.Actions.CleanArea
                     .Where(x => !x.IsBusy)
                     .ToList();
                 ACVehicle vehicle = null;
-                _rage.LogTrivialDebug("There are " + allCops.Count + " cops within the clean area");
+                _logger.Debug("There are " + allCops.Count + " cops within the clean area");
 
                 if (availableCops.Count == 0)
                 {
@@ -88,16 +90,12 @@ namespace AreaControl.Actions.CleanArea
 
                 foreach (var ped in availableCops)
                 {
-                    var duty = _dutyManager.NextAvailableDuty(ped, new List<DutyType>
-                    {
-                        DutyType.CleanCorpses,
-                        DutyType.CleanWrecks
-                    });
+                    var duty = _dutyManager.NextAvailableDuty(ped, DutyTypeFlag.CleanDuties);
 
                     if (duty != null)
                     {
                         ped.CreateBlip();
-                        _rage.LogTrivialDebug("Activating clear area duty " + duty);
+                        _logger.Info("Activating clear area duty " + duty);
                         duty.OnCompletion += (sender, args) =>
                         {
                             ped.DeleteBlip();
@@ -106,7 +104,7 @@ namespace AreaControl.Actions.CleanArea
                     }
                     else
                     {
-                        _rage.LogTrivialDebug("Couldn't find any available clear area duty for " + ped);
+                        _logger.Info("Couldn't find any available clear area duty for " + ped);
 
                         if (vehicle == null)
                             continue;
@@ -115,7 +113,7 @@ namespace AreaControl.Actions.CleanArea
                         vehicle.Wander();
                     }
                 }
-            }, "CleanAreaImpl");
+            }, "CleanAreaImpl.ExecuteThread");
         }
 
         #endregion

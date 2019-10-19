@@ -8,7 +8,7 @@ namespace AreaControl.Instances.Scenery
     /// <summary>
     /// Object item that is part of an action's scenery.
     /// </summary>
-    public abstract class AbstractPlaceableSceneryItem : IPreviewSupport
+    public abstract class AbstractPlaceableSceneryItem : ISceneryItem
     {
         private PlaceObjectsDuty.PlaceObject _placeObject;
         private Object _previewObject;
@@ -25,19 +25,13 @@ namespace AreaControl.Instances.Scenery
 
         #region Properties
 
-        /// <summary>
-        /// Get the position of the cone.
-        /// </summary>
+        /// <inheritdoc />
         public Vector3 Position { get; }
 
-        /// <summary>
-        /// Get the heading of the cone placement.
-        /// </summary>
+        /// <inheritdoc />
         public float Heading { get; }
 
-        /// <summary>
-        /// Get the place object instance for this scenery item.
-        /// </summary>
+        /// <inheritdoc />
         public PlaceObjectsDuty.PlaceObject Object => GetPlaceObjectInstance();
 
         #endregion

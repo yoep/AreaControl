@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AreaControl.Duties.Flags;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
 using Rage;
@@ -11,15 +12,19 @@ namespace AreaControl.Duties
         private readonly ResponseCode _responseCode;
         private readonly bool _placeFromHand;
 
-        internal PlaceObjectsDuty(long id, IEnumerable<PlaceObject> objects, ResponseCode responseCode, bool placeFromHand)
+        #region Constructors
+
+        internal PlaceObjectsDuty(long id, IEnumerable<PlaceObject> objects, ResponseCode responseCode, bool placeFromHand) 
+            : base(id)
         {
-            Id = id;
             _objects = new List<PlaceObject>(objects);
             _responseCode = responseCode;
             _placeFromHand = placeFromHand;
         }
 
-        #region IDuty
+        #endregion
+
+        #region Properties
 
         /// <inheritdoc />
         public override bool IsAvailable => _objects.Count > 0;
@@ -30,41 +35,44 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public override bool IsMultipleInstancesAllowed => true;
 
+        /// <inheritdoc />
+        public override DutyTypeFlag Type => DutyTypeFlag.PlaceObjects;
+
+        /// <inheritdoc />
+        public override DutyGroupFlag Groups => DutyGroupFlag.All;
+
         #endregion
 
         #region AbstractDuty
 
         protected override void DoExecute()
         {
-            Rage.NewSafeFiber(() =>
+            Logger.Info($"Executing place objects duty #{Id}");
+            foreach (var placeObject in _objects)
             {
-                foreach (var placeObject in _objects)
-                {
-                    var directionPlayerToObject = GetPlayerDirectionToObject(placeObject);
-                    var positionBehindObject = placeObject.Position - directionPlayerToObject * 0.8f;
-                    var walkToExecutor = _responseCode == ResponseCode.Code2
-                        ? Ped.WalkTo(positionBehindObject, placeObject.Heading)
-                        : Ped.RunTo(positionBehindObject, placeObject.Heading);
+                var directionPlayerToObject = GetPlayerDirectionToObject(placeObject);
+                var positionBehindObject = placeObject.Position - directionPlayerToObject * 0.8f;
+                var walkToExecutor = _responseCode == ResponseCode.Code2
+                    ? Ped.WalkTo(positionBehindObject, placeObject.Heading)
+                    : Ped.RunTo(positionBehindObject, placeObject.Heading);
 
-                    if (IsAborted)
-                        break;
+                if (IsAborted)
+                    break;
 
-                    var animationExecutor = walkToExecutor
-                        .WaitForAndExecute(executor =>
-                        {
-                            Rage.LogTrivialDebug("Completed walk to place object for " + executor);
-                            return AnimationUtils.PlaceDownObject(Ped, placeObject.Instance, _placeFromHand);
-                        }, 20000)
-                        .WaitForCompletion(2500);
+                var animationExecutor = walkToExecutor
+                    .WaitForAndExecute(executor =>
+                    {
+                        Rage.LogTrivialDebug("Completed walk to place object for " + executor);
+                        return AnimationUtils.PlaceDownObject(Ped, placeObject.Instance, _placeFromHand);
+                    }, 20000)
+                    .WaitForCompletion(2500);
 
-                    if (IsAborted)
-                        break;
+                if (IsAborted)
+                    break;
 
-                    Rage.LogTrivialDebug("Completed place object animation for " + animationExecutor);
-                }
-
-                CompleteDuty();
-            }, "PlaceObjectsDuty.Execute");
+                Rage.LogTrivialDebug("Completed place object animation for " + animationExecutor);
+            }
+            Logger.Info($"Completed place objects duty #{Id}");
         }
 
         public override void Abort()

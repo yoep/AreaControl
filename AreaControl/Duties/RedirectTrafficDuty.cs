@@ -1,3 +1,4 @@
+using AreaControl.Duties.Flags;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
@@ -16,14 +17,15 @@ namespace AreaControl.Duties
         private readonly ResponseCode _code;
         private AnimationTaskExecutor _animationTaskExecutor;
 
-        public RedirectTrafficDuty(Vector3 position, float heading, ResponseCode code)
+        public RedirectTrafficDuty(long id, Vector3 position, float heading, ResponseCode code)
+            : base(id)
         {
             _position = position;
             _heading = heading;
             _code = code;
         }
 
-        #region IDuty
+        #region Properties
 
         /// <inheritdoc />
         public override bool IsAvailable => true;
@@ -33,6 +35,9 @@ namespace AreaControl.Duties
 
         /// <inheritdoc />
         public override bool IsMultipleInstancesAllowed => true;
+
+        public override DutyTypeFlag Type { get; }
+        public override DutyGroupFlag Groups { get; }
 
         #endregion
 
@@ -56,11 +61,10 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         protected override void DoExecute()
         {
-            Rage.NewSafeFiber(() =>
-            {
-                Ped.WeaponsEnabled = false;
-                PlayRedirectTrafficAnimation();
-            }, "RedirectTrafficDuty.Execute");
+            Logger.Info($"Executing redirect traffic duty #{Id}");
+            Ped.WeaponsEnabled = false;
+            PlayRedirectTrafficAnimation();
+            Logger.Info($"Completed redirect traffic duty #{Id}");
         }
 
         #endregion

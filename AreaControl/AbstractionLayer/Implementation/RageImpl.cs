@@ -10,7 +10,7 @@ namespace AreaControl.AbstractionLayer.Implementation
     public class RageImpl : IRage
     {
         private readonly List<GameFiber> _fibers = new List<GameFiber>();
-        
+
         /// <inheritdoc />
         public void DisplayPluginNotification(string message)
         {
@@ -36,9 +36,9 @@ namespace AreaControl.AbstractionLayer.Implementation
         }
 
         /// <inheritdoc />
-        public void NewSafeFiber(Action action, string name)
+        public IGameFiberWrapper NewSafeFiber(Action action, string name)
         {
-            _fibers.Add(GameFiber.StartNew(() =>
+            var fiber = GameFiber.StartNew(() =>
             {
                 try
                 {
@@ -58,7 +58,10 @@ namespace AreaControl.AbstractionLayer.Implementation
                                Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
                     DisplayPluginNotification("~r~" + name + " thread has stopped working, see logs for more info");
                 }
-            }, name));
+            }, name);
+
+            _fibers.Add(fiber);
+            return new GameFiberWrapper(fiber);
         }
 
         /// <inheritdoc />

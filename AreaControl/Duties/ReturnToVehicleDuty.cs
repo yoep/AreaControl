@@ -1,3 +1,4 @@
+using AreaControl.Duties.Flags;
 using AreaControl.Instances;
 using AreaControl.Instances.Exceptions;
 using AreaControl.Utils.Tasks;
@@ -13,6 +14,15 @@ namespace AreaControl.Duties
     {
         private TaskExecutor _currentTaskExecutor;
 
+        #region Constructors
+
+        internal ReturnToVehicleDuty(long id)
+            : base(id)
+        {
+        }
+
+        #endregion
+
         #region Properties
 
         /// <inheritdoc />
@@ -25,6 +35,12 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public override bool IsMultipleInstancesAllowed => true;
 
+        /// <inheritdoc />
+        public override DutyTypeFlag Type => DutyTypeFlag.ReturnToVehicle;
+
+        /// <inheritdoc />
+        public override DutyGroupFlag Groups => DutyGroupFlag.All;
+
         #endregion
 
         #region AbstractDuty
@@ -32,30 +48,22 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         protected override void DoExecute()
         {
-            Logger.Debug("Executing ReturnToVehicleDuty...");
+            Logger.Info($"Executing return to vehicle duty #{Id}");
+            Ped.WeaponsEnabled = true;
 
-            Rage.NewSafeFiber(() =>
+            try
             {
-                Ped.WeaponsEnabled = true;
+                var enterLastVehicleTask = _currentTaskExecutor = Ped.EnterLastVehicle(MovementSpeed.Walk);
 
-                try
-                {
-                    var enterLastVehicleTask = _currentTaskExecutor = Ped.EnterLastVehicle(MovementSpeed.Walk);
-
-                    enterLastVehicleTask.OnAborted += (sender, args) => Ped.WarpIntoVehicle(Ped.LastVehicle, Ped.LastVehicleSeat);
-                    enterLastVehicleTask.WaitForAndExecute(() =>
-                    {
-                        Logger.Debug("ReturnToVehicleDuty completed");
-                        CompleteDuty();
-                    }, 30000);
-                }
-                catch (VehicleNotAvailableException ex)
-                {
-                    Logger.Error($"ReturnToVehicleDuty could not be executed: {ex.Message}", ex);
-                    Ped.WanderAround();
-                    CompleteDuty();
-                }
-            }, "ReturnToVehicleDuty.Execute");
+                enterLastVehicleTask.OnAborted += (sender, args) => Ped.WarpIntoVehicle(Ped.LastVehicle, Ped.LastVehicleSeat);
+                enterLastVehicleTask.WaitForCompletion(20000);
+            }
+            catch (VehicleNotAvailableException ex)
+            {
+                Logger.Error($"Return to vehicle duty could not be executed: {ex.Message}", ex);
+                Ped.WanderAround();
+            }
+            Logger.Info($"Completed return to vehicle duty #{Id}");
         }
 
         #endregion

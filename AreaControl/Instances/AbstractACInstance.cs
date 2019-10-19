@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.AbstractionLayer;
 using AreaControl.Utils;
@@ -65,12 +66,19 @@ namespace AreaControl.Instances
             if (Blip != null)
                 return;
 
-            Blip = new Blip(Instance)
+            try
             {
-                IsRouteEnabled = false,
-                IsFriendly = IsFriendly,
-                Scale = _blipScale
-            };
+                Blip = new Blip(Instance)
+                {
+                    IsRouteEnabled = false,
+                    IsFriendly = IsFriendly,
+                    Scale = _blipScale
+                };
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message, ex);
+            }
         }
 
         /// <inheritdoc />

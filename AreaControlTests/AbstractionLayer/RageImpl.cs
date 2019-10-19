@@ -25,10 +25,12 @@ namespace AreaControlTests.AbstractionLayer
             Console.WriteLine("[LogTrivialDebug]: " + message);
         }
 
-        public void NewSafeFiber(Action action, string name)
+        public IGameFiberWrapper NewSafeFiber(Action action, string name)
         {
             //only invoke action without being thread safe for the unit tests
             action.Invoke();
+
+            return new TestGameFiberWrapper();
         }
 
         public void FiberYield()

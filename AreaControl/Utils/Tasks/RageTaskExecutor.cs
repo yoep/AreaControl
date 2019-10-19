@@ -6,8 +6,8 @@ namespace AreaControl.Utils.Tasks
 {
     public class RageTaskExecutor : TaskExecutor
     {
-        internal RageTaskExecutor(IEnumerable<ExecutorEntity> executorEntities, Task task) :
-            base(TaskIdentificationType.Rage, TaskId.Unknown, TaskHash.Unknown, executorEntities)
+        internal RageTaskExecutor(IEnumerable<ExecutorEntity> executorEntities, Task task, bool isAborted) :
+            base(TaskIdentificationType.Rage, TaskId.Unknown, TaskHash.Unknown, executorEntities, isAborted)
         {
             Task = task;
         }
@@ -67,7 +67,7 @@ namespace AreaControl.Utils.Tasks
         {
             Assert.NotNull(_executorEntities, "executor entities have not been set");
             Assert.NotNull(_task, "task has not been set");
-            return new RageTaskExecutor(ConvertExecutorEntities(), _task);
+            return new RageTaskExecutor(ConvertExecutorEntities(), _task, _isAborted);
         }
     }
 }

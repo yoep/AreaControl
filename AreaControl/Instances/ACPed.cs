@@ -95,9 +95,10 @@ namespace AreaControl.Instances
             if (IsInvalid)
                 return;
 
+            DeleteBlip();
             LastVehicle = vehicle;
-            IsBusy = true;
             LastVehicleSeat = seat;
+            IsBusy = true;
             Instance.WarpIntoVehicle(vehicle.Instance, (int) seat);
         }
 
@@ -111,7 +112,7 @@ namespace AreaControl.Instances
             Assert.NotNull(attachment, "entity cannot be null");
             if (IsInvalid)
                 return;
-            
+
             _attachments.Add(attachment);
 
             EntityUtils.AttachEntity(attachment, Instance, placement);
@@ -125,6 +126,9 @@ namespace AreaControl.Instances
         /// <returns>Returns the task executor.</returns>
         public TaskExecutor WalkTo(Vector3 position, float heading)
         {
+            if (IsInvalid)
+                return GetAbortedTaskExecutor();
+
             IsBusy = true;
             var taskExecutor = TaskUtils.GoToNative(Instance, position, heading, MovementSpeed.Walk);
             taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
@@ -197,7 +201,10 @@ namespace AreaControl.Instances
 
             IsBusy = true;
             var taskExecutor = TaskUtils.EnterVehicle(Instance, LastVehicle.Instance, LastVehicleSeat, speed);
+
+            taskExecutor.OnCompletionOrAborted += (sender, args) => DeleteBlip();
             taskExecutor.OnCompletionOrAborted += TaskExecutorOnCompletionOrAborted();
+
             return taskExecutor;
         }
 
@@ -358,6 +365,15 @@ namespace AreaControl.Instances
         {
             _weaponsEnabled = weaponsEnabled;
             NativeFunction.Natives.SET_PED_CAN_SWITCH_WEAPON(Instance, weaponsEnabled);
+        }
+        
+        private TaskExecutor GetAbortedTaskExecutor()
+        {
+            return TaskExecutorBuilder.Builder()
+                .IdentificationType(TaskIdentificationType.Id)
+                .ExecutorEntities(new List<Ped> {Instance})
+                .IsAborted(true)
+                .Build();
         }
 
         #endregion

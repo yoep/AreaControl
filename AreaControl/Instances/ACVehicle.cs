@@ -146,7 +146,7 @@ namespace AreaControl.Instances
             if (IsInvalid)
                 Delete();
 
-            if (Driver == null || !Driver.IsValid || Instance.Driver != Driver.Instance)
+            if (Driver == null || !Driver.IsValid)
                 return;
 
             DeleteBlip();

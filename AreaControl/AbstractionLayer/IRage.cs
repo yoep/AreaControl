@@ -33,8 +33,8 @@ namespace AreaControl.AbstractionLayer
         /// </summary>
         /// <param name="action">Set the action to execute on the fiber.</param>
         /// <param name="name">Set the name of the new fiber (will also be used for logging).</param>
-        /// <returns>Returns the exception safe fiber.</returns>
-        void NewSafeFiber(Action action, string name);
+        /// <returns>Returns the game fiber wrapper which is exception safe.</returns>
+        IGameFiberWrapper NewSafeFiber(Action action, string name);
         
         /// <summary>
         /// Execute GameFiber.Yield in rage

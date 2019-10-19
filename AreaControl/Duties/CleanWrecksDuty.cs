@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AreaControl.AbstractionLayer;
+using AreaControl.Duties.Flags;
 using AreaControl.Instances;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
@@ -25,9 +26,8 @@ namespace AreaControl.Duties
         private readonly IArrestManager _arrestManager;
         private readonly ResponseCode _code;
 
-        internal CleanWrecksDuty(long id, Vector3 position)
+        internal CleanWrecksDuty(long id, Vector3 position) : base(id)
         {
-            Id = id;
             _position = position;
             _entityManager = IoC.Instance.GetInstance<IEntityManager>();
             _arrestManager = IoC.Instance.GetInstance<IArrestManager>();
@@ -45,6 +45,12 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public override bool IsMultipleInstancesAllowed => false;
 
+        /// <inheritdoc />
+        public override DutyTypeFlag Type => DutyTypeFlag.CleanWrecks;
+
+        /// <inheritdoc />
+        public override DutyGroupFlag Groups => DutyGroupFlag.Cops | DutyGroupFlag.Firemen;
+
         #endregion
 
         #region AbstractDuty
@@ -52,43 +58,39 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         protected override void DoExecute()
         {
-            Rage.NewSafeFiber(() =>
+            Logger.Info($"Executing clean wrecks duty #{Id}");
+            var wrecks = GetWrecks();
+
+            foreach (var wreck in wrecks)
             {
-                var wrecks = GetWrecks();
+                Logger.Debug("Making wreck persistent...");
+                //make the wreck persistent as the game likes to remove it suddenly making this duty crash :(
+                wreck.IsPersistent = true;
 
-                Rage.LogTrivialDebug("Executing CleanWrecksDuty...");
-                foreach (var wreck in wrecks)
-                {
-                    Rage.LogTrivialDebug("Making wreck persistent...");
-                    //make the wreck persistent as the game likes to remove it suddenly making this duty crash :(
-                    wreck.IsPersistent = true;
+                Logger.Debug("Going to wreck " + (wrecks.IndexOf(wreck) + 1) + " of " + wrecks.Count);
+                var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(wreck) : Ped.RunTo(wreck);
 
-                    Rage.LogTrivialDebug("Going to wreck " + (wrecks.IndexOf(wreck) + 1) + " of " + wrecks.Count);
-                    var goToExecutor = _code == ResponseCode.Code2 ? Ped.WalkTo(wreck) : Ped.RunTo(wreck);
+                goToExecutor
+                    .WaitForAndExecute(taskExecutor =>
+                    {
+                        Logger.Trace("Completed go to wreck for task " + taskExecutor);
+                        return AnimationUtils.IssueTicket(Ped);
+                    }, 30000)
+                    .WaitForAndExecute(taskExecutor =>
+                    {
+                        Logger.Trace("Completed write ticket at wreck " + taskExecutor);
+                        Ped.DeleteAttachments();
 
-                    goToExecutor
-                        .WaitForAndExecute(taskExecutor =>
-                        {
-                            Rage.LogTrivialDebug("Completed go to wreck for task " + taskExecutor);
-                            return AnimationUtils.IssueTicket(Ped);
-                        }, 30000)
-                        .WaitForAndExecute(taskExecutor =>
-                        {
-                            Rage.LogTrivialDebug("Completed write ticket at wreck " + taskExecutor);
-                            Ped.DeleteAttachments();
+                        Rage.LogTrivialDebug("Calling tow truck for " + wreck.Model.Name + "...");
+                        _arrestManager.RequestTowTruck(wreck, false);
 
-                            Rage.LogTrivialDebug("Calling tow truck for " + wreck.Model.Name + "...");
-                            _arrestManager.RequestTowTruck(wreck, false);
+                        return AnimationUtils.TalkToRadio(Ped);
+                    }, 5000)
+                    .WaitForCompletion(3000);
+                _entityManager.RegisterDisposedWreck(wreck);
+            }
 
-                            return AnimationUtils.TalkToRadio(Ped);
-                        }, 5000)
-                        .WaitForCompletion(3000);
-                    _entityManager.RegisterDisposedWreck(wreck);
-                }
-
-                Rage.LogTrivialDebug("CleanWrecksDuty completed");
-                CompleteDuty();
-            }, "CleanWrecksDuty.Execute");
+            Logger.Info($"Completed clean wrecks duty #{Id}");
         }
 
         #endregion

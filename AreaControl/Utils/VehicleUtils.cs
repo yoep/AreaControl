@@ -10,7 +10,7 @@ namespace AreaControl.Utils
     {
         private const float HeadingTolerance = 25f;
         private const float PositionTolerance = 5f;
-        
+
         private static readonly ILogger Logger = IoC.Instance.GetInstance<ILogger>();
 
         /// <summary>
@@ -18,10 +18,13 @@ namespace AreaControl.Utils
         /// </summary>
         /// <param name="vehicle">The vehicle to warp if needed.</param>
         /// <param name="slot">The slot to warp the vehicle into.</param>
-        public static void WarpVehicle(ACVehicle vehicle, AbstractVehicleSlot slot)
+        /// <param name="headingTolerance">The heading tolerance the vehicle may have.</param>
+        /// <param name="positionTolerance">The distance tolerance the vehicle may have.</param>
+        public static void WarpVehicle(ACVehicle vehicle, AbstractVehicleSlot slot, float headingTolerance = HeadingTolerance,
+            float positionTolerance = PositionTolerance)
         {
-            WarpVehicleInPosition(vehicle, slot);
-            WarpVehicleInHeading(vehicle, slot);
+            WarpVehicleInHeading(vehicle, slot, headingTolerance);
+            WarpVehicleInPosition(vehicle, slot, positionTolerance);
         }
 
         /// <summary>
@@ -29,7 +32,8 @@ namespace AreaControl.Utils
         /// </summary>
         /// <param name="vehicle">The vehicle to warp if needed.</param>
         /// <param name="slot">The slot to warp the vehicle into.</param>
-        public static void WarpVehicleInHeading(ACVehicle vehicle, AbstractVehicleSlot slot)
+        /// <param name="tolerance">The heading tolerance the vehicle may have.</param>
+        public static void WarpVehicleInHeading(ACVehicle vehicle, AbstractVehicleSlot slot, float tolerance = HeadingTolerance)
         {
             var vehicleHeading = vehicle.Instance.Heading;
             var expectedHeading = slot.Heading;
@@ -37,7 +41,7 @@ namespace AreaControl.Utils
 
             Logger.Debug("Checking heading tolerance, expected: " + expectedHeading + ", actual: " + vehicleHeading + ", difference: " +
                          headingDifference);
-            if (headingDifference > HeadingTolerance)
+            if (headingDifference > tolerance)
                 vehicle.Instance.Heading = expectedHeading;
         }
 
@@ -46,7 +50,8 @@ namespace AreaControl.Utils
         /// </summary>
         /// <param name="vehicle">The vehicle to warp if needed.</param>
         /// <param name="slot">The slot to warp the vehicle into.</param>
-        public static void WarpVehicleInPosition(ACVehicle vehicle, AbstractVehicleSlot slot)
+        /// <param name="tolerance">The distance tolerance the vehicle may have.</param>
+        public static void WarpVehicleInPosition(ACVehicle vehicle, AbstractVehicleSlot slot, float tolerance = PositionTolerance)
         {
             var vehiclePosition = vehicle.Instance.Position;
             var expectedPosition = slot.Position;
@@ -54,7 +59,7 @@ namespace AreaControl.Utils
 
             Logger.Debug("Checking position tolerance, expected: " + expectedPosition + ", actual: " + vehiclePosition + ", difference: " +
                          positionDifference);
-            if (positionDifference > PositionTolerance)
+            if (positionDifference > tolerance)
                 vehicle.Instance.Position = expectedPosition;
         }
     }
