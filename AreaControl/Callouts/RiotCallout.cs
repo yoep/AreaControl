@@ -48,7 +48,7 @@ namespace AreaControl.Callouts
             CalloutMessage = "Riot in progress";
             CalloutPosition = _spawnPoint;
             CreateCalloutData();
-            Functions.PlayScannerAudioUsingPosition("WE_HAVE A RIOT IN_OR_ON_POSITION ALL_UNITS_RESPOND_CODE_99_EMERGENCY", _spawnPoint);
+            LspdfrUtils.PlayScannerAudioUsingPosition("WE_HAVE A RIOT IN_OR_ON_POSITION ALL_UNITS_RESPOND_CODE_99_EMERGENCY", _spawnPoint);
 
             return base.OnBeforeCalloutDisplayed();
         }

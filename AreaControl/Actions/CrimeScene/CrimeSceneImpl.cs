@@ -4,6 +4,7 @@ using AreaControl.Duties;
 using AreaControl.Instances;
 using AreaControl.Menu;
 using AreaControl.Menu.Response;
+using AreaControl.Utils;
 using LSPD_First_Response.Mod.API;
 using Rage;
 using RAGENativeUI.Elements;
@@ -82,8 +83,7 @@ namespace AreaControl.Actions.CrimeScene
                 _crimeSceneSlot = DetermineCrimeSceneSlot();
                 
                 _rage.DisplayNotification("Requesting dispatch to ~b~create crime scene~s~ " + World.GetStreetName(position) + "...");
-                Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION UNITS_RESPOND_CODE_03", position);
-                GameFiber.Sleep(5000);
+                LspdfrUtils.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION UNITS_RESPOND_CODE_03", position, true);
                 
                 
             }, "CrimeSceneImpl.CreateCrimeScene");

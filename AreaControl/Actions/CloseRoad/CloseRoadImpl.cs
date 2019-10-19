@@ -91,11 +91,10 @@ namespace AreaControl.Actions.CloseRoad
             {
                 var position = Game.LocalPlayer.Character.Position;
                 Rage.DisplayNotification("Requesting dispatch to ~b~close nearby road~s~ " + World.GetStreetName(position) + "...");
-                Functions.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
-                    position);
+                LspdfrUtils.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION " + _responseManager.ResponseCodeAudio,
+                    position, true);
                 _blockSlots = DetermineBlockSlots();
 
-                GameFiber.Sleep(5000);
                 if (_blockSlots.Count > 0)
                 {
                     SpawnBlockSlots(_blockSlots);

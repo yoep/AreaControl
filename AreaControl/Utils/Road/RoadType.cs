@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace AreaControl.Utils
+namespace AreaControl.Utils.Road
 {
     /// <summary>
     /// Defines the road types on which can be searched.

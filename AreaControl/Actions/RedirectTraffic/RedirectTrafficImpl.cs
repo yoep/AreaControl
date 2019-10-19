@@ -94,9 +94,8 @@ namespace AreaControl.Actions.RedirectTraffic
                 _redirectSlot = _redirectSlot ?? DetermineRedirectSlot();
 
                 _rage.DisplayNotification("Requesting dispatch to ~b~redirect traffic~s~...");
-                Functions.PlayScannerAudioUsingPosition(DispatchAudio + " " + _responseManager.ResponseCodeAudio, position);
-                GameFiber.Sleep(5000);
-                Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
+                LspdfrUtils.PlayScannerAudioUsingPosition(DispatchAudio + " " + _responseManager.ResponseCodeAudio, position, true);
+                LspdfrUtils.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
 
                 var spawnPosition = GetSpawnPosition(_redirectSlot);
                 var vehicle = _entityManager.FindVehicleWithinOrCreateAt(_redirectSlot.Position, spawnPosition, VehicleType.Police, ScanRadius, 1);

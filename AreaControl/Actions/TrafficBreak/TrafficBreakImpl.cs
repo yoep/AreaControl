@@ -82,9 +82,8 @@ namespace AreaControl.Actions.TrafficBreak
                 var roadBehindPlayer = RoadUtils.GetClosestRoad(positionBehindPlayer, RoadType.MajorRoadsOnly);
 
                 _rage.DisplayNotification("Requesting dispatch to ~b~slow down traffic~s~ nearby " + World.GetStreetName(position) + "...");
-                Functions.PlayScannerAudioUsingPosition(DispatchAudio + " " + _responseManager.ResponseCodeAudio, position);
-                GameFiber.Sleep(5000);
-                Functions.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
+                LspdfrUtils.PlayScannerAudioUsingPosition(DispatchAudio + " " + _responseManager.ResponseCodeAudio, position, true);
+                LspdfrUtils.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
 
                 var applicableLanesBehindPlayer = roadBehindPlayer.Lanes.Where(x => Math.Abs(x.Heading - closestLane.Heading) < 25f).ToList();
                 var applicableLanesNearPlayer = closestRoad.Lanes.Where(x => Math.Abs(x.Heading - closestLane.Heading) < 1f).ToList();
