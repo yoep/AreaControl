@@ -91,6 +91,12 @@ namespace AreaControl.Instances
         }
 
         /// <inheritdoc />
+        public ACVehicle CreateVehicleAt(Vector3 spawnPosition, VehicleType type, int numberOfOccupantsToSpawn)
+        {
+            return CreateVehicleWithOccupants(GetStreetAt(spawnPosition), type, numberOfOccupantsToSpawn);
+        }
+
+        /// <inheritdoc />
         public void RegisterDisposedWreck(Vehicle instance)
         {
             Assert.NotNull(instance, "instance cannot be null");

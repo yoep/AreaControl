@@ -42,6 +42,15 @@ namespace AreaControl.Instances
         /// <param name="type">The ped type to find.</param>
         /// <returns>Returns a list of managed peds within the given area if found, else an empty list.</returns>
         IReadOnlyList<ACPed> FindPedsWithin(Vector3 position, float radius, PedType type);
+        
+        /// <summary>
+        /// Create a <see cref="Vehicle"/> at the given spawn position.
+        /// </summary>
+        /// <param name="spawnPosition">The spawn position for the created vehicle.</param>
+        /// <param name="type">The type of the vehicle to spawn.</param>
+        /// <param name="numberOfOccupantsToSpawn">The number of occupants the vehicle should spawn with.</param>
+        /// <returns>Returns the created vehicle with occupants.</returns>
+        ACVehicle CreateVehicleAt(Vector3 spawnPosition, VehicleType type, int numberOfOccupantsToSpawn);
 
         /// <summary>
         /// Register the given vehicle instance as a disposed wreck.

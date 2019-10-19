@@ -24,7 +24,7 @@ namespace AreaControl.Instances
         #endregion
 
         #region Properties
-        
+
         /// <summary>
         /// Get the type of the vehicle.
         /// </summary>
@@ -148,7 +148,16 @@ namespace AreaControl.Instances
 
             DeleteBlip();
             IsWandering = true;
-            Occupants.ForEach(x => x.IsBusy = false);
+            Occupants.ForEach(x =>
+            {
+                x.DeleteBlip();
+                x.IsBusy = false;
+            });
+
+            // check if driver is in the vehicle, if not, let the driver enter the vehicle first
+            if (Driver.Instance.CurrentVehicle == null)
+                Driver.EnterLastVehicle(MovementSpeed.Walk).WaitForCompletion();
+
             Driver.CruiseWithVehicle();
         }
 

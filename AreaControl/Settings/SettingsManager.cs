@@ -9,6 +9,7 @@ namespace AreaControl.Settings
     public class SettingsManager : ISettingsManager
     {
         private const string File = @"./Plugins/LSPDFR/AreaControl.ini";
+        private const string CleanAreaGroupName = "Clean Area";
         private const string RedirectTrafficGroupName = "Redirect Traffic";
         private const string CloseRoadGroupName = "Close Road";
 
@@ -22,6 +23,9 @@ namespace AreaControl.Settings
         /// <inheritdoc />
         public GeneralSettings GeneralSettings { get; private set; }
 
+        /// <inheritdoc />
+        public CleanAreaSettings CleanAreaSettings { get; private set; }
+        
         /// <inheritdoc />
         public RedirectTrafficSettings RedirectTrafficSettings { get; private set; }
 
@@ -39,6 +43,7 @@ namespace AreaControl.Settings
                 var settingsFile = new InitializationFile(File);
 
                 ReadGeneralSettings(settingsFile);
+                ReadCleanAreaSettings(settingsFile);
                 ReadCloseRoadSettings(settingsFile);
                 ReadRedirectTrafficSettings(settingsFile);
             }
@@ -54,6 +59,14 @@ namespace AreaControl.Settings
             {
                 OpenMenuKey = ValueToKey(file.ReadString("General", "OpenMenuKey", "T")),
                 OpenMenuModifierKey = ValueToKey(file.ReadString("General", "OpenMenuModifierKey", "Shift"))
+            };
+        }
+
+        private void ReadCleanAreaSettings(InitializationFile file)
+        {
+            CleanAreaSettings = new CleanAreaSettings
+            {
+                EnableBackupUnit = file.ReadBoolean(CleanAreaGroupName, "EnableBackupUnit")
             };
         }
 
