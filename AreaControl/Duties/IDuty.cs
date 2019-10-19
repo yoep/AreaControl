@@ -52,7 +52,7 @@ namespace AreaControl.Duties
         /// <summary>
         /// Get the ped that is or will execute this duty.
         /// </summary>
-        ACPed Ped { get; set; }
+        ACPed Ped { get; }
 
         /// <summary>
         /// Execute this duty on the <see cref="Ped"/>.

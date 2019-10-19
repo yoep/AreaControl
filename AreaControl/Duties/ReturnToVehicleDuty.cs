@@ -16,8 +16,8 @@ namespace AreaControl.Duties
 
         #region Constructors
 
-        internal ReturnToVehicleDuty(long id)
-            : base(id)
+        internal ReturnToVehicleDuty(long id, ACPed ped)
+            : base(id, ped)
         {
         }
 

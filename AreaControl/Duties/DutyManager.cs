@@ -70,12 +70,12 @@ namespace AreaControl.Duties
         {
             Assert.NotNull(ped, "ped cannot be null");
             var dutyGroup = GetPedDutyGroup(ped);
-            var duties = GetAllDuties(ped.Instance.Position);
+            var duties = GetAllDuties(ped);
             var duty = duties.FirstOrDefault(x => x.IsAvailable && x.Groups.HasFlag(dutyGroup) && IsInstantiationAllowed(x));
 
             // register the duty if one is found
             if (duty != null)
-                RegisterDuty(ped, duty);
+                RegisterDuty(duty);
 
             return duty;
         }
@@ -85,12 +85,12 @@ namespace AreaControl.Duties
         {
             Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(types, "types cannot be null");
-            var duties = GetAllDuties(ped.Instance.Position);
+            var duties = GetAllDuties(ped);
             var duty = duties.FirstOrDefault(x => x.IsAvailable && types.HasFlag(x.Type) && IsInstantiationAllowed(x));
 
             // register the duty if one is found
             if (duty != null)
-                RegisterDuty(ped, duty);
+                RegisterDuty(duty);
 
             return duty;
         }
@@ -98,13 +98,13 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public IDuty NewRedirectTrafficDuty(ACPed ped, Vector3 position, float heading, ResponseCode responseCode)
         {
-            return RegisterDuty(ped, new RedirectTrafficDuty(NextDutyId, position, heading, responseCode));
+            return RegisterDuty(new RedirectTrafficDuty(NextDutyId, ped, position, heading, responseCode));
         }
 
         /// <inheritdoc />
         public IDuty NewPlaceObjectsDuty(ACPed ped, IEnumerable<PlaceObjectsDuty.PlaceObject> objects, ResponseCode responseCode, bool placeFromHand)
         {
-            return RegisterDuty(ped, new PlaceObjectsDuty(NextDutyId, objects, responseCode, placeFromHand));
+            return RegisterDuty(new PlaceObjectsDuty(NextDutyId, ped, objects, responseCode, placeFromHand));
         }
 
         /// <inheritdoc />
@@ -123,9 +123,9 @@ namespace AreaControl.Duties
                 }
 
                 duties.Clear();
-                var dismissDuty = new ReturnToVehicleDuty(NextDutyId);
+                var dismissDuty = new ReturnToVehicleDuty(NextDutyId, pedDuties.Key);
                 dismissDuty.OnCompletion += (sender, args) => pedDuties.Key.ReturnToLspdfrDuty();
-                RegisterDuty(pedDuties.Key, dismissDuty);
+                RegisterDuty(dismissDuty);
             }
 
             _dutyListeners.Clear();
@@ -168,7 +168,7 @@ namespace AreaControl.Duties
                     CheckForNewDuties();
 
                     // cleanup listeners
-                    _dutyListeners.RemoveAll(x => x.Ped.IsInvalid || x.OnDutyAvailable == null || x.HasNewDuty);
+                    _dutyListeners.RemoveAll(x => x.Ped.IsInvalid || x.HasNewDuty);
 
                     foreach (var ped in _duties.Keys)
                     {
@@ -200,9 +200,8 @@ namespace AreaControl.Duties
                     continue;
 
                 _logger.Debug("Found a new available duty " + availableDuty + " for listener " + dutyListener);
-                RegisterDuty(dutyListener.Ped, availableDuty);
                 dutyListener.HasNewDuty = true;
-                dutyListener.OnDutyAvailable.Invoke(this, new DutyAvailableEventArgs(availableDuty));
+                dutyListener.OnDutyAvailable?.Invoke(this, new DutyAvailableEventArgs(availableDuty));
             }
         }
 
@@ -245,11 +244,11 @@ namespace AreaControl.Duties
             duty.Execute();
         }
 
-        private IDuty RegisterDuty(ACPed ped, IDuty duty)
+        private IDuty RegisterDuty(IDuty duty)
         {
-            Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(duty, "duty cannot be null");
             List<IDuty> pedDuties;
+            var ped = duty.Ped;
 
             if (_duties.ContainsKey(ped))
             {
@@ -261,7 +260,6 @@ namespace AreaControl.Duties
                 _duties.Add(ped, pedDuties);
             }
 
-            duty.Ped = ped;
             pedDuties.Add(duty);
             _logger.Debug("Registered duty " + duty.GetType().Name + " for ped " + ped);
 
@@ -284,16 +282,16 @@ namespace AreaControl.Duties
             return _duties[ped].Any(x => x.State == DutyState.Ready);
         }
 
-        private List<IDuty> GetAllDuties(Vector3 position)
+        private List<IDuty> GetAllDuties(ACPed ped)
         {
             var id = NextDutyId;
 
             return new List<IDuty>
             {
-                new CleanCorpsesDuty(id, position),
-                new CleanWrecksDuty(id, position),
-                new HealPlayerDuty(id),
-                new ReturnToVehicleDuty(id)
+                new CleanCorpsesDuty(id, ped),
+                new CleanWrecksDuty(id, ped),
+                new HealPlayerDuty(id, ped),
+                new ReturnToVehicleDuty(id, ped)
             };
         }
 

@@ -1,3 +1,4 @@
+using AreaControl.Instances;
 using LSPD_First_Response.Mod.API;
 
 namespace AreaControl.Duties
@@ -8,8 +9,8 @@ namespace AreaControl.Duties
     /// </summary>
     public abstract class AbstractOnPursuitAwareDuty : AbstractDuty
     {
-        protected AbstractOnPursuitAwareDuty(long id)
-            : base(id)
+        protected AbstractOnPursuitAwareDuty(long id, ACPed ped)
+            : base(id, ped)
         {
             Events.OnPursuitStarted += OnPursuitStarted;
             Events.OnPursuitEnded += OnPursuitEnded;

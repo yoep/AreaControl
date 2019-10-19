@@ -119,7 +119,7 @@ namespace AreaControl.Actions.CrimeScene
                 _rage.DisplayNotification($"Requesting dispatch to ~b~create crime scene~s~ {World.GetStreetName(position)}...");
                 LspdfrUtils.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION UNITS_RESPOND_CODE_03", position, true);
                 LspdfrUtils.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
-                
+
                 ExecuteAmbulanceActions();
                 ExecuteFireTruckActions();
                 ExecutePoliceActions();
@@ -142,7 +142,26 @@ namespace AreaControl.Actions.CrimeScene
                     .WaitForCompletion();
                 VehicleUtils.WarpVehicle(_ambulance, _crimeSceneSlot.Ambulance);
                 _ambulance.Occupants.ForEach(x => x.LeaveVehicle(LeaveVehicleFlags.None));
+
+                AssignNextAvailableDutyToMedicPassenger();
             }, "CrimeSceneImpl.ExecuteAmbulanceActions");
+        }
+
+        private void AssignNextAvailableDutyToMedicPassenger()
+        {
+            var ped = _ambulance.Passengers.First();
+            var duty = _dutyManager.NextAvailableDuty(ped, DutyTypeFlag.MedicDuties);
+
+            if (duty != null)
+            {
+                duty.OnCompletion += (sender, args) => AssignNextAvailableDutyToMedicPassenger();
+                return;
+            }
+
+            var listener = _dutyManager[ped];
+
+            listener.DutyTypes = DutyTypeFlag.MedicDuties;
+            listener.OnDutyAvailable += (sender, args) => AssignNextAvailableDutyToMedicPassenger();
         }
 
         private void ExecuteFireTruckActions()

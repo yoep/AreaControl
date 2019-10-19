@@ -18,7 +18,7 @@ namespace AreaControl.Duties
         DutyTypeFlag DutyTypes { get; set; }
 
         /// <summary>
-        /// Register an event that will be triggered when a new duty is available.
+        /// Register an event that will be triggered when a new duty is available (optional).
         /// </summary>
         EventHandler<DutyAvailableEventArgs> OnDutyAvailable { get; set; }
     }

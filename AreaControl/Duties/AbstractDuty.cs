@@ -11,14 +11,15 @@ namespace AreaControl.Duties
     {
         protected readonly IRage Rage = IoC.Instance.GetInstance<IRage>();
         protected readonly ILogger Logger = IoC.Instance.GetInstance<ILogger>();
-        private ACPed _ped;
         private IGameFiberWrapper _executionThread;
 
         #region Constructor
 
-        protected AbstractDuty(long id)
+        protected AbstractDuty(long id, ACPed ped)
         {
+            Assert.NotNull(ped, "ped cannot be null");
             Id = id;
+            Ped = ped;
         }
 
         #endregion
@@ -50,15 +51,7 @@ namespace AreaControl.Duties
         public EventHandler OnCompletion { get; set; }
 
         /// <inheritdoc />
-        public virtual ACPed Ped
-        {
-            get => _ped;
-            set
-            {
-                _ped = value;
-                State = DutyState.Ready;
-            }
-        }
+        public ACPed Ped { get; }
 
         /// <summary>
         /// Get if this duty has been aborted.

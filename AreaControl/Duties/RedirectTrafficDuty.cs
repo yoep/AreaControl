@@ -1,4 +1,5 @@
 using AreaControl.Duties.Flags;
+using AreaControl.Instances;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
 using AreaControl.Utils.Tasks;
@@ -17,8 +18,8 @@ namespace AreaControl.Duties
         private readonly ResponseCode _code;
         private AnimationTaskExecutor _animationTaskExecutor;
 
-        public RedirectTrafficDuty(long id, Vector3 position, float heading, ResponseCode code)
-            : base(id)
+        public RedirectTrafficDuty(long id, ACPed ped, Vector3 position, float heading, ResponseCode code)
+            : base(id, ped)
         {
             _position = position;
             _heading = heading;
@@ -36,8 +37,11 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public override bool IsMultipleInstancesAllowed => true;
 
-        public override DutyTypeFlag Type { get; }
-        public override DutyGroupFlag Groups { get; }
+        /// <inheritdoc />
+        public override DutyTypeFlag Type => DutyTypeFlag.RedirectTraffic;
+
+        /// <inheritdoc />
+        public override DutyGroupFlag Groups => DutyGroupFlag.Cops;
 
         #endregion
 

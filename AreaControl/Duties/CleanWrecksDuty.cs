@@ -26,9 +26,10 @@ namespace AreaControl.Duties
         private readonly IArrestManager _arrestManager;
         private readonly ResponseCode _code;
 
-        internal CleanWrecksDuty(long id, Vector3 position) : base(id)
+        internal CleanWrecksDuty(long id, ACPed ped) 
+            : base(id, ped)
         {
-            _position = position;
+            _position = Ped.Instance.Position;
             _entityManager = IoC.Instance.GetInstance<IEntityManager>();
             _arrestManager = IoC.Instance.GetInstance<IArrestManager>();
             _code = IoC.Instance.GetInstance<IResponseManager>().ResponseCode;

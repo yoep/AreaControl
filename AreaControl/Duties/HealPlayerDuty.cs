@@ -1,4 +1,5 @@
 using AreaControl.Duties.Flags;
+using AreaControl.Instances;
 using AreaControl.Utils;
 using Rage;
 
@@ -8,7 +9,8 @@ namespace AreaControl.Duties
     {
         #region Constructors 
 
-        internal HealPlayerDuty(long id) : base(id)
+        internal HealPlayerDuty(long id, ACPed ped) 
+            : base(id, ped)
         {
         }
 

@@ -1,6 +1,7 @@
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Duties.Flags;
+using AreaControl.Instances;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
 using AreaControl.Utils.Query;
@@ -23,21 +24,19 @@ namespace AreaControl.Duties
 
         #region Constructors
 
-        internal CleanCorpsesDuty(long id, Vector3 position)
-            : base(id)
+        internal CleanCorpsesDuty(long id, ACPed ped)
+            : base(id, ped)
         {
-            Assert.NotNull(position, "position cannot be null");
-            _position = position;
+            _position = Ped.Instance.Position;
             _scanRadius = SearchRange;
             _arrestManager = IoC.Instance.GetInstance<IArrestManager>();
             _code = IoC.Instance.GetInstance<IResponseManager>().ResponseCode;
         }
 
-        internal CleanCorpsesDuty(long id, Vector3 position, float scanRadius)
-            : base(id)
+        internal CleanCorpsesDuty(long id, ACPed ped, float scanRadius)
+            : base(id, ped)
         {
-            Assert.NotNull(position, "position cannot be null");
-            _position = position;
+            _position = Ped.Instance.Position;
             _scanRadius = scanRadius;
             _arrestManager = IoC.Instance.GetInstance<IArrestManager>();
             _code = IoC.Instance.GetInstance<IResponseManager>().ResponseCode;

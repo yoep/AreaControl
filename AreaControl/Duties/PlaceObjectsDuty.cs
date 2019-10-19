@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AreaControl.Duties.Flags;
+using AreaControl.Instances;
 using AreaControl.Menu.Response;
 using AreaControl.Utils;
 using Rage;
@@ -14,8 +15,8 @@ namespace AreaControl.Duties
 
         #region Constructors
 
-        internal PlaceObjectsDuty(long id, IEnumerable<PlaceObject> objects, ResponseCode responseCode, bool placeFromHand) 
-            : base(id)
+        internal PlaceObjectsDuty(long id, ACPed ped, IEnumerable<PlaceObject> objects, ResponseCode responseCode, bool placeFromHand) 
+            : base(id, ped)
         {
             _objects = new List<PlaceObject>(objects);
             _responseCode = responseCode;
