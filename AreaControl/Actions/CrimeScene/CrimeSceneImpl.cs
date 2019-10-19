@@ -15,6 +15,8 @@ namespace AreaControl.Actions.CrimeScene
 {
     public class CrimeSceneImpl : AbstractCrimeScene, ICrimeScene
     {
+        private const float AcceptedDistance = 2.5f;
+        
         private readonly IRage _rage;
         private readonly ILogger _logger;
         private readonly IEntityManager _entityManager;
@@ -74,14 +76,14 @@ namespace AreaControl.Actions.CrimeScene
 
         private void ClearBarriers()
         {
-            _placedObjects?.ToList().ForEach(x => PropUtils.Remove(x.Instance));
+            _rage.NewSafeFiber(() => _placedObjects?.ToList().ForEach(x => PropUtils.Remove(x.Instance)), "CrimeSceneImpl.ClearBarriers");
         }
 
         private void ClearVehicles()
         {
-            _rage.NewSafeFiber(() => _police.Wander(), "ClearVehicles.Police");
-            _rage.NewSafeFiber(() => _ambulance.Wander(), "ClearVehicles.Ambulance");
-            _rage.NewSafeFiber(() => _fireTruck.Wander(), "ClearVehicles.FireTruck");
+            _rage.NewSafeFiber(() => _police.Wander(), "CrimeSceneImpl.ClearVehicles.Police");
+            _rage.NewSafeFiber(() => _ambulance.Wander(), "CrimeSceneImpl.ClearVehicles.Ambulance");
+            _rage.NewSafeFiber(() => _fireTruck.Wander(), "CrimeSceneImpl.ClearVehicles.FireTruck");
         }
 
         private void CreateCrimeScene()
@@ -114,7 +116,7 @@ namespace AreaControl.Actions.CrimeScene
                 _ambulance.EnableEmergencyLights();
                 _ambulance.DriveToPosition(ambulancePosition, 45f, VehicleDrivingFlags.Emergency, 35f)
                     .WaitForCompletion();
-                _ambulance.DriveToPosition(ambulancePosition, 10f, VehicleDrivingFlags.Emergency, 1f)
+                _ambulance.DriveToPosition(ambulancePosition, 10f, VehicleDrivingFlags.Emergency, AcceptedDistance)
                     .WaitForCompletion();
                 VehicleUtils.WarpVehicle(_ambulance, _crimeSceneSlot.Ambulance);
                 _ambulance.Occupants.ForEach(x => x.LeaveVehicle(LeaveVehicleFlags.None));
@@ -133,7 +135,7 @@ namespace AreaControl.Actions.CrimeScene
                 _fireTruck.EnableEmergencyLights();
                 _fireTruck.DriveToPosition(firetruckPosition, 45f, VehicleDrivingFlags.Emergency, 35f)
                     .WaitForCompletion();
-                _fireTruck.DriveToPosition(firetruckPosition, 10f, VehicleDrivingFlags.Emergency, 1f)
+                _fireTruck.DriveToPosition(firetruckPosition, 10f, VehicleDrivingFlags.Emergency, AcceptedDistance)
                     .WaitForCompletion();
                 VehicleUtils.WarpVehicle(_fireTruck, _crimeSceneSlot.Firetruck);
                 _fireTruck.Occupants.ForEach(x => x.LeaveVehicle(LeaveVehicleFlags.None));
@@ -153,7 +155,7 @@ namespace AreaControl.Actions.CrimeScene
                 _police.EnableEmergencyLights();
                 _police.DriveToPosition(policePosition, 45f, VehicleDrivingFlags.Emergency, 35f)
                     .WaitForCompletion();
-                _police.DriveToPosition(policePosition, 10f, VehicleDrivingFlags.Emergency, 2f)
+                _police.DriveToPosition(policePosition, 10f, VehicleDrivingFlags.Emergency, AcceptedDistance)
                     .WaitForCompletion();
                 VehicleUtils.WarpVehicle(_police, policeSlot);
                 _police.Occupants.ForEach(x => x.LeaveVehicle(LeaveVehicleFlags.None));

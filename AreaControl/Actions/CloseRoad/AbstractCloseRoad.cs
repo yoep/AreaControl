@@ -18,6 +18,7 @@ namespace AreaControl.Actions.CloseRoad
 
         protected readonly IRage Rage;
         protected readonly ILogger Logger;
+        protected IEnumerable<Road> _roads;
 
         #region Constructors
 
@@ -59,11 +60,11 @@ namespace AreaControl.Actions.CloseRoad
         {
             var blockSlots = new List<PoliceSlot>();
             var closestRoadToPlayer = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
-            var roads = closestRoadToPlayer.IsSingleDirection
+            _roads = closestRoadToPlayer.IsSingleDirection
                 ? GetRoadBehindGivenRoad(closestRoadToPlayer)
                 : GetRoadsAwayFromPlayer(closestRoadToPlayer);
 
-            foreach (var road in roads)
+            foreach (var road in _roads)
             {
                 var roadHeadingToOriginal =
                     MathHelper.NormalizeHeading(MathHelper.ConvertDirectionToHeading(closestRoadToPlayer.Position - road.Position));
@@ -74,13 +75,7 @@ namespace AreaControl.Actions.CloseRoad
                     .ToList();
                 Logger.Debug("Found " + lanesToBlock.Count + " lanes to block");
 
-                foreach (var lane in lanesToBlock)
-                {
-                    var laneRightSide = lane.RightSide + MathHelper.ConvertHeadingToDirection(lane.Heading) * DistanceFromPlayer;
-                    var placementPosition = laneRightSide + MathHelper.ConvertHeadingToDirection(lane.Heading + 90f) * 2f;
-
-                    blockSlots.Add(new PoliceSlot(placementPosition, lane.Heading));
-                }
+                lanesToBlock.ForEach(x => blockSlots.Add(new PoliceSlot(x.Position, x.Heading)));
             }
 
             Logger.Debug("Created " + blockSlots.Count + " block slot(s)");

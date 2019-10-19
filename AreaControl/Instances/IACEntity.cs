@@ -20,12 +20,12 @@ namespace AreaControl.Instances
         /// Check if the instance reference is invalid.
         /// </summary>
         bool IsInvalid { get; }
-        
+
         /// <summary>
         /// Get or set if this instance is friendly towards the player (default: true).
         /// </summary>
         bool IsFriendly { get; set; }
-        
+
         /// <summary>
         /// Get or set of the entity is persistent in the game world.
         /// </summary>
@@ -35,7 +35,7 @@ namespace AreaControl.Instances
         /// Create a blip for this instance.
         /// </summary>
         void CreateBlip();
-        
+
         /// <summary>
         /// Delete the active blip for this instance.
         /// </summary>

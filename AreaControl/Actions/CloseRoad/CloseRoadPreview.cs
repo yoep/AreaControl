@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Actions.Model;
 using AreaControl.Menu;
@@ -47,6 +48,7 @@ namespace AreaControl.Actions.CloseRoad
             {
                 blockSlot.DeletePreview();
             }
+            _roads.ToList().ForEach(x => x.DeletePreview());
 
             MenuItem.Text = AreaControl.ActionCloseRoadPreview;
             IsActive = false;
@@ -64,6 +66,7 @@ namespace AreaControl.Actions.CloseRoad
                 {
                     slot.CreatePreview();
                 }
+                _roads.ToList().ForEach(x => x.CreatePreview());
             }, "AreaControl.CloseRoadPreview");
         }
     }

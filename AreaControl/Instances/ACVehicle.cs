@@ -143,6 +143,9 @@ namespace AreaControl.Instances
         /// </summary>
         public void Wander()
         {
+            if (IsInvalid)
+                Delete();
+
             if (Driver == null || !Driver.IsValid || Instance.Driver != Driver.Instance)
                 return;
 
@@ -157,11 +160,22 @@ namespace AreaControl.Instances
             // check if all occupants are present in the vehicle
             if (!AllOccupantsPresent)
             {
-                TaskExecutor lastTask = null;
+                Logger.Debug("Vehicle.Wander: Not all occupants are in the vehicle");
+                var taskExecutors = new List<TaskExecutor>();
 
-                Occupants.ForEach(x => lastTask = x.EnterLastVehicle(MovementSpeed.Walk));
+                Occupants.ForEach(x =>
+                {
+                    var taskExecutor = x.EnterLastVehicle(MovementSpeed.Walk);
 
-                lastTask?.WaitForCompletion();
+                    taskExecutor.OnCompletion += (sender, args) => Logger.Trace("Ped has entered the vehicle, " + x);
+
+                    taskExecutors.Add(taskExecutor);
+                });
+
+                while (taskExecutors.Any(x => x.IsRunning))
+                {
+                    GameFiber.Yield();
+                }
             }
 
             Driver.CruiseWithVehicle();
@@ -176,6 +190,7 @@ namespace AreaControl.Instances
             Occupants.ForEach(x => x.IsBusy = busy);
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{nameof(Id)}: {Id}," + Environment.NewLine +
@@ -183,6 +198,13 @@ namespace AreaControl.Instances
                    $"{nameof(IsBusy)}: {IsBusy}," + Environment.NewLine +
                    $"{nameof(Occupants)}: {Occupants?.Count}" + Environment.NewLine +
                    FormatDriver();
+        }
+
+        /// <inheritdoc />
+        public override void Delete()
+        {
+            Occupants.ForEach(x => x.Delete());
+            base.Delete();
         }
 
         #endregion

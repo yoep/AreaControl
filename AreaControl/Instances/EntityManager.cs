@@ -150,22 +150,18 @@ namespace AreaControl.Instances
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private void Init()
         {
-            //start a cleanup thread
+            // start a cleanup thread
             _rage.NewSafeFiber(() =>
             {
                 while (_isActive)
                 {
-                    var vehiclesToBeRemoved = ManagedVehicles.Where(x => !x.IsValid).ToList();
-                    var pedsToBeRemoved = _managedPeds.Where(x => !x.IsValid).ToList();
-                    var disposedWrecksToBeRemoved = DisposedWrecks.Where(x => !x.IsValid()).ToList();
-
-                    vehiclesToBeRemoved.ForEach(x => ManagedVehicles.Remove(x));
-                    pedsToBeRemoved.ForEach(x => _managedPeds.Remove(x));
-                    disposedWrecksToBeRemoved.ForEach(x => DisposedWrecks.Remove(x));
+                    ManagedVehicles.RemoveAll(x => x.IsInvalid);
+                    _managedPeds.RemoveAll(x => x.IsInvalid);
+                    DisposedWrecks.RemoveAll(x => !x.IsValid());
 
                     GameFiber.Sleep(2000);
                 }
-            }, "EntityManager");
+            }, "EntityManager.CleanupThread");
         }
 
         private Vehicle FindAvailablePoliceVehicleInWorld(Vector3 position, float radius, int numberOfOccupantsToSpawn)

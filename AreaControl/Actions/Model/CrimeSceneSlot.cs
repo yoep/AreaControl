@@ -127,6 +127,9 @@ namespace AreaControl.Actions.Model
             var sceneDistance = Vector3.Distance(StartPoint.Position, EndPoint.Position);
             var moveDirection = MathHelper.ConvertHeadingToDirection(StartLane.Heading);
             var lastPosition = IsLeftSideOfRoad ? StartLane.RightSide : StartLane.LeftSide;
+            
+            // set gap between car and first barrier
+            lastPosition += moveDirection * 2.5f;
 
             // create barriers in the length of the crime scene
             for (var i = 0; i < sceneDistance / DistanceBetweenBarriers; i++)
@@ -140,14 +143,16 @@ namespace AreaControl.Actions.Model
 
         private void InitializeFiretruckSlot()
         {
-            var position = StartLane.Position + MathHelper.ConvertHeadingToDirection(StartLane.Heading) * DistanceFireTruckFromStart;
+            var startPosition = IsLeftSideOfRoad ? StartLane.LeftSide : StartLane.RightSide;
+            var position = startPosition + MathHelper.ConvertHeadingToDirection(StartLane.Heading) * DistanceFireTruckFromStart;
             
             Firetruck = new FireTruckSlot(position, StartLane.Heading - 30f);
         }
 
         private void InitializeAmbulanceSlot()
         {
-            var position = StartLane.Position + MathHelper.ConvertHeadingToDirection(StartLane.Heading) * DistanceAmbulanceFromStart;
+            var startPosition = IsLeftSideOfRoad ? StartLane.LeftSide : StartLane.RightSide;
+            var position = startPosition + MathHelper.ConvertHeadingToDirection(StartLane.Heading) * DistanceAmbulanceFromStart;
             
             Ambulance = new AmbulanceSlot(position, StartLane.Heading - 30f);
         }

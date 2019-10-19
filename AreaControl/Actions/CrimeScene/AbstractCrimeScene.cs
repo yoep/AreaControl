@@ -67,7 +67,7 @@ namespace AreaControl.Actions.CrimeScene
         {
             var oppositeHeading = RoadUtils.OppositeHeading(crimeSceneHeading);
             var oppositeDirection = MathHelper.ConvertHeadingToDirection(oppositeHeading);
-            var road = RoadUtils.GetClosestRoad(position + oppositeDirection * SpawnDistance, RoadType.MajorRoadsOnly);
+            var road = RoadUtils.GetClosestRoad(position + oppositeDirection * SpawnDistance, RoadType.All);
             var result = road.Lanes.First();
 
             foreach (var lane in road.Lanes)

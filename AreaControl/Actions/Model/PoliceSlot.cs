@@ -10,6 +10,7 @@ namespace AreaControl.Actions.Model
     public class PoliceSlot : AbstractVehicleSlot
     {
         private readonly List<Barrier> _barriers = new List<Barrier>();
+        private Ped _pedPreview;
 
         public PoliceSlot(Vector3 position, float laneHeading)
             : base(position, (laneHeading + 30f) % 360)
@@ -42,6 +43,24 @@ namespace AreaControl.Actions.Model
         /// Get the barriers for this road block slot.
         /// </summary>
         public IReadOnlyList<Barrier> Barriers => _barriers.AsReadOnly();
+
+        #endregion
+
+        #region IPreviewSupport
+
+        public override void CreatePreview()
+        {
+            base.CreatePreview();
+            _pedPreview = new Ped(ModelUtils.GetLocalCop(PedPosition), PedPosition, PedHeading);
+            PreviewUtils.TransformToPreview(_pedPreview);
+        }
+
+        public override void DeletePreview()
+        {
+            base.DeletePreview();
+            EntityUtils.Remove(_pedPreview);
+            _pedPreview = null;
+        }
 
         #endregion
 

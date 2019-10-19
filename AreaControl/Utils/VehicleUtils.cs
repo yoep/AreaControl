@@ -8,7 +8,7 @@ namespace AreaControl.Utils
 {
     public static class VehicleUtils
     {
-        private const float HeadingTolerance = 30f;
+        private const float HeadingTolerance = 25f;
         private const float PositionTolerance = 5f;
         
         private static readonly ILogger Logger = IoC.Instance.GetInstance<ILogger>();

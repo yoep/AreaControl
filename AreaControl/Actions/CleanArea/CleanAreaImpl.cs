@@ -111,9 +111,6 @@ namespace AreaControl.Actions.CleanArea
                         if (vehicle == null)
                             continue;
 
-                        _rage.LogTrivialDebug("Ped entering the spawned vehicle...");
-
-                        ped.EnterLastVehicle(MovementSpeed.Walk).WaitForCompletion();
                         vehicle.DisableHazardLights();
                         vehicle.Wander();
                     }

@@ -34,7 +34,7 @@ namespace AreaControl.Actions.Model
         public bool IsPreviewActive => _previewObject != null;
 
         /// <inheritdoc />
-        public void CreatePreview()
+        public virtual void CreatePreview()
         {
             if (IsPreviewActive)
                 return;
@@ -44,7 +44,7 @@ namespace AreaControl.Actions.Model
         }
 
         /// <inheritdoc />
-        public void DeletePreview()
+        public virtual void DeletePreview()
         {
             if (!IsPreviewActive)
                 return;
