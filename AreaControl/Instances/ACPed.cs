@@ -92,7 +92,7 @@ namespace AreaControl.Instances
         public void WarpIntoVehicle(ACVehicle vehicle, VehicleSeat seat)
         {
             Assert.NotNull(vehicle, "vehicle cannot be null");
-            if (IsInvalid)
+            if (IsInvalid || vehicle == null || vehicle.IsInvalid)
                 return;
 
             DeleteBlip();

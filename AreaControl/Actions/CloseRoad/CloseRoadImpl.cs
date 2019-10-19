@@ -206,6 +206,12 @@ namespace AreaControl.Actions.CloseRoad
         {
             var nextAvailableDuty = _dutyManager.NextAvailableDuty(ped, DutyTypeFlag.CleanDuties);
 
+            if (nextAvailableDuty == null)
+            {
+                RegisterDutyListenerForIdlePed(ped);
+                return;
+            }
+            
             if (nextAvailableDuty.GetType() != typeof(ReturnToVehicleDuty))
             {
                 ActivateNonIdleDuty(ped, nextAvailableDuty);
