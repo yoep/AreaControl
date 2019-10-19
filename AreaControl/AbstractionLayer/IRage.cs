@@ -1,14 +1,16 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Rage;
 
 namespace AreaControl.AbstractionLayer
 {
+    /// <inheritdoc />
     /// <summary>
     /// Abstraction layer for calling RAGE api.
     /// This layer is created for unit tests to be able to work.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public interface IRage
+    public interface IRage : IDisposable
     {
         /// <summary>
         /// Display a notification with the name of the plugin at the start.
@@ -31,6 +33,7 @@ namespace AreaControl.AbstractionLayer
         /// </summary>
         /// <param name="action">Set the action to execute on the fiber.</param>
         /// <param name="name">Set the name of the new fiber (will also be used for logging).</param>
+        /// <returns>Returns the exception safe fiber.</returns>
         void NewSafeFiber(Action action, string name);
         
         /// <summary>

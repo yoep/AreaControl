@@ -5,7 +5,6 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Actions.Model;
 using AreaControl.Instances;
 using AreaControl.Menu;
-using AreaControl.Utils;
 using AreaControl.Utils.Road;
 using Rage;
 using RAGENativeUI.Elements;
@@ -56,9 +55,9 @@ namespace AreaControl.Actions.CloseRoad
 
         #endregion
 
-        protected ICollection<BlockSlot> DetermineBlockSlots()
+        protected ICollection<PoliceSlot> DetermineBlockSlots()
         {
-            var blockSlots = new List<BlockSlot>();
+            var blockSlots = new List<PoliceSlot>();
             var closestRoadToPlayer = DetermineClosestRoadTo(Game.LocalPlayer.Character.Position);
             var roads = closestRoadToPlayer.IsSingleDirection
                 ? GetRoadBehindGivenRoad(closestRoadToPlayer)
@@ -80,7 +79,7 @@ namespace AreaControl.Actions.CloseRoad
                     var laneRightSide = lane.RightSide + MathHelper.ConvertHeadingToDirection(lane.Heading) * DistanceFromPlayer;
                     var placementPosition = laneRightSide + MathHelper.ConvertHeadingToDirection(lane.Heading + 90f) * 2f;
 
-                    blockSlots.Add(new BlockSlot(placementPosition, lane.Heading));
+                    blockSlots.Add(new PoliceSlot(placementPosition, lane.Heading));
                 }
             }
 

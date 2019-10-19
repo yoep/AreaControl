@@ -95,7 +95,7 @@
     <Compile Include="Actions\CrimeScene\ICrimeScenePreview.cs" />
     <Compile Include="Actions\Model\AbstractVehicleSlot.cs" />
     <Compile Include="Actions\Model\AmbulanceSlot.cs" />
-    <Compile Include="Actions\Model\BlockSlot.cs" />
+    <Compile Include="Actions\Model\PoliceSlot.cs" />
     <Compile Include="Actions\Model\CrimeSceneSlot.cs" />
     <Compile Include="Actions\Model\FireTruckSlot.cs" />
     <Compile Include="Actions\Model\RedirectSlot.cs" />
@@ -194,6 +194,7 @@
     <Compile Include="Utils\Tasks\TaskIdentificationType.cs" />
     <Compile Include="Utils\Tasks\TaskUtils.cs" />
     <Compile Include="Utils\TimePeriod.cs" />
+    <Compile Include="Utils\VehicleUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AreaControl.ini">

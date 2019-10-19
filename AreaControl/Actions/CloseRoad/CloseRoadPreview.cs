@@ -8,7 +8,7 @@ namespace AreaControl.Actions.CloseRoad
 {
     public class CloseRoadPreview : AbstractCloseRoad, ICloseRoadPreview
     {
-        private IEnumerable<BlockSlot> _blockSlots;
+        private IEnumerable<PoliceSlot> _blockSlots;
 
         public CloseRoadPreview(IRage rage, ILogger logger)
             : base(rage, logger)

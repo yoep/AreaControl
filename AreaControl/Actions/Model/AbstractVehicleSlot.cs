@@ -55,6 +55,15 @@ namespace AreaControl.Actions.Model
 
         #endregion
 
+        #region Methods
+
+        public void ClearSlotFromTraffic()
+        {
+            EntityUtils.CleanArea(Position, 5f);
+        }
+
+        #endregion
+
         #region Functions
 
         /// <summary>

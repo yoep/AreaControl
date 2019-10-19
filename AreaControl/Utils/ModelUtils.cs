@@ -86,7 +86,7 @@ namespace AreaControl.Utils
         /// </summary>
         /// <param name="position">Set the position to get the local model for.</param>
         /// <returns>Returns the local vehicle model.</returns>
-        public static Model GetLocalVehicle(Vector3 position)
+        public static Model GetLocalPolice(Vector3 position)
         {
             var zone = GetZone(position);
 

@@ -154,9 +154,15 @@ namespace AreaControl.Instances
                 x.IsBusy = false;
             });
 
-            // check if driver is in the vehicle, if not, let the driver enter the vehicle first
-            if (Driver.Instance.CurrentVehicle == null)
-                Driver.EnterLastVehicle(MovementSpeed.Walk).WaitForCompletion();
+            // check if all occupants are present in the vehicle
+            if (!AllOccupantsPresent)
+            {
+                TaskExecutor lastTask = null;
+
+                Occupants.ForEach(x => lastTask = x.EnterLastVehicle(MovementSpeed.Walk));
+
+                lastTask?.WaitForCompletion();
+            }
 
             Driver.CruiseWithVehicle();
         }

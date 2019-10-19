@@ -53,6 +53,16 @@ namespace AreaControl.Instances
         ACVehicle CreateVehicleAt(Vector3 spawnPosition, VehicleType type, int numberOfOccupantsToSpawn);
 
         /// <summary>
+        /// Create a <see cref="Vehicle"/> at the given spawn position and given heading.
+        /// </summary>
+        /// <param name="spawnPosition">The spawn position for the created vehicle.</param>
+        /// <param name="heading">The heading the vehicle should be spawned at.</param>
+        /// <param name="type">The type of the vehicle to spawn.</param>
+        /// <param name="numberOfOccupantsToSpawn">The number of occupants the vehicle should spawn with.</param>
+        /// <returns>Returns the created vehicle with occupants.</returns>
+        ACVehicle CreateVehicleAt(Vector3 spawnPosition, float heading, VehicleType type, int numberOfOccupantsToSpawn);
+
+        /// <summary>
         /// Register the given vehicle instance as a disposed wreck.
         /// </summary>
         /// <param name="instance">Set the instance to register.</param>

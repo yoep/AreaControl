@@ -13,7 +13,6 @@ namespace AreaControl.Actions.Model
         private const float DistanceAmbulanceFromStart = 20f;
 
         private readonly List<Barrier> _barriers = new List<Barrier>();
-        private BlockSlot _blockSlot;
 
         public CrimeSceneSlot(Road startPoint, Road endPoint, Vector3 originalPlayerPosition)
         {
@@ -61,6 +60,11 @@ namespace AreaControl.Actions.Model
         public bool IsLeftSideOfRoad { get; }
         
         /// <summary>
+        /// Get the police slot for the crime scene.
+        /// </summary>
+        public PoliceSlot Police { get; private set; }
+        
+        /// <summary>
         /// Get the firetruck slot for the crime scene.
         /// </summary>
         public FireTruckSlot Firetruck { get; private set; }
@@ -70,6 +74,9 @@ namespace AreaControl.Actions.Model
         /// </summary>
         public AmbulanceSlot Ambulance { get; private set; }
        
+        /// <summary>
+        /// Get the crime scene barriers.
+        /// </summary>
         public IReadOnlyList<Barrier> Barriers => _barriers.AsReadOnly();
 
         #endregion
@@ -77,12 +84,12 @@ namespace AreaControl.Actions.Model
         #region IPreviewSupport
 
         /// <inheritdoc />
-        public bool IsPreviewActive => _blockSlot.IsPreviewActive;
+        public bool IsPreviewActive => Police.IsPreviewActive;
 
         /// <inheritdoc />
         public void CreatePreview()
         {
-            _blockSlot.CreatePreview();
+            Police.CreatePreview();
             Firetruck.CreatePreview();
             Ambulance.CreatePreview();
             _barriers.ForEach(x => x.CreatePreview());
@@ -91,7 +98,7 @@ namespace AreaControl.Actions.Model
         /// <inheritdoc />
         public void DeletePreview()
         {
-            _blockSlot.DeletePreview();
+            Police.DeletePreview();
             Firetruck.DeletePreview();
             Ambulance.DeletePreview();
             _barriers.ForEach(x => x.DeletePreview());
@@ -103,16 +110,16 @@ namespace AreaControl.Actions.Model
 
         private void Init()
         {
-            InitializeBlockSlot();
+            InitializePoliceSlot();
             InitializeBarriers();
             InitializeFiretruckSlot();
             InitializeAmbulanceSlot();
         }
 
-        private void InitializeBlockSlot()
+        private void InitializePoliceSlot()
         {
-            // create a block slot at the start lane of the crime scene
-            _blockSlot = new BlockSlot(StartLane.Position, StartLane.Heading);
+            // create a police slot at the start lane of the crime scene
+            Police = new PoliceSlot(StartLane.Position, StartLane.Heading);
         }
 
         private void InitializeBarriers()

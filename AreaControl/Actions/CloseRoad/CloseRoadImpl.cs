@@ -21,15 +21,13 @@ namespace AreaControl.Actions.CloseRoad
     public class CloseRoadImpl : AbstractCloseRoad
     {
         private const float ScanRadius = 250f;
-        private const float BlockHeadingTolerance = 30f;
-        private const float BlockPositionTolerance = 8f;
 
         private readonly IEntityManager _entityManager;
         private readonly IResponseManager _responseManager;
         private readonly IDutyManager _dutyManager;
         private readonly ISettingsManager _settingsManager;
 
-        private ICollection<BlockSlot> _blockSlots;
+        private ICollection<PoliceSlot> _blockSlots;
 
         #region Constructors
 
@@ -124,7 +122,7 @@ namespace AreaControl.Actions.CloseRoad
             }
         }
 
-        private void SpawnBlockSlots(ICollection<BlockSlot> blockSlots)
+        private void SpawnBlockSlots(ICollection<PoliceSlot> blockSlots)
         {
             var i = 0;
 
@@ -149,7 +147,7 @@ namespace AreaControl.Actions.CloseRoad
             }
         }
 
-        private void MoveToSlot(ACVehicle vehicle, BlockSlot slot)
+        private void MoveToSlot(ACVehicle vehicle, PoliceSlot slot)
         {
             var vehicleDriver = vehicle.Driver;
             var initialDrivingFlags = _responseManager.VehicleDrivingFlags;
@@ -168,43 +166,18 @@ namespace AreaControl.Actions.CloseRoad
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(slot.Position, 10f, VehicleDrivingFlags.Emergency, 2f)
                 .WaitForCompletion(20000);
-            WarpVehicleInPosition(vehicle, slot);
-            WarpVehicleInHeading(vehicle, slot);
+            VehicleUtils.WarpVehicle(vehicle, slot);
             Logger.Trace("Vehicle parked at block slot " + slot);
         }
 
-        private void WarpVehicleInHeading(ACVehicle vehicle, BlockSlot slot)
-        {
-            var vehicleHeading = vehicle.Instance.Heading;
-            var expectedHeading = slot.Heading;
-            var headingDifference = Math.Abs(vehicleHeading - expectedHeading);
-
-            Logger.Debug("Checking heading tolerance, expected: " + expectedHeading + ", actual: " + vehicleHeading + ", difference: " +
-                         headingDifference);
-            if (headingDifference > BlockHeadingTolerance)
-                vehicle.Instance.Heading = expectedHeading;
-        }
-
-        private void WarpVehicleInPosition(ACVehicle vehicle, BlockSlot slot)
-        {
-            var vehiclePosition = vehicle.Instance.Position;
-            var expectedPosition = slot.Position;
-            var positionDifference = Vector3.Distance(vehiclePosition, expectedPosition);
-
-            Logger.Debug("Checking position tolerance, expected: " + expectedPosition + ", actual: " + vehiclePosition + ", difference: " +
-                         positionDifference);
-            if (positionDifference > BlockPositionTolerance)
-                vehicle.Instance.Position = expectedPosition;
-        }
-
-        private void AssignDutiesToDriver(ACPed ped, BlockSlot slot)
+        private void AssignDutiesToDriver(ACPed ped, PoliceSlot slot)
         {
             ped.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
             AssignPlaceBarriersDuty(ped, slot);
             _dutyManager.RegisterDuty(ped, new RedirectTrafficDuty(slot.PedPosition, slot.PedHeading, _responseManager.ResponseCode));
         }
 
-        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, BlockSlot slot)
+        private void AssignAvailableDutiesToPassengers(ACVehicle vehicle, PoliceSlot slot)
         {
             var passengers = vehicle.Passengers;
             passengers.ForEach(x =>
@@ -214,7 +187,7 @@ namespace AreaControl.Actions.CloseRoad
             });
         }
 
-        private void AssignPlaceBarriersDuty(ACPed ped, BlockSlot slot)
+        private void AssignPlaceBarriersDuty(ACPed ped, PoliceSlot slot)
         {
             if (!_settingsManager.CloseRoadSettings.PlaceBarriers)
                 return;
@@ -223,9 +196,9 @@ namespace AreaControl.Actions.CloseRoad
                 .Select(barrier => barrier.Object)
                 .ToList();
 
-            var placeObjectsDuty = new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), objects, _responseManager.ResponseCode, false);
+            
+            var placeObjectsDuty =_dutyManager.NewPlaceObjectsDuty(ped, objects, _responseManager.ResponseCode, false);
             Logger.Debug("Created place barriers duty " + placeObjectsDuty);
-            _dutyManager.RegisterDuty(ped, placeObjectsDuty);
         }
 
         private void AssignNextAvailableDutyToPed(ACPed ped)
@@ -267,7 +240,7 @@ namespace AreaControl.Actions.CloseRoad
             return duties;
         }
 
-        private static Road GetPositionBehindSlot(BlockSlot slot, int index)
+        private static Road GetPositionBehindSlot(PoliceSlot slot, int index)
         {
             return RoadUtils.GetClosestRoad(slot.Position + MathHelper.ConvertHeadingToDirection(slot.PedHeading) * (80f * index), RoadType.All);
         }

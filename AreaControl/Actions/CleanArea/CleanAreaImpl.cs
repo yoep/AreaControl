@@ -16,7 +16,7 @@ namespace AreaControl.Actions.CleanArea
     public class CleanAreaImpl : ICleanArea
     {
         private const float SearchPedRadius = 100f;
-        private const float SpawnDistance = 200f;
+        private const float SpawnDistance = 150f;
 
         private readonly IRage _rage;
         private readonly IEntityManager _entityManager;
@@ -70,6 +70,7 @@ namespace AreaControl.Actions.CleanArea
                     {
                         var closestRoad = RoadUtils.GetClosestRoad(playerPosition.Around(SpawnDistance), RoadType.All);
 
+                        LspdfrUtils.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION", playerPosition, true);
                         vehicle = _entityManager.CreateVehicleAt(closestRoad.Position, VehicleType.Police, 2);
 
                         vehicle.DriveToPosition(playerPosition, 30f, VehicleDrivingFlags.Normal, 5f)
@@ -107,11 +108,11 @@ namespace AreaControl.Actions.CleanArea
                     {
                         _rage.LogTrivialDebug("Couldn't find any available clear area duty for " + ped);
 
-                        if (vehicle == null) 
+                        if (vehicle == null)
                             continue;
-                        
+
                         _rage.LogTrivialDebug("Ped entering the spawned vehicle...");
-                            
+
                         ped.EnterLastVehicle(MovementSpeed.Walk).WaitForCompletion();
                         vehicle.DisableHazardLights();
                         vehicle.Wander();

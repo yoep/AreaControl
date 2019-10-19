@@ -93,7 +93,13 @@ namespace AreaControl.Instances
         /// <inheritdoc />
         public ACVehicle CreateVehicleAt(Vector3 spawnPosition, VehicleType type, int numberOfOccupantsToSpawn)
         {
-            return CreateVehicleWithOccupants(GetStreetAt(spawnPosition), type, numberOfOccupantsToSpawn);
+            return CreateVehicleWithOccupants(spawnPosition, type, numberOfOccupantsToSpawn);
+        }
+
+        /// <inheritdoc />
+        public ACVehicle CreateVehicleAt(Vector3 spawnPosition, float heading, VehicleType type, int numberOfOccupantsToSpawn)
+        {
+            return CreateVehicleWithOccupants(spawnPosition, heading, type, numberOfOccupantsToSpawn);
         }
 
         /// <inheritdoc />
@@ -243,7 +249,7 @@ namespace AreaControl.Instances
             return ManagedVehicles.FirstOrDefault(x => x.Instance == vehicle);
         }
 
-        private PedType VehicleTypeToPedType(VehicleType type)
+        private static PedType VehicleTypeToPedType(VehicleType type)
         {
             switch (type)
             {
@@ -256,7 +262,7 @@ namespace AreaControl.Instances
             }
         }
 
-        private VehicleType PedTypeToVehicleType(PedType type)
+        private static VehicleType PedTypeToVehicleType(PedType type)
         {
             switch (type)
             {
@@ -308,9 +314,15 @@ namespace AreaControl.Instances
 
         private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition, VehicleType type, int numberOfOccupantsToSpawn)
         {
-            var pedType = VehicleTypeToPedType(type);
             var closestRoad = RoadUtils.GetClosestRoad(spawnPosition, RoadType.All);
-            var gameVehicle = new Vehicle(ModelUtils.GetLocalVehicle(spawnPosition), closestRoad.Position, closestRoad.Lanes.First().Heading);
+
+            return CreateVehicleWithOccupants(spawnPosition, closestRoad.Lanes.First().Heading, type, numberOfOccupantsToSpawn);
+        }
+
+        private ACVehicle CreateVehicleWithOccupants(Vector3 spawnPosition, float heading, VehicleType type, int numberOfOccupantsToSpawn)
+        {
+            var pedType = VehicleTypeToPedType(type);
+            var gameVehicle = new Vehicle(GetVehicleModel(spawnPosition, type), spawnPosition, heading);
             var vehicle = RegisterVehicle(gameVehicle, type);
 
             for (var i = 0; i < numberOfOccupantsToSpawn; i++)
@@ -349,6 +361,19 @@ namespace AreaControl.Instances
                 BlockPermanentEvents = true,
                 KeepTasks = true
             };
+        }
+
+        private static Model GetVehicleModel(Vector3 spawnPosition, VehicleType type)
+        {
+            switch (type)
+            {
+                case VehicleType.FireTruck:
+                    return ModelUtils.GetFireTruck();
+                case VehicleType.Ambulance:
+                    return ModelUtils.GetAmbulance();
+                default:
+                    return ModelUtils.GetLocalPolice(spawnPosition);
+            }
         }
 
         private static Model GetPedModel(Vector3 spawnPosition, PedType type)

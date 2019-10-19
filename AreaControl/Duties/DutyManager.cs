@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
+using AreaControl.Menu.Response;
 using Rage;
 
 namespace AreaControl.Duties
@@ -13,14 +14,15 @@ namespace AreaControl.Duties
         private readonly Dictionary<ACPed, List<IDuty>> _duties = new Dictionary<ACPed, List<IDuty>>();
         private readonly List<DutyListener> _dutyListeners = new List<DutyListener>();
         private readonly IRage _rage;
+        private readonly ILogger _logger;
         private bool _isActive = true;
-        private long _lastDutyId;
 
         #region Constructors
 
-        public DutyManager(IRage rage)
+        public DutyManager(IRage rage, ILogger logger)
         {
             _rage = rage;
+            _logger = logger;
         }
 
         #endregion
@@ -41,6 +43,9 @@ namespace AreaControl.Duties
                 return listener;
             }
         }
+
+        /// <inheritdoc />
+        public long DutyId { get; private set; }
 
         /// <inheritdoc />
         public IDuty NextAvailableDuty(ACPed ped, IEnumerable<DutyType> dutyTypes)
@@ -67,9 +72,8 @@ namespace AreaControl.Duties
                 return nextAvailableDuty;
 
             _rage.LogTrivialDebug("Their are no available duties in the area of " + ped.Instance.Position);
-            var idleDuty = GetIdleDuty();
-            RegisterDuty(ped, idleDuty);
-            return idleDuty;
+            
+            return RegisterDuty(ped, GetIdleDuty());
         }
 
         /// <inheritdoc />
@@ -87,15 +91,27 @@ namespace AreaControl.Duties
                 return duties;
             }
         }
-
+        
         /// <inheritdoc />
-        public long GetNextDutyId()
+        public IDuty NewRedirectTrafficDuty(ACPed ped, Vector3 position, float heading, ResponseCode responseCode)
         {
-            return ++_lastDutyId;
+            return RegisterDuty(ped, new RedirectTrafficDuty(position, heading, responseCode));
         }
 
         /// <inheritdoc />
-        public void RegisterDuty(ACPed ped, IDuty duty)
+        public IDuty NewPlaceObjectsDuty(ACPed ped, IEnumerable<PlaceObjectsDuty.PlaceObject> objects, ResponseCode responseCode, bool placeFromHand)
+        {
+            return RegisterDuty(ped, new PlaceObjectsDuty(NextDutyId, objects, responseCode, placeFromHand));
+        }
+
+        /// <inheritdoc />
+        public IDuty NewIdleDuty(ACPed ped)
+        {
+            return RegisterDuty(ped, GetIdleDuty());
+        }
+
+        /// <inheritdoc />
+        public IDuty RegisterDuty(ACPed ped, IDuty duty)
         {
             Assert.NotNull(ped, "ped cannot be null");
             Assert.NotNull(duty, "duty cannot be null");
@@ -120,6 +136,8 @@ namespace AreaControl.Duties
                 _rage.LogTrivialDebug("Ped has no activate duty, directly executing registered duty");
                 ActivateNextDutyOnPed(ped);
             }
+
+            return duty;
         }
 
         /// <inheritdoc />
@@ -145,12 +163,25 @@ namespace AreaControl.Duties
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Get the next duty ID.
+        /// </summary>
+        private long NextDutyId => ++DutyId;
+
+        #endregion
+
+        #region Methods 
+
         /// <inheritdoc />
         public void Dispose()
         {
             _isActive = false;
             DismissDuties();
         }
+
+        #endregion
 
         #region Functions
 
@@ -162,26 +193,27 @@ namespace AreaControl.Duties
             {
                 while (_isActive)
                 {
-                    var clonedDutyListeners = new List<DutyListener>(_dutyListeners);
-
-                    foreach (var dutyListener in clonedDutyListeners)
+                    foreach (var dutyListener in _dutyListeners)
                     {
                         var pedInstance = dutyListener.Ped.Instance;
 
-                        //check if the ped instance is still valid
-                        if (!pedInstance.IsValid())
+                        // check if the ped instance is still valid and the duty listener has an event registered
+                        if (!pedInstance.IsValid() || dutyListener.OnDutyAvailable == null)
                             continue;
 
                         var availableDuty = GetNextAvailableDuty(pedInstance.Position, dutyListener.DutyTypes);
 
-                        if (availableDuty == null || dutyListener.OnDutyAvailable == null)
+                        if (availableDuty == null)
                             continue;
 
-                        _rage.LogTrivialDebug("Found a new available duty " + availableDuty + " for listener " + dutyListener);
+                        _logger.Debug("Found a new available duty " + availableDuty + " for listener " + dutyListener);
                         RegisterDuty(dutyListener.Ped, availableDuty);
-                        _dutyListeners.Remove(dutyListener);
+                        dutyListener.HasNewDuty = true;
                         dutyListener.OnDutyAvailable.Invoke(this, new DutyAvailableEventArgs(availableDuty));
                     }
+                    
+                    // cleanup listeners
+                    _dutyListeners.RemoveAll(x => x.Ped.IsInvalid || x.OnDutyAvailable == null || x.HasNewDuty);
 
                     foreach (var ped in _duties.Keys)
                     {
@@ -189,7 +221,7 @@ namespace AreaControl.Duties
                             ActivateNextDutyOnPed(ped);
                     }
 
-                    GameFiber.Sleep(500);
+                    GameFiber.Sleep(1000);
                 }
             }, "DutyManager");
         }
@@ -203,10 +235,10 @@ namespace AreaControl.Duties
                 switch (dutyType)
                 {
                     case DutyType.CleanCorpses:
-                        duties.Add(new CleanCorpsesDuty(++_lastDutyId, position));
+                        duties.Add(new CleanCorpsesDuty(++DutyId, position));
                         break;
                     case DutyType.CleanWrecks:
-                        duties.Add(new CleanWrecksDuty(++_lastDutyId, position));
+                        duties.Add(new CleanWrecksDuty(++DutyId, position));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(dutyTypes), "Duty type " + dutyType + " has not yet been added to GetNextAvailableDuty");
@@ -282,6 +314,11 @@ namespace AreaControl.Duties
 
             /// <inheritdoc />
             public EventHandler<DutyAvailableEventArgs> OnDutyAvailable { get; set; }
+
+            /// <summary>
+            /// Get or set if this duty listener has a new duty.
+            /// </summary>
+            public bool HasNewDuty { get; set; }
 
             public override string ToString()
             {

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using AreaControl.Instances;
+using AreaControl.Menu.Response;
+using Rage;
 
 namespace AreaControl.Duties
 {
@@ -14,6 +16,22 @@ namespace AreaControl.Duties
         /// <param name="ped">Set the ped to listen for new duties.</param>
         IDutyListener this[ACPed ped] { get; }
 
+        #region Properties
+        
+        /// <summary>
+        /// Get the current duty ID.
+        /// </summary>
+        long DutyId { get; }
+        
+        /// <summary>
+        /// Get a list of all registered duties.
+        /// </summary>
+        IReadOnlyList<IDuty> RegisteredDuties { get; }
+        
+        #endregion
+        
+        #region Methods
+        
         /// <summary>
         /// Get the next available duty in the area of the ped if found.
         /// </summary>
@@ -33,27 +51,45 @@ namespace AreaControl.Duties
         IDuty NextAvailableOrIdleDuty(ACPed ped, IEnumerable<DutyType> dutyTypes);
 
         /// <summary>
-        /// Get a list of all registered duties.
+        /// Create a new redirect traffic duty.
         /// </summary>
-        IReadOnlyList<IDuty> RegisteredDuties { get; }
+        /// <param name="ped">The ped that needs to execute the duty.</param>
+        /// <param name="position">The position of the redirect traffic duty.</param>
+        /// <param name="heading">The heading that the ped must face.</param>
+        /// <param name="responseCode">The response code for the duty.</param>
+        /// <returns>Returns the registered duty instance.</returns>
+        IDuty NewRedirectTrafficDuty(ACPed ped, Vector3 position, float heading, ResponseCode responseCode);
+        
+        /// <summary>
+        /// Create a new place objects duty.
+        /// </summary>
+        /// <param name="ped">The ped that needs to execute the duty.</param>
+        /// <param name="objects">The objects that need to be placed.</param>
+        /// <param name="responseCode">The response code.</param>
+        /// <param name="placeFromHand">Set if the objects need to be placed from the ped hand or not.</param>
+        /// <returns>Returns the registered duty instance.</returns>
+        IDuty NewPlaceObjectsDuty(ACPed ped, IEnumerable<PlaceObjectsDuty.PlaceObject> objects, ResponseCode responseCode, bool placeFromHand);
 
         /// <summary>
-        /// Get the next unique duty id.
+        /// Create a new idle duty.
         /// </summary>
-        /// <returns>Returns the next duty id.</returns>
-        long GetNextDutyId();
-
+        /// <param name="ped">The ped that needs to execute the duty.</param>
+        /// <returns>Returns the registered duty instance.</returns>
+        IDuty NewIdleDuty(ACPed ped);
+        
         /// <summary>
         /// Register the duty in the <see cref="IDutyManager"/>.
         /// This method must be invoked for each created duty outside of the <see cref="IDutyManager"/>.
         /// </summary>
         /// <param name="ped">Set the ped the duty is being registered for.</param>
         /// <param name="duty">Set the duty to register.</param>
-        void RegisterDuty(ACPed ped, IDuty duty);
+        IDuty RegisterDuty(ACPed ped, IDuty duty);
 
         /// <summary>
         /// Abort all active duties and clean them from the duty manager so they can be instantiated again.
         /// </summary>
         void DismissDuties();
+        
+        #endregion
     }
 }

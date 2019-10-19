@@ -166,8 +166,7 @@ namespace AreaControl.Actions.RedirectTraffic
             if (redirectTrafficSettings.AlwaysPlaceLight || GameTimeUtils.TimePeriod == TimePeriod.Evening || GameTimeUtils.TimePeriod == TimePeriod.Night)
                 _placedObjects.Add(redirectSlot.SignLight.Object);
 
-            _dutyManager.RegisterDuty(ped,
-                new PlaceObjectsDuty(_dutyManager.GetNextDutyId(), _placedObjects, _responseManager.ResponseCode, true));
+            _dutyManager.NewPlaceObjectsDuty(ped, _placedObjects, _responseManager.ResponseCode, true);
         }
 
         private RedirectTrafficSettings GetRedirectTrafficSettings()

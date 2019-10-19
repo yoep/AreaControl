@@ -35,5 +35,10 @@ namespace AreaControlTests.AbstractionLayer
         {
             //no-op
         }
+
+        public void Dispose()
+        {
+            
+        }
     }
 }

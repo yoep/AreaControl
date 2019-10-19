@@ -1,6 +1,7 @@
+using System;
+using System.Linq;
 using AreaControl.Actions.Model;
 using AreaControl.Instances;
-using AreaControl.Utils;
 using AreaControl.Utils.Road;
 using Rage;
 
@@ -9,6 +10,7 @@ namespace AreaControl.Actions.CrimeScene
     public abstract class AbstractCrimeScene
     {
         private const float DistanceFromPlayer = 15f;
+        private const float SpawnDistance = 150f;
 
         #region Properties
 
@@ -36,9 +38,47 @@ namespace AreaControl.Actions.CrimeScene
             return new CrimeSceneSlot(pointBehindPlayer, pointInFrontOfPlayer, playerPosition);
         }
 
+        protected Vector3 GetSpawnPositionPolice(Vector3 position, float crimeSceneHeading)
+        {
+           return GetSpawnPosition(position, crimeSceneHeading, 0f);
+        }
+        
+        protected Vector3 GetSpawnPositionFireTruck(Vector3 position, float crimeSceneHeading)
+        {
+           return GetSpawnPosition(position, crimeSceneHeading, 10f);
+        }
+        
+        protected Vector3 GetSpawnPositionAmbulance(Vector3 position, float crimeSceneHeading)
+        {
+           return GetSpawnPosition(position, crimeSceneHeading, 20f);
+        }
+
+        private Vector3 GetSpawnPosition(Vector3 position, float crimeSceneHeading, float distance)
+        {
+            return GetPositionBehindCrimeScene(position, crimeSceneHeading).Position + MathHelper.ConvertHeadingToDirection(crimeSceneHeading) * distance;
+        }
+
         private Road GetRoad(Vector3 position)
         {
             return RoadUtils.GetClosestRoad(position, RoadType.All);
+        }
+
+        private Road.Lane GetPositionBehindCrimeScene(Vector3 position, float crimeSceneHeading)
+        {
+            var oppositeHeading = RoadUtils.OppositeHeading(crimeSceneHeading);
+            var oppositeDirection = MathHelper.ConvertHeadingToDirection(oppositeHeading);
+            var road = RoadUtils.GetClosestRoad(position + oppositeDirection * SpawnDistance, RoadType.MajorRoadsOnly);
+            var result = road.Lanes.First();
+
+            foreach (var lane in road.Lanes)
+            {
+                if (Math.Abs(lane.Heading - crimeSceneHeading) < 10)
+                {
+                    result = lane;
+                }
+            }
+
+            return result;
         }
 
         #endregion
