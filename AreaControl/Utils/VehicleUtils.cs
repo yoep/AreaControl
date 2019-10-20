@@ -3,6 +3,7 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Actions.Model;
 using AreaControl.Instances;
 using Rage;
+using Rage.Native;
 
 namespace AreaControl.Utils
 {
@@ -20,8 +21,8 @@ namespace AreaControl.Utils
         /// <param name="slot">The slot to warp the vehicle into.</param>
         /// <param name="headingTolerance">The heading tolerance the vehicle may have.</param>
         /// <param name="positionTolerance">The distance tolerance the vehicle may have.</param>
-        public static void WarpVehicle(ACVehicle vehicle, AbstractVehicleSlot slot, float headingTolerance = HeadingTolerance,
-            float positionTolerance = PositionTolerance)
+        public static void WarpVehicle(ACVehicle vehicle, AbstractVehicleSlot slot, 
+            float headingTolerance = HeadingTolerance, float positionTolerance = PositionTolerance)
         {
             WarpVehicleInHeading(vehicle, slot, headingTolerance);
             WarpVehicleInPosition(vehicle, slot, positionTolerance);
@@ -39,7 +40,7 @@ namespace AreaControl.Utils
             var expectedHeading = slot.Heading;
             var headingDifference = Math.Abs(vehicleHeading - expectedHeading);
 
-            Logger.Debug("Checking heading tolerance, expected: " + expectedHeading + ", actual: " + vehicleHeading + ", difference: " +
+            Logger.Trace("Checking heading tolerance, expected: " + expectedHeading + ", actual: " + vehicleHeading + ", difference: " +
                          headingDifference);
             if (headingDifference > tolerance)
                 vehicle.Instance.Heading = expectedHeading;
@@ -53,14 +54,18 @@ namespace AreaControl.Utils
         /// <param name="tolerance">The distance tolerance the vehicle may have.</param>
         public static void WarpVehicleInPosition(ACVehicle vehicle, AbstractVehicleSlot slot, float tolerance = PositionTolerance)
         {
-            var vehiclePosition = vehicle.Instance.Position;
+            var vehicleInstance = vehicle.Instance;
+            var vehiclePosition = vehicleInstance.Position;
             var expectedPosition = slot.Position;
-            var positionDifference = Vector3.Distance(vehiclePosition, expectedPosition);
+            var positionDifference = Math.Abs(Vector3.Distance2D(vehiclePosition, expectedPosition));
 
-            Logger.Debug("Checking position tolerance, expected: " + expectedPosition + ", actual: " + vehiclePosition + ", difference: " +
+            Logger.Trace("Checking position tolerance, expected: " + expectedPosition + ", actual: " + vehiclePosition + ", difference: " +
                          positionDifference);
-            if (positionDifference > tolerance)
-                vehicle.Instance.Position = expectedPosition;
+            if (!(positionDifference > tolerance)) 
+                return;
+            
+            Logger.Trace("Warping vehicle & placing on the ground");
+            vehicleInstance.Position = GameUtils.GetOnTheGroundVector(expectedPosition);
         }
     }
 }

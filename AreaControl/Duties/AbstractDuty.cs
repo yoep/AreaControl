@@ -100,6 +100,13 @@ namespace AreaControl.Duties
             Abort(true);
         }
 
+        /// <inheritdoc />
+        public void AfterRegistration()
+        {
+            State = DutyState.Ready;
+        }
+
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{GetType().Name}" + Environment.NewLine +
@@ -143,8 +150,8 @@ namespace AreaControl.Duties
                 return;
 
             // check if the execution thread needs to be aborted
-            if (terminateExecutionThread && _executionThread != null && _executionThread.IsAlive)
-                _executionThread.Abort();
+            if (terminateExecutionThread)
+                _executionThread?.Abort();
 
             State = DutyState.Aborted;
             Ped.IsBusy = false;

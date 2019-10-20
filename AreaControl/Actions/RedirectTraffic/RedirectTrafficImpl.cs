@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using AreaControl.AbstractionLayer;
 using AreaControl.Actions.Model;
@@ -18,7 +17,7 @@ namespace AreaControl.Actions.RedirectTraffic
 {
     public class RedirectTrafficImpl : AbstractRedirectTraffic
     {
-        private const float ScanRadius = 250f;
+        private const float ScanRadius = 100f;
         private const float VehiclePositionTolerance = 1f;
         private const float VehicleHeadingTolerance = 20f;
         private const string DispatchAudio = "WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION";
@@ -106,9 +105,7 @@ namespace AreaControl.Actions.RedirectTraffic
                 
                 MoveToSlot(_redirectSlot, vehicle);
 
-                vehicle.Driver.LeaveVehicle(LeaveVehicleFlags.None).WaitForCompletion(5000);
-                vehicle.Driver.CreateBlip();
-                vehicle.EnableSirens();
+                LeaveVehicle(vehicle);
 
                 PlaceSceneryItems(vehicle.Driver, _redirectSlot);
                 AssignRedirectTrafficDutyToDriver(vehicle, _redirectSlot);
@@ -121,21 +118,36 @@ namespace AreaControl.Actions.RedirectTraffic
             var initialDrivingFlags = _responseManager.VehicleDrivingFlags;
             var initialDrivingSpeed = _responseManager.VehicleSpeed;
 
+            vehicle.EnableEmergencyLights();
+            
             if (_responseManager.ResponseCode == ResponseCode.Code3)
                 vehicle.EnableSirens();
 
-            _rage.LogTrivialDebug("Vehicle driving to redirect traffic slot...");
+            _logger.Debug("Vehicle driving to redirect traffic slot...");
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(redirectSlot.Position, initialDrivingSpeed, initialDrivingFlags, 35f)
                 .WaitForCompletion();
-            _rage.LogTrivialDebug("Vehicle arrived in the area of redirect traffic slot " + redirectSlot);
+            _logger.Debug("Vehicle arrived in the area of redirect traffic slot " + redirectSlot);
             vehicle.EnableEmergencyLights();
             redirectSlot.ClearSlotFromTraffic();
             vehicleDriver.Instance.Tasks
                 .DriveToPosition(redirectSlot.Position, 10f, VehicleDrivingFlags.Emergency, 1f)
-                .WaitForCompletion(30000);
-            WarpInPositionIfNeeded(vehicle, redirectSlot);
+                .WaitForCompletion(15000);
+            VehicleUtils.WarpVehicle(vehicle, redirectSlot, VehicleHeadingTolerance, VehiclePositionTolerance);
             vehicle.EnableHazardIndicators();
+        }
+
+        private void LeaveVehicle(ACVehicle vehicle)
+        {
+            var ped = vehicle.Driver;
+            var leaveVehicleTask = ped.LeaveVehicle(LeaveVehicleFlags.None);
+
+            leaveVehicleTask.OnAborted += (sender, args) => ped.WarpOutVehicle();
+            leaveVehicleTask.WaitForCompletion(5000);
+            _logger.Trace("Leave vehicle task executor ended with: " + leaveVehicleTask);
+            
+            ped.CreateBlip();
+            vehicle.EnableSirens();
         }
 
         private void AssignRedirectTrafficDutyToDriver(ACVehicle vehicle, RedirectSlot redirectSlot)
@@ -169,9 +181,9 @@ namespace AreaControl.Actions.RedirectTraffic
             _placedObjects.Add(redirectSlot.Sign.Object);
 
             // add sign light to place object duty of required
-            if (redirectTrafficSettings.AlwaysPlaceLight || GameTimeUtils.TimePeriod == TimePeriod.Evening || GameTimeUtils.TimePeriod == TimePeriod.Night)
+            if (redirectTrafficSettings.AlwaysPlaceLight || GameUtils.TimePeriod == TimePeriod.Evening || GameUtils.TimePeriod == TimePeriod.Night)
             {
-                _logger.Trace("Current game time " + GameTimeUtils.GetCurrentHour() + " (" + GameTimeUtils.TimePeriod + ")");
+                _logger.Trace("Current game time " + GameUtils.GetCurrentHour() + " (" + GameUtils.TimePeriod + ")");
                 _logger.Debug("Placing down redirect traffic light...");
                 _placedObjects.Add(redirectSlot.SignLight.Object);
             }
@@ -190,17 +202,6 @@ namespace AreaControl.Actions.RedirectTraffic
             var closestRoad = RoadUtils.GetClosestRoad(positionBehindSlot, RoadType.All);
 
             return closestRoad.Position;
-        }
-
-        private static void WarpInPositionIfNeeded(ACVehicle vehicle, RedirectSlot redirectSlot)
-        {
-            var positionDifference = Vector3.Distance2D(vehicle.Instance.Position, redirectSlot.Position);
-            var headingDifference = Math.Abs(vehicle.Instance.Heading - redirectSlot.Heading);
-
-            if (positionDifference > VehiclePositionTolerance)
-                vehicle.Instance.Position = redirectSlot.Position;
-            if (headingDifference > VehicleHeadingTolerance)
-                vehicle.Instance.Heading = redirectSlot.Heading;
         }
 
         #endregion

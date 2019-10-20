@@ -99,6 +99,9 @@ namespace AreaControl.Instances
         /// </summary>
         public void EnableSirens()
         {
+            if (IsInvalid)
+                return;
+
             Instance.IsSirenOn = true;
             Instance.IsSirenSilent = false;
         }
@@ -108,6 +111,9 @@ namespace AreaControl.Instances
         /// </summary>
         public void EnableEmergencyLights()
         {
+            if (IsInvalid)
+                return;
+
             Instance.IsSirenOn = true;
             Instance.IsSirenSilent = true;
         }
@@ -117,8 +123,10 @@ namespace AreaControl.Instances
         /// </summary>
         public void EnableHazardIndicators()
         {
-            if (Instance.IsValid())
-                Instance.IndicatorLightsStatus = VehicleIndicatorLightsStatus.Both;
+            if (IsInvalid)
+                return;
+
+            Instance.IndicatorLightsStatus = VehicleIndicatorLightsStatus.Both;
         }
 
         /// <summary>
@@ -126,6 +134,9 @@ namespace AreaControl.Instances
         /// </summary>
         public void DisableSirens()
         {
+            if (IsInvalid)
+                return;
+
             Instance.IsSirenOn = false;
         }
 
@@ -134,8 +145,10 @@ namespace AreaControl.Instances
         /// </summary>
         public void DisableHazardLights()
         {
-            if (Instance.IsValid())
-                Instance.IndicatorLightsStatus = VehicleIndicatorLightsStatus.Off;
+            if (IsInvalid)
+                return;
+
+            Instance.IndicatorLightsStatus = VehicleIndicatorLightsStatus.Off;
         }
 
         /// <summary>
@@ -146,7 +159,7 @@ namespace AreaControl.Instances
             if (IsInvalid)
                 Delete();
 
-            if (Driver == null || !Driver.IsValid)
+            if (IsInvalid || Driver == null || !Driver.IsValid)
                 return;
 
             DeleteBlip();

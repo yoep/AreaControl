@@ -37,6 +37,7 @@ namespace AreaControl.Utils.Tasks
                 return;
 
             IsAborted = true;
+            OnCompletion = null;
 
             foreach (var entity in ExecutorEntities)
             {
@@ -46,7 +47,7 @@ namespace AreaControl.Utils.Tasks
 
         protected override void Init()
         {
-            GameFiber.StartNew(() =>
+            Rage.NewSafeFiber(() =>
             {
                 GameFiber.Yield();
 
@@ -66,7 +67,7 @@ namespace AreaControl.Utils.Tasks
                 }
 
                 OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);
-            });
+            }, GetType().Name + ".AnimationStateCheck");
         }
     }
 

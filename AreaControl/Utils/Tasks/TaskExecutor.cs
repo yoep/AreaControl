@@ -9,6 +9,9 @@ namespace AreaControl.Utils.Tasks
 {
     public class TaskExecutor
     {
+        protected static readonly IRage Rage = IoC.Instance.GetInstance<IRage>();
+        protected static readonly ILogger Logger = IoC.Instance.GetInstance<ILogger>();
+        
         internal TaskExecutor(TaskIdentificationType identificationType, TaskId taskId, TaskHash taskHash, IEnumerable<ExecutorEntity> executorEntities,
             bool isAborted)
         {
@@ -178,7 +181,7 @@ namespace AreaControl.Utils.Tasks
 
         protected virtual void Init()
         {
-            GameFiber.StartNew(() =>
+            Rage.NewSafeFiber(() =>
             {
                 // keep checking the state of the task when the task has not yet been completed or aborted
                 while (!IsCompleted && !IsAborted)
@@ -210,7 +213,7 @@ namespace AreaControl.Utils.Tasks
                     OnAborted?.Invoke(this, EventArgs.Empty);
 
                 OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);
-            });
+            }, GetType().Name + ".AliveThread");
         }
 
         private void TaskIdCompletedForAllExecutorEntities()
@@ -242,14 +245,12 @@ namespace AreaControl.Utils.Tasks
         [Conditional("DEBUG")]
         private void CheckForIncorrectHash(ExecutorEntity executorEntity)
         {
-            var rage = IoC.Instance.GetInstance<IRage>();
-
             foreach (var value in Enum.GetValues(typeof(TaskHash)))
             {
                 var status = TaskUtils.GetScriptTaskStatus(executorEntity.Ped, (uint) value);
 
                 if (status == (int) TaskStatus.None)
-                    rage.LogTrivial("Task Hash suggestion is " + value + "(" + (uint) value + ") for original task hash " + TaskHash);
+                    Logger.Warn("Task Hash suggestion is " + value + "(" + (uint) value + ") for original task hash " + TaskHash);
             }
         }
     }

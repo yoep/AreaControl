@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using AreaControl.Instances;
 using AreaControl.Instances.Scenery;
 using AreaControl.Utils;
 using AreaControl.Utils.Road;
@@ -7,16 +6,15 @@ using Rage;
 
 namespace AreaControl.Actions.Model
 {
-    public class RedirectSlot : IPreviewSupport
+    public class RedirectSlot : AbstractVehicleSlot
     {
         private const float PedDistanceFromVehicle = 3f;
         private readonly List<Entity> _previewObjects = new List<Entity>();
         private readonly List<Cone> _cones = new List<Cone>();
 
         public RedirectSlot(Vector3 position, float heading, bool placeConesOnRightSide)
+            : base(position, heading)
         {
-            Position = position;
-            Heading = heading;
             PedHeading = RoadUtils.OppositeHeading(Heading);
             PedPosition = Position + MathHelper.ConvertHeadingToDirection(PedHeading) * PedDistanceFromVehicle;
             PlaceConesRightSide = placeConesOnRightSide;
@@ -25,16 +23,6 @@ namespace AreaControl.Actions.Model
         }
 
         #region Properties
-
-        /// <summary>
-        /// Get the position of the redirect slot.
-        /// </summary>
-        public Vector3 Position { get; }
-
-        /// <summary>
-        /// Get the heading of the redirect slot.
-        /// </summary>
-        public float Heading { get; }
 
         /// <summary>
         /// Get the position of the ped for the redirect slot.
@@ -71,15 +59,13 @@ namespace AreaControl.Actions.Model
         #region IPreviewSupport
 
         /// <inheritdoc />
-        public bool IsPreviewActive => _previewObjects.Count > 0;
-
-        /// <inheritdoc />
-        public void CreatePreview()
+        public override void CreatePreview()
         {
             if (IsPreviewActive)
                 return;
+            
+            base.CreatePreview();
 
-            _previewObjects.Add(new Vehicle("POLICE", Position, Heading));
             _previewObjects.Add(new Ped(new Rage.Model("s_m_y_cop_01"), PedPosition, PedHeading));
             _previewObjects.ForEach(PreviewUtils.TransformToPreview);
             _cones.ForEach(x => x.CreatePreview());
@@ -88,10 +74,12 @@ namespace AreaControl.Actions.Model
         }
 
         /// <inheritdoc />
-        public void DeletePreview()
+        public override void DeletePreview()
         {
             if (!IsPreviewActive)
                 return;
+            
+            base.DeletePreview();
 
             _previewObjects.ForEach(EntityUtils.Remove);
             _previewObjects.Clear();
@@ -104,16 +92,9 @@ namespace AreaControl.Actions.Model
 
         #region Methods
 
-        public void ClearSlotFromTraffic()
+        protected override Rage.Model GetModelInstance()
         {
-            EntityUtils.CleanArea(Position, 5f, true);
-        }
-
-        public override string ToString()
-        {
-            return
-                $"{nameof(Position)}: {Position}, {nameof(Heading)}: {Heading}, {nameof(PedPosition)}: {PedPosition}, {nameof(PedHeading)}: {PedHeading}, " +
-                $"{nameof(IsPreviewActive)}: {IsPreviewActive}";
+            return ModelUtils.GetLocalPolice(Position);
         }
 
         #endregion
@@ -133,9 +114,9 @@ namespace AreaControl.Actions.Model
             var directionLeftOfVehicle = MathHelper.ConvertHeadingToDirection(Heading + headingToMove);
             var moveHeading = PedHeading;
             var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(moveHeading);
-            var positionLeftOfVehicle = Position + directionLeftOfVehicle * 2f;
-            var secondCone = positionLeftOfVehicle + directionBehindVehicle * 2f;
-            var thirdCone = secondCone + MathHelper.ConvertHeadingToDirection(moveHeading + headingThirdCone) * 2f;
+            var positionLeftOfVehicle = GameUtils.GetOnTheGroundVector(Position + directionLeftOfVehicle * 2f);
+            var secondCone = GameUtils.GetOnTheGroundVector(positionLeftOfVehicle + directionBehindVehicle * 2f);
+            var thirdCone = GameUtils.GetOnTheGroundVector(secondCone + MathHelper.ConvertHeadingToDirection(moveHeading + headingThirdCone) * 2f);
 
             _cones.Add(new Cone(positionLeftOfVehicle, moveHeading));
             _cones.Add(new Cone(secondCone, moveHeading));
@@ -146,8 +127,8 @@ namespace AreaControl.Actions.Model
         {
             var headingBehindVehicle = PedHeading;
             var directionBehindVehicle = MathHelper.ConvertHeadingToDirection(headingBehindVehicle + 10f);
-            var positionSign = Position + directionBehindVehicle * 8f;
-            var positionLight = positionSign + directionBehindVehicle * 2f;
+            var positionSign = GameUtils.GetOnTheGroundVector(Position + directionBehindVehicle * 8f);
+            var positionLight = GameUtils.GetOnTheGroundVector(positionSign + directionBehindVehicle * 2f);
 
             Sign = new StoppedVehiclesSign(positionSign, RoadUtils.OppositeHeading(headingBehindVehicle));
             SignLight = new GroundFloodLight(positionLight, headingBehindVehicle);

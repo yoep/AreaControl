@@ -2,6 +2,7 @@ using AreaControl;
 using AreaControl.AbstractionLayer;
 using AreaControlTests.AbstractionLayer;
 using AreaControlTests.Model;
+using AreaControlTests.TestExtension;
 using Xunit;
 using Assert = Xunit.Assert;
 

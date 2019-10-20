@@ -57,9 +57,12 @@ namespace AreaControl.Actions.Model
 
         #region Methods
 
+        /// <summary>
+        /// Clear the vehicle slot from any cars/debris.
+        /// </summary>
         public void ClearSlotFromTraffic()
         {
-            EntityUtils.CleanArea(Position, 5f);
+            EntityUtils.CleanArea(Position, 5f, true);
         }
 
         #endregion

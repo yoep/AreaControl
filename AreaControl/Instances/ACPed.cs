@@ -269,6 +269,33 @@ namespace AreaControl.Instances
         }
 
         /// <summary>
+        /// Warp the ped outside of the current vehicle.
+        /// </summary>
+        public void WarpOutVehicle()
+        {
+            if (IsInvalid || Instance.CurrentVehicle == null)
+                return;
+
+            var seat = (VehicleSeat) Instance.SeatIndex;
+            Vector3 newPosition;
+
+            switch (seat)
+            {
+                case VehicleSeat.Driver:
+                    newPosition = Instance.Position + MathHelper.ConvertHeadingToDirection(270f) * 2f;
+                    break;
+                case  VehicleSeat.RightFront:
+                    newPosition = Instance.Position + MathHelper.ConvertHeadingToDirection(90f) * 2f;
+                    break;
+                default:
+                    newPosition = Instance.Position + MathHelper.ConvertHeadingToDirection(Instance.Heading) * 3f;
+                    break;
+            }
+
+            Instance.Position = newPosition;
+        }
+
+        /// <summary>
         /// Free this ped and return the instance handle back to LSPDFR.
         /// </summary>
         public void ReturnToLspdfrDuty()

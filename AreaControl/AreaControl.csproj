@@ -181,7 +181,7 @@
     <Compile Include="Settings\SettingsManager.cs" />
     <Compile Include="Utils\AnimationUtils.cs" />
     <Compile Include="Utils\EntityUtils.cs" />
-    <Compile Include="Utils\GameTimeUtils.cs" />
+    <Compile Include="Utils\GameUtils.cs" />
     <Compile Include="Utils\LspdfrUtils.cs" />
     <Compile Include="Utils\ModelUtils.cs" />
     <Compile Include="Utils\ModIntegrationUtils.cs" />

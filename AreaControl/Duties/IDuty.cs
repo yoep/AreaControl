@@ -64,5 +64,10 @@ namespace AreaControl.Duties
         /// End forcefully the duty if it's still active.
         /// </summary>
         void Abort();
+
+        /// <summary>
+        /// Is invoked when the duty registration has been completed.
+        /// </summary>
+        void AfterRegistration();
     }
 }

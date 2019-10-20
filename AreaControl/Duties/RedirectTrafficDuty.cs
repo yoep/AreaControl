@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using AreaControl.Duties.Flags;
 using AreaControl.Instances;
 using AreaControl.Menu.Response;
@@ -50,25 +51,30 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public override void Abort()
         {
-            base.Abort();
+            Ped.WeaponsEnabled = true;
+            Logger.Trace("Aborting redirect traffic animation");
+            _animationTaskExecutor?.Abort();
+            Logger.Trace("Deleting attachments from the redirect traffic officer ped");
+            Ped.DeleteAttachments();
 
-            Rage.NewSafeFiber(() =>
-            {
-                Ped.WeaponsEnabled = true;
-                Rage.LogTrivialDebug("Aborting redirect animation...");
-                _animationTaskExecutor?.Abort();
-                Rage.LogTrivialDebug("Deleting attachments from redirect officer ped...");
-                Ped.DeleteAttachments();
-            }, "RedirectTrafficDuty.Abort");
+            base.Abort();
         }
 
         /// <inheritdoc />
+        [SuppressMessage("ReSharper", "FunctionNeverReturns")]
         protected override void DoExecute()
         {
             Logger.Info($"Executing redirect traffic duty #{Id}");
             Ped.WeaponsEnabled = false;
             PlayRedirectTrafficAnimation();
-            Logger.Info($"Completed redirect traffic duty #{Id}");
+            
+            // keep this method alive so it doesn't finish
+            // this duty is a continuous task, so it never finishes until it is aborted
+            // this means that it never should reach the state "DutyState.Completed"
+            while (true)
+            {
+                GameFiber.Yield();
+            }
         }
 
         #endregion

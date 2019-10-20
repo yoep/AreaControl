@@ -55,7 +55,7 @@ namespace AreaControl.Utils
         public static void CleanArea(Vector3 position, float radius, bool excludeEmergencyVehicles = false)
         {
             Assert.NotNull(position, "position cannot be null");
-            var queryFlags = GetEntitiesFlags.ConsiderAllVehicles | GetEntitiesFlags.ExcludePlayerPed;
+            var queryFlags = GetEntitiesFlags.ConsiderAllVehicles | GetEntitiesFlags.ExcludePlayerPed | GetEntitiesFlags.ExcludePlayerVehicle;
 
             if (excludeEmergencyVehicles)
                 queryFlags |= GetEntitiesFlags.ExcludeAmbulances | GetEntitiesFlags.ExcludeFiretrucks | GetEntitiesFlags.ExcludePoliceCars;

@@ -1,6 +1,6 @@
 using AreaControl;
 
-namespace AreaControlTests
+namespace AreaControlTests.TestExtension
 {
     public class TestIoC : IoC
     {

@@ -261,6 +261,7 @@ namespace AreaControl.Duties
             }
 
             pedDuties.Add(duty);
+            duty.AfterRegistration();
             _logger.Debug("Registered duty " + duty.GetType().Name + " for ped " + ped);
 
             if (!HasActiveDuty(ped))

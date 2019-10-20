@@ -76,6 +76,7 @@
     <Compile Include="AbstractionLayer\TestGameFiberWrapper.cs" />
     <Compile Include="AbstractionLayer\SettingsManagerImpl.cs" />
     <Compile Include="IoCTests.cs" />
+    <Compile Include="MainTests.cs" />
     <Compile Include="Model\Component.cs" />
     <Compile Include="Model\Component2.cs" />
     <Compile Include="Model\IComponent.cs" />
@@ -88,7 +89,7 @@
     <Compile Include="Model\Singleton.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AbstractionLayer\RageImpl.cs" />
-    <Compile Include="TestIoC.cs" />
+    <Compile Include="TestExtension\TestIoC.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
