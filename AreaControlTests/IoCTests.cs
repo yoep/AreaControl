@@ -1,9 +1,9 @@
 using AreaControl;
 using AreaControl.AbstractionLayer;
+using AreaControlTests.AbstractionLayer;
 using AreaControlTests.Model;
 using Xunit;
 using Assert = Xunit.Assert;
-using RageImpl = AreaControlTests.AbstractionLayer.RageImpl;
 
 namespace AreaControlTests
 {
@@ -14,8 +14,7 @@ namespace AreaControlTests
             [Fact]
             public void ShouldReturnDifferentInstances()
             {
-                var ioC = IoC.Instance
-                    .UnregisterAll()
+                var ioC = TestIoC.NewInstance
                     .Register<IRage>(typeof(RageImpl))
                     .RegisterSingleton<ISingleton>(typeof(Singleton))
                     .Register<IComponent>(typeof(Component));
@@ -29,8 +28,7 @@ namespace AreaControlTests
             [Fact]
             public void ShouldAllowMultipleImplementationRegistrationOfTheSameInterface()
             {
-                var ioC = IoC.Instance
-                    .UnregisterAll()
+                var ioC = TestIoC.NewInstance
                     .Register<IRage>(typeof(RageImpl))
                     .RegisterSingleton<ISingleton>(typeof(Singleton))
                     .Register<IComponent>(typeof(Component))
@@ -47,8 +45,7 @@ namespace AreaControlTests
             [Fact]
             public void ShouldReturnSingletonInstance()
             {
-                var ioC = IoC.Instance
-                    .UnregisterAll()
+                var ioC = TestIoC.NewInstance
                     .Register<IRage>(typeof(RageImpl))
                     .RegisterSingleton<ISingleton>(typeof(Singleton))
                     .Register<IComponent>(typeof(Component));
@@ -65,9 +62,7 @@ namespace AreaControlTests
             [Fact]
             public void ShouldInvokePostConstructMethod()
             {
-                var ioC = IoC.Instance;
-                ioC
-                    .UnregisterAll()
+                var ioC = TestIoC.NewInstance
                     .RegisterSingleton<IPostConstructModel>(typeof(PostConstructModel));
 
                 var result = ioC.GetInstance<IPostConstructModel>();
@@ -82,8 +77,7 @@ namespace AreaControlTests
             [Fact]
             public void ShouldCleanIoCWhenInvoked()
             {
-                var ioC = IoC.Instance
-                    .UnregisterAll()
+                var ioC = TestIoC.NewInstance
                     .Register<IRage>(typeof(RageImpl))
                     .RegisterSingleton<ISingleton>(typeof(Singleton))
                     .Register<IComponent>(typeof(Component));
@@ -100,8 +94,7 @@ namespace AreaControlTests
             [Fact]
             public void ShouldReturnPrimaryInstanceWhenDefined()
             {
-                var ioC = IoC.Instance
-                    .UnregisterAll()
+                var ioC = TestIoC.NewInstance
                     .Register<IRage>(typeof(RageImpl))
                     .RegisterSingleton<ISingleton>(typeof(Singleton))
                     .Register<IComponent>(typeof(Component))
@@ -118,8 +111,7 @@ namespace AreaControlTests
             [Fact]
             public void ShouldReturnAllInstancesThatContainTheDerivedInterfaceWhenInvoked()
             {
-                var ioC = IoC.Instance
-                    .UnregisterAll()
+                var ioC = TestIoC.NewInstance
                     .Register<IRage>(typeof(RageImpl))
                     .RegisterSingleton<ISingleton>(typeof(Singleton))
                     .Register<IComponent>(typeof(Component))

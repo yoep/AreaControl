@@ -22,7 +22,7 @@ namespace AreaControl
 
         #region Constructors
 
-        private IoC()
+        protected IoC()
         {
         }
 
