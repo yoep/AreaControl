@@ -16,9 +16,10 @@ namespace AreaControl.Actions.CrimeScene
 {
     public class CrimeSceneImpl : AbstractCrimeScene, ICrimeScene
     {
+        private const float InitialAcceptedDistance = 40f;
         private const float AcceptedDistance = 2.5f;
-        private const float InitialDrivingSpeed = 40f;
-        private const float SlowDrivingSpeed = 10f;
+        private const float InitialDrivingSpeed = 30f;
+        private const float SlowDrivingSpeed = 8f;
 
         private readonly IRage _rage;
         private readonly ILogger _logger;
@@ -136,7 +137,7 @@ namespace AreaControl.Actions.CrimeScene
 
                 _ambulance = _entityManager.CreateVehicleAt(spawnPosition, crimeSceneHeading, VehicleType.Ambulance, 2);
                 _ambulance.EnableEmergencyLights();
-                _ambulance.DriveToPosition(ambulancePosition, InitialDrivingSpeed, VehicleDrivingFlags.Emergency, 35f)
+                _ambulance.DriveToPosition(ambulancePosition, InitialDrivingSpeed, VehicleDrivingFlags.Emergency, InitialAcceptedDistance)
                     .WaitForCompletion();
                 _ambulance.DriveToPosition(ambulancePosition, SlowDrivingSpeed, VehicleDrivingFlags.Emergency, AcceptedDistance)
                     .WaitForCompletion();
@@ -174,7 +175,7 @@ namespace AreaControl.Actions.CrimeScene
 
                 _fireTruck = _entityManager.CreateVehicleAt(spawnPosition, crimeSceneHeading, VehicleType.FireTruck, 2);
                 _fireTruck.EnableEmergencyLights();
-                _fireTruck.DriveToPosition(firetruckPosition, InitialDrivingSpeed, VehicleDrivingFlags.Emergency, 35f)
+                _fireTruck.DriveToPosition(firetruckPosition, InitialDrivingSpeed, VehicleDrivingFlags.Emergency, InitialAcceptedDistance)
                     .WaitForCompletion();
                 _fireTruck.DriveToPosition(firetruckPosition, SlowDrivingSpeed, VehicleDrivingFlags.Emergency, AcceptedDistance)
                     .WaitForCompletion();
@@ -194,7 +195,7 @@ namespace AreaControl.Actions.CrimeScene
 
                 _police = _entityManager.CreateVehicleAt(spawnPosition, crimeSceneHeading, VehicleType.Police, 2);
                 _police.EnableEmergencyLights();
-                _police.DriveToPosition(policePosition, 25f, VehicleDrivingFlags.Emergency, 35f)
+                _police.DriveToPosition(policePosition, InitialDrivingSpeed - 10f, VehicleDrivingFlags.Emergency, InitialAcceptedDistance)
                     .WaitForCompletion();
                 _police.DriveToPosition(policePosition, SlowDrivingSpeed, VehicleDrivingFlags.Emergency, 2f)
                     .WaitForCompletion();

@@ -1,3 +1,4 @@
+using System;
 using AreaControl.Instances;
 using LSPD_First_Response.Mod.API;
 
@@ -12,8 +13,8 @@ namespace AreaControl.Duties
         protected AbstractOnPursuitAwareDuty(long id, ACPed ped)
             : base(id, ped)
         {
-            Events.OnPursuitStarted += OnPursuitStarted;
-            Events.OnPursuitEnded += OnPursuitEnded;
+            Events.OnPursuitStarted += InvokeOnPursuitStarted;
+            Events.OnPursuitEnded += InvokeOnPursuitEnded;
         }
 
         /// <summary>
@@ -27,5 +28,37 @@ namespace AreaControl.Duties
         /// </summary>
         /// <param name="pursuitHandle">The LSPDFR pursuit handle.</param>
         protected abstract void OnPursuitEnded(LHandle pursuitHandle);
+
+        /// <summary>
+        /// Thread safe invocation of <see cref="OnPursuitStarted"/>.
+        /// </summary>
+        /// <param name="pursuitHandle">The LSPDFR pursuit handle.</param>
+        private void InvokeOnPursuitStarted(LHandle pursuitHandle)
+        {
+            try
+            {
+                OnPursuitStarted(pursuitHandle);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message, ex);
+            }
+        }
+
+        /// <summary>
+        /// Thread safe invocation of <see cref="OnPursuitEnded"/>.
+        /// </summary>
+        /// <param name="pursuitHandle">The LSPDFR pursuit handle.</param>
+        private void InvokeOnPursuitEnded(LHandle pursuitHandle)
+        {
+            try
+            {
+                OnPursuitEnded(pursuitHandle);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message, ex);
+            }
+        }
     }
 }

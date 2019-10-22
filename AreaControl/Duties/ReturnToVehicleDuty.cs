@@ -72,8 +72,9 @@ namespace AreaControl.Duties
 
         protected override void OnPursuitStarted(LHandle pursuitHandle)
         {
-            _currentTaskExecutor.Abort();
+            _currentTaskExecutor?.Abort();
             Functions.AddCopToPursuit(pursuitHandle, Ped.Instance);
+            State = DutyState.Interrupted;
         }
 
         protected override void OnPursuitEnded(LHandle pursuitHandle)
