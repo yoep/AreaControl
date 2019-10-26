@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Rage;
@@ -33,6 +34,16 @@ namespace AreaControl.AbstractionLayer.Implementation
         public void LogTrivialDebug(string message)
         {
             Game.LogTrivialDebug("[" + AreaControl.Name + "]: " + message.Trim());
+        }
+
+        /// <inheritdoc />
+        public IGameFiberWrapper NewSafeFiber(Action action)
+        {
+            var stackFrame = new StackFrame(1);
+            var type = stackFrame.GetType().Name;
+            var method = stackFrame.GetMethod().Name;
+
+            return NewSafeFiber(action, type + "." + method);
         }
 
         /// <inheritdoc />

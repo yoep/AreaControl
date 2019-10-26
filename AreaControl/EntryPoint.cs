@@ -88,7 +88,8 @@ namespace AreaControl
                 .RegisterSingleton<IRedirectTrafficPreview>(typeof(RedirectTrafficPreview))
                 .RegisterSingleton<ICrimeScenePreview>(typeof(CrimeScenePreview))
                 .RegisterSingleton<IRoadInfo>(typeof(RoadInfo))
-                .Register<IRoadPreview>(typeof(RoadPreview));
+                .Register<IRoadPreview>(typeof(RoadPreview))
+                .Register<INearbyRoadsPreview>(typeof(NearbyRoadsPreview));
         }
 
         [Conditional("DEBUG")]

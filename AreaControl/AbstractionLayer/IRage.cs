@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Rage;
 
 namespace AreaControl.AbstractionLayer
 {
@@ -28,6 +27,14 @@ namespace AreaControl.AbstractionLayer
 
         void LogTrivialDebug(string message);
 
+        /// <summary>
+        /// Start a new thread safe game fiber which will capture exceptions if they occur and log them in the console.
+        /// The fiber name will be based on the calling class and method name.
+        /// </summary>
+        /// <param name="action">Set the action to execute on the fiber.</param>
+        /// <returns>Returns the game fiber wrapper which is exception safe.</returns>
+        IGameFiberWrapper NewSafeFiber(Action action);
+        
         /// <summary>
         /// Start a new thread safe game fiber which will capture exceptions if they occur and log them in the console.
         /// </summary>

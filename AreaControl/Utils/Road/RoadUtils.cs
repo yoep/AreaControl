@@ -72,14 +72,9 @@ namespace AreaControl.Utils.Road
         {
             Assert.NotNull(position, "position cannot be null");
             Assert.NotNull(roadType, "roadType cannot be null");
-            Vector3 road1;
-            Vector3 road2;
-            int numberOfLanes1;
-            int numberOfLanes2;
-            float junctionIndication;
 
-            NativeFunction.Natives.GET_CLOSEST_ROAD(position.X, position.Y, position.Z, 1f, 1, out road1, out road2, out numberOfLanes1, out numberOfLanes2,
-                out junctionIndication, (int) roadType);
+            NativeFunction.Natives.GET_CLOSEST_ROAD(position.X, position.Y, position.Z, 1f, 1, out Vector3 road1, out Vector3 road2, out int numberOfLanes1,
+                out int numberOfLanes2, out float junctionIndication, (int) roadType);
 
             return new List<Instances.Road>
             {
@@ -131,7 +126,8 @@ namespace AreaControl.Utils.Road
 
         private static Instances.Road DiscoverRoad(Vector3 roadPosition, int numberOfLanes1, int numberOfLanes2, float junctionIndication)
         {
-            var rightSideHeading = GetVehicleNode(roadPosition).Heading;
+            var vehicleNode = GetVehicleNode(roadPosition);
+            var rightSideHeading = vehicleNode.Heading;
             var roadRightSide = GetLastPointOnTheLane(roadPosition, rightSideHeading - 90f);
             var roadLeftSide = GetLastPointOnTheLane(roadPosition, rightSideHeading + 90f);
 
@@ -149,6 +145,7 @@ namespace AreaControl.Utils.Road
                 .NumberOfLanes2(numberOfLanes2)
                 .JunctionIndicator((int) junctionIndication)
                 .Lanes(DiscoverLanes(roadRightSide, roadLeftSide, roadPosition, rightSideHeading, numberOfLanes1, numberOfLanes2))
+                .Node(vehicleNode)
                 .Build();
         }
 
@@ -211,14 +208,12 @@ namespace AreaControl.Utils.Road
             return roadPosition + directionOfTheSideToFix * widthOtherSide;
         }
 
-        private static VehicleNodeResult GetVehicleNode(Vector3 position)
+        private static Instances.Road.VehicleNode GetVehicleNode(Vector3 position)
         {
-            Vector3 nodePosition;
-            float nodeHeading;
+            NativeFunction.Natives.GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(position.X, position.Y, position.Z, out Vector3 nodePosition, out float nodeHeading, 
+                1, 3, 0);
 
-            NativeFunction.Natives.GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(position.X, position.Y, position.Z, out nodePosition, out nodeHeading, 1, 3, 0);
-
-            return new VehicleNodeResult
+            return new Instances.Road.VehicleNode
             {
                 Position = nodePosition,
                 Heading = MathHelper.NormalizeHeading(nodeHeading)
@@ -287,19 +282,6 @@ namespace AreaControl.Utils.Road
         public Vector3 LastPointOnRoad { get; set; }
     }
 
-    internal class VehicleNodeResult
-    {
-        /// <summary>
-        /// The position of the vehicle node.
-        /// </summary>
-        public Vector3 Position { get; set; }
-
-        /// <summary>
-        /// The heading of the vehicle node.
-        /// </summary>
-        public float Heading { get; set; }
-    }
-
     internal class RoadBuilder
     {
         private readonly List<Instances.Road.Lane> _lanes = new List<Instances.Road.Lane>();
@@ -309,6 +291,7 @@ namespace AreaControl.Utils.Road
         private int _numberOfLanes1;
         private int _numberOfLanes2;
         private int _junctionIndicator;
+        private Instances.Road.VehicleNode _node;
 
         private RoadBuilder()
         {
@@ -365,12 +348,19 @@ namespace AreaControl.Utils.Road
             return this;
         }
 
+        public RoadBuilder Node(Instances.Road.VehicleNode node)
+        {
+            Assert.NotNull(node, "node cannot be null");
+            _node = node;
+            return this;
+        }
+
         public Instances.Road Build()
         {
             Assert.NotNull(_position, "position has not been set");
             Assert.NotNull(_rightSide, "rightSide has not been set");
             Assert.NotNull(_leftSide, "leftSide has not been set");
-            return new Instances.Road(_position, _rightSide, _leftSide, _lanes.AsReadOnly(), _numberOfLanes1, _numberOfLanes2, _junctionIndicator);
+            return new Instances.Road(_position, _rightSide, _leftSide, _lanes.AsReadOnly(), _node, _numberOfLanes1, _numberOfLanes2, _junctionIndicator);
         }
     }
 

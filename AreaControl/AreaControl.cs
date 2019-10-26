@@ -13,6 +13,8 @@ namespace AreaControl
         public const string RoadInfo = "Road info " + DebugIndicatorText;
         public const string RoadPreview = "Road preview " + DebugIndicatorText;
         public const string RoadPreviewRemove = "Remove road preview " + DebugIndicatorText;
+        public const string NearbyRoadsPreview = "Nearby roads preview " + DebugIndicatorText;
+        public const string NearbyRoadsPreviewRemove = "Remove nearby roads preview " + DebugIndicatorText;
 
         public const string RedirectTraffic = "Redirect traffic";
         public const string RedirectTrafficDescription = "Redirect the traffic away from the player";

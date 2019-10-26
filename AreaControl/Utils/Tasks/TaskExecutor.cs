@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using AreaControl.AbstractionLayer;
+using AreaControl.Utils.Tasks.Exceptions;
 using Rage;
 
 namespace AreaControl.Utils.Tasks
@@ -11,7 +12,7 @@ namespace AreaControl.Utils.Tasks
     {
         protected static readonly IRage Rage = IoC.Instance.GetInstance<IRage>();
         protected static readonly ILogger Logger = IoC.Instance.GetInstance<ILogger>();
-        
+
         internal TaskExecutor(TaskIdentificationType identificationType, TaskId taskId, TaskHash taskHash, IEnumerable<ExecutorEntity> executorEntities,
             bool isAborted)
         {
@@ -20,7 +21,7 @@ namespace AreaControl.Utils.Tasks
             TaskHash = taskHash;
             ExecutorEntities = executorEntities;
             IsAborted = isAborted;
-            
+
             Init();
         }
 
@@ -182,38 +183,38 @@ namespace AreaControl.Utils.Tasks
         protected virtual void Init()
         {
             Rage.NewSafeFiber(() =>
-            {
-                // keep checking the state of the task when the task has not yet been completed or aborted
-                while (!IsCompleted && !IsAborted)
                 {
-                    switch (IdentificationType)
+                    // keep checking the state of the task when the task has not yet been completed or aborted
+                    while (!IsCompleted && !IsAborted)
                     {
-                        case TaskIdentificationType.Id:
-                            TaskIdCompletedForAllExecutorEntities();
-                            break;
-                        case TaskIdentificationType.Hash:
-                            TaskStatusCompletedForAllExecutorEntities();
-                            break;
-                        case TaskIdentificationType.Animation:
-                            //ignore this one as Rage will determine the state
-                            break;
-                        default:
-                            throw new NotImplementedException("The TaskIdentificationType has not been implemented yet");
+                        switch (IdentificationType)
+                        {
+                            case TaskIdentificationType.Id:
+                                TaskIdCompletedForAllExecutorEntities();
+                                break;
+                            case TaskIdentificationType.Hash:
+                                TaskStatusCompletedForAllExecutorEntities();
+                                break;
+                            case TaskIdentificationType.Animation:
+                                //ignore this one as Rage will determine the state
+                                break;
+                            default:
+                                throw new TaskException("The TaskIdentificationType has not been implemented yet");
+                        }
+
+                        if (ExecutorEntities.All(x => x.CompletedTask))
+                            IsCompleted = true;
+
+                        GameFiber.Wait(100);
                     }
 
-                    if (ExecutorEntities.All(x => x.CompletedTask))
-                        IsCompleted = true;
+                    if (IsCompleted)
+                        OnCompletion?.Invoke(this, EventArgs.Empty);
+                    if (IsAborted)
+                        OnAborted?.Invoke(this, EventArgs.Empty);
 
-                    GameFiber.Wait(100);
-                }
-
-                if (IsCompleted)
-                    OnCompletion?.Invoke(this, EventArgs.Empty);
-                if (IsAborted)
-                    OnAborted?.Invoke(this, EventArgs.Empty);
-
-                OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);
-            }, GetType().Name + ".AliveThread");
+                    OnCompletionOrAborted?.Invoke(this, EventArgs.Empty);
+                }, GetType().Name + ".AliveThread");
         }
 
         private void TaskIdCompletedForAllExecutorEntities()

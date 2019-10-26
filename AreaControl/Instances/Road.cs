@@ -10,13 +10,14 @@ namespace AreaControl.Instances
     {
         #region Constructors
 
-        internal Road(Vector3 position, Vector3 rightSide, Vector3 leftSide, IReadOnlyList<Lane> lanes, int numberOfLanes1, int numberOfLanes2,
-            int junctionIndicator)
+        internal Road(Vector3 position, Vector3 rightSide, Vector3 leftSide, IReadOnlyList<Lane> lanes, VehicleNode node, int numberOfLanes1,
+            int numberOfLanes2, int junctionIndicator)
         {
             Position = position;
             RightSide = rightSide;
             LeftSide = leftSide;
             Lanes = lanes;
+            Node = node;
             NumberOfLanes1 = numberOfLanes1;
             NumberOfLanes2 = numberOfLanes2;
             JunctionIndicator = junctionIndicator;
@@ -45,6 +46,11 @@ namespace AreaControl.Instances
         /// Get the lanes of this road.
         /// </summary>
         public IReadOnlyList<Lane> Lanes { get; }
+
+        /// <summary>
+        /// Get the vehicle node that was used to determine this road.
+        /// </summary>
+        public VehicleNode Node { get; }
 
         /// <summary>
         /// Get the total number of lanes.
@@ -107,6 +113,7 @@ namespace AreaControl.Instances
             {
                 lane.CreatePreview();
             }
+            Node.CreatePreview();
         }
 
         /// <inheritdoc />
@@ -120,9 +127,12 @@ namespace AreaControl.Instances
             {
                 lane.DeletePreview();
             }
+            Node.DeletePreview();
         }
 
         #endregion
+
+        #region Methods
 
         public override string ToString()
         {
@@ -135,15 +145,23 @@ namespace AreaControl.Instances
                           Environment.NewLine + $"{nameof(IsAtJunction)}: {IsAtJunction}," +
                           Environment.NewLine + $"{nameof(IsSingleDirection)}: {IsSingleDirection}," +
                           Environment.NewLine + $"{nameof(Width)}: {Width}" +
+                          Environment.NewLine + $"{nameof(Node)}: {Node}" +
                           Environment.NewLine + "--- Lanes ---" + Environment.NewLine;
             return Lanes.Aggregate(message, (current, lane) => current + (Environment.NewLine + lane)) + Environment.NewLine + "---";
         }
+
+        #endregion
+
+        #region Functions
 
         private bool IsSingleDirectionRoad()
         {
             return NumberOfLanes1 == 0 || NumberOfLanes2 == 0;
         }
 
+        #endregion
+
+        /// <inheritdoc />
         /// <summary>
         /// Defines the lane information within the road.
         /// </summary>
@@ -263,9 +281,69 @@ namespace AreaControl.Instances
                 return RightSide + moveDirection * (Width / 2);
             }
 
-            private Vector3 FloatAboveGround(Vector3 position)
+            private static Vector3 FloatAboveGround(Vector3 position)
             {
                 return position + Vector3.WorldUp * 0.25f;
+            }
+        }
+
+        /// <summary>
+        /// The vehicle node that was used to determine the road.
+        /// </summary>
+        public class VehicleNode : IPreviewSupport
+        {
+            /// <summary>
+            /// The position of the vehicle node.
+            /// </summary>
+            public Vector3 Position { get; internal set; }
+
+            /// <summary>
+            /// The heading of the vehicle node.
+            /// </summary>
+            public float Heading { get; internal set; }
+
+            #region IPreviewSupport
+
+            /// <inheritdoc />
+            public bool IsPreviewActive { get; private set; }
+
+            /// <inheritdoc />
+            public void CreatePreview()
+            {
+                if (IsPreviewActive)
+                    return;
+
+                var direction = MathHelper.ConvertHeadingToDirection(Heading);
+
+                IsPreviewActive = true;
+                GameFiber.StartNew(() => {
+                    while (IsPreviewActive)
+                    {
+                        Rage.Debug.DrawArrow(FloatAboveGround(Position), direction, Rotator.Zero, 3f, Color.Gold);
+                        GameFiber.Yield();
+                    }
+                });
+            }
+
+            /// <inheritdoc />
+            public void DeletePreview()
+            {
+                if (!IsPreviewActive)
+                    return;
+
+                IsPreviewActive = false;
+            }
+
+            #endregion
+
+            public override string ToString()
+            {
+                return $"{nameof(Position)}: {Position}, {nameof(Heading)}: {Heading}";
+            }
+
+            private static Vector3 FloatAboveGround(Vector3 position)
+            {
+                return position + Vector3.WorldUp * 0.5f;
             }
         }
     }

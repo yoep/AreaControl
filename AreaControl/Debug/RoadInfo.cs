@@ -1,6 +1,5 @@
 using AreaControl.AbstractionLayer;
 using AreaControl.Menu;
-using AreaControl.Utils;
 using AreaControl.Utils.Road;
 using Rage;
 using RAGENativeUI.Elements;
@@ -26,9 +25,6 @@ namespace AreaControl.Debug
 
         /// <inheritdoc />
         public bool IsAutoClosed => false;
-
-        /// <inheritdoc />
-        public bool IsVisible => true;
 
         /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)

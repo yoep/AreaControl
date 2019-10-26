@@ -1,7 +1,6 @@
 using AreaControl.AbstractionLayer;
 using AreaControl.Instances;
 using AreaControl.Menu;
-using AreaControl.Utils;
 using AreaControl.Utils.Road;
 using Rage;
 using RAGENativeUI.Elements;
@@ -11,11 +10,13 @@ namespace AreaControl.Debug
     public class RoadPreview : IRoadPreview
     {
         private readonly IRage _rage;
+        private readonly ILogger _logger;
         private Road _road;
 
-        public RoadPreview(IRage rage)
+        public RoadPreview(IRage rage, ILogger logger)
         {
             _rage = rage;
+            _logger = logger;
         }
 
         #region IMenuComponent
@@ -28,9 +29,6 @@ namespace AreaControl.Debug
 
         /// <inheritdoc />
         public bool IsAutoClosed => false;
-
-        /// <inheritdoc />
-        public bool IsVisible => true;
 
         /// <inheritdoc />
         public void OnMenuActivation(IMenu sender)
@@ -71,8 +69,9 @@ namespace AreaControl.Debug
             {
                 MenuItem.Text = AreaControl.RoadPreviewRemove;
                 _road = RoadUtils.GetClosestRoad(Game.LocalPlayer.Character.Position, RoadType.All);
+                _logger.Debug("Nearest road info: " + _road);
                 _road.CreatePreview();
-            }, "RoadPreview.CreateRoadPreview");
+            });
         }
 
         private void RemoveRoadPreview()
@@ -82,7 +81,7 @@ namespace AreaControl.Debug
                 MenuItem.Text = AreaControl.RoadPreview;
                 _road.DeletePreview();
                 _road = null;
-            }, "RoadPreview.RemoveRoadPreview");
+            });
         }
     }
 }

@@ -114,8 +114,10 @@
     <Compile Include="Callouts\CalloutManager.cs" />
     <Compile Include="Callouts\ICalloutManager.cs" />
     <Compile Include="Callouts\RiotCallout.cs" />
+    <Compile Include="Debug\INearbyRoadsPreview.cs" />
     <Compile Include="Debug\IRoadInfo.cs" />
     <Compile Include="Debug\IRoadPreview.cs" />
+    <Compile Include="Debug\NearbyRoadsPreview.cs" />
     <Compile Include="Debug\RoadInfo.cs" />
     <Compile Include="Debug\RoadPreview.cs" />
     <Compile Include="Duties\AbstractDuty.cs" />
@@ -195,6 +197,7 @@
     <Compile Include="Utils\Road\RoadUtils.cs" />
     <Compile Include="Utils\Tasks\AbstractTaskBuilder.cs" />
     <Compile Include="Utils\Tasks\AnimationTaskExecutor.cs" />
+    <Compile Include="Utils\Tasks\Exceptions\TaskException.cs" />
     <Compile Include="Utils\Tasks\ExecutorEntity.cs" />
     <Compile Include="Utils\Tasks\RageTaskExecutor.cs" />
     <Compile Include="Utils\Tasks\TaskExecutor.cs" />
