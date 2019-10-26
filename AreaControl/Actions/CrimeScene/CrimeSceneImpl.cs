@@ -117,7 +117,7 @@ namespace AreaControl.Actions.CrimeScene
                 var position = Game.LocalPlayer.Character.Position;
                 _crimeSceneSlot = DetermineCrimeSceneSlot();
 
-                _rage.DisplayNotification($"Requesting dispatch to ~b~create crime scene~s~ {World.GetStreetName(position)}...");
+                _rage.DisplayNotification($"Requesting dispatch for a ~b~crime scene~s~ at {World.GetStreetName(position)}");
                 LspdfrUtils.PlayScannerAudioUsingPosition("WE_HAVE OFFICER_IN_NEED_OF_ASSISTANCE IN_OR_ON_POSITION UNITS_RESPOND_CODE_03", position, true);
                 LspdfrUtils.PlayScannerAudio("OTHER_UNIT_TAKING_CALL");
 
@@ -137,11 +137,7 @@ namespace AreaControl.Actions.CrimeScene
 
                 _ambulance = _entityManager.CreateVehicleAt(spawnPosition, crimeSceneHeading, VehicleType.Ambulance, 2);
                 _ambulance.EnableEmergencyLights();
-                _ambulance.DriveToPosition(ambulancePosition, InitialDrivingSpeed, VehicleDrivingFlags.Emergency, InitialAcceptedDistance)
-                    .WaitForCompletion();
-                _ambulance.DriveToPosition(ambulancePosition, SlowDrivingSpeed, VehicleDrivingFlags.Emergency, AcceptedDistance)
-                    .WaitForCompletion();
-                VehicleUtils.WarpVehicle(_ambulance, _crimeSceneSlot.Ambulance);
+                DriveTo(_ambulance, _crimeSceneSlot.Ambulance);
                 _ambulance.Occupants.ForEach(x => x.LeaveVehicle(LeaveVehicleFlags.None));
 
                 AssignNextAvailableDutyToMedicPassenger();
@@ -175,11 +171,7 @@ namespace AreaControl.Actions.CrimeScene
 
                 _fireTruck = _entityManager.CreateVehicleAt(spawnPosition, crimeSceneHeading, VehicleType.FireTruck, 2);
                 _fireTruck.EnableEmergencyLights();
-                _fireTruck.DriveToPosition(firetruckPosition, InitialDrivingSpeed, VehicleDrivingFlags.Emergency, InitialAcceptedDistance)
-                    .WaitForCompletion();
-                _fireTruck.DriveToPosition(firetruckPosition, SlowDrivingSpeed, VehicleDrivingFlags.Emergency, AcceptedDistance)
-                    .WaitForCompletion();
-                VehicleUtils.WarpVehicle(_fireTruck, _crimeSceneSlot.Firetruck);
+                DriveTo(_fireTruck, _crimeSceneSlot.Firetruck);
                 _fireTruck.Occupants.ForEach(x => x.LeaveVehicle(LeaveVehicleFlags.None));
             }, "CrimeSceneImpl.ExecuteFireTruckActions");
         }
@@ -195,12 +187,7 @@ namespace AreaControl.Actions.CrimeScene
 
                 _police = _entityManager.CreateVehicleAt(spawnPosition, crimeSceneHeading, VehicleType.Police, 2);
                 _police.EnableEmergencyLights();
-                _police.DriveToPosition(policePosition, InitialDrivingSpeed - 10f, VehicleDrivingFlags.Emergency, InitialAcceptedDistance)
-                    .WaitForCompletion();
-                _police.DriveToPosition(policePosition, SlowDrivingSpeed, VehicleDrivingFlags.Emergency, 2f)
-                    .WaitForCompletion();
-                VehicleUtils.WarpVehicle(_police, policeSlot, 25f, 1f);
-                _police.Occupants.ForEach(x => x.LeaveVehicle(LeaveVehicleFlags.None));
+                DriveTo(_police, _crimeSceneSlot.Police);
 
                 ExecutePoliceDriverActions();
                 ExecutePolicePassengerActions();
@@ -209,26 +196,46 @@ namespace AreaControl.Actions.CrimeScene
 
         private void ExecutePoliceDriverActions()
         {
+            var ped = _police.Driver;
             var policeSlot = _crimeSceneSlot.Police;
             var barriers = policeSlot.Barriers.Select(x => x.Object).ToList();
             _placedObjects.AddRange(barriers);
 
+            ped.LeaveVehicle(LeaveVehicleFlags.None)
+                .WaitForCompletion();
+
             _dutyManager
-                .NewPlaceObjectsDuty(_police.Driver, barriers, ResponseCode.Code3, false)
+                .NewPlaceObjectsDuty(ped, barriers, ResponseCode.Code3, false)
                 .OnCompletion = (sender, args) =>
-                _dutyManager.NewRedirectTrafficDuty(_police.Driver, policeSlot.PedPosition, policeSlot.PedHeading, ResponseCode.Code3);
+                _dutyManager.NewRedirectTrafficDuty(ped, policeSlot.PedPosition, policeSlot.PedHeading, ResponseCode.Code3);
         }
 
         private void ExecutePolicePassengerActions()
         {
-            var passenger = _police.Passengers.First();
+            var ped = _police.Passengers.First();
             var barriers = _crimeSceneSlot.BarriersAndCones.Select(x => x.Object).ToList();
             _placedObjects.AddRange(barriers);
 
+            ped.LeaveVehicle(LeaveVehicleFlags.None)
+                .WaitForCompletion();
+            
             _logger.Trace("Placing down crime scene barriers...");
             _dutyManager
-                .NewPlaceObjectsDuty(passenger, barriers, ResponseCode.Code3, false)
-                .OnCompletion += (sender, args) => _dutyManager.NextAvailableDuty(passenger, DutyTypeFlag.ReturnToVehicle);
+                .NewPlaceObjectsDuty(ped, barriers, ResponseCode.Code3, false)
+                .OnCompletion += (sender, args) => _dutyManager.NextAvailableDuty(ped, DutyTypeFlag.ReturnToVehicle);
+        }
+
+        private static void DriveTo(ACVehicle vehicle, IVehicleSlot slot)
+        {
+            var slotPosition = slot.Position;
+            var driveToPosition = vehicle.DriveToPosition(slotPosition, InitialDrivingSpeed, VehicleDrivingFlags.Emergency, InitialAcceptedDistance);
+
+            driveToPosition.OnAborted += (sender, args) => VehicleUtils.WarpVehicle(vehicle, slot);
+            driveToPosition.WaitForCompletion(30000);
+
+            var getIntoPosition = vehicle.DriveToPosition(slotPosition, SlowDrivingSpeed, VehicleDrivingFlags.Emergency, AcceptedDistance);
+            getIntoPosition.OnCompletionOrAborted += (sender, args) => VehicleUtils.WarpVehicle(vehicle, slot);
+            getIntoPosition.WaitForCompletion(1000);
         }
 
         #endregion

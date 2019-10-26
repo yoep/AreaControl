@@ -97,6 +97,7 @@
     <Compile Include="Actions\CrimeScene\ICrimeScenePreview.cs" />
     <Compile Include="Actions\Model\AbstractVehicleSlot.cs" />
     <Compile Include="Actions\Model\AmbulanceSlot.cs" />
+    <Compile Include="Actions\Model\IVehicleSlot.cs" />
     <Compile Include="Actions\Model\PoliceSlot.cs" />
     <Compile Include="Actions\Model\CrimeSceneSlot.cs" />
     <Compile Include="Actions\Model\FireTruckSlot.cs" />

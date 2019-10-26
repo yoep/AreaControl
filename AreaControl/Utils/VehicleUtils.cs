@@ -3,7 +3,6 @@ using AreaControl.AbstractionLayer;
 using AreaControl.Actions.Model;
 using AreaControl.Instances;
 using Rage;
-using Rage.Native;
 
 namespace AreaControl.Utils
 {
@@ -21,7 +20,7 @@ namespace AreaControl.Utils
         /// <param name="slot">The slot to warp the vehicle into.</param>
         /// <param name="headingTolerance">The heading tolerance the vehicle may have.</param>
         /// <param name="positionTolerance">The distance tolerance the vehicle may have.</param>
-        public static void WarpVehicle(ACVehicle vehicle, AbstractVehicleSlot slot, 
+        public static void WarpVehicle(ACVehicle vehicle, IVehicleSlot slot, 
             float headingTolerance = HeadingTolerance, float positionTolerance = PositionTolerance)
         {
             WarpVehicleInHeading(vehicle, slot, headingTolerance);
@@ -34,7 +33,7 @@ namespace AreaControl.Utils
         /// <param name="vehicle">The vehicle to warp if needed.</param>
         /// <param name="slot">The slot to warp the vehicle into.</param>
         /// <param name="tolerance">The heading tolerance the vehicle may have.</param>
-        public static void WarpVehicleInHeading(ACVehicle vehicle, AbstractVehicleSlot slot, float tolerance = HeadingTolerance)
+        public static void WarpVehicleInHeading(ACVehicle vehicle, IVehicleSlot slot, float tolerance = HeadingTolerance)
         {
             var vehicleHeading = vehicle.Instance.Heading;
             var expectedHeading = slot.Heading;
@@ -52,7 +51,7 @@ namespace AreaControl.Utils
         /// <param name="vehicle">The vehicle to warp if needed.</param>
         /// <param name="slot">The slot to warp the vehicle into.</param>
         /// <param name="tolerance">The distance tolerance the vehicle may have.</param>
-        public static void WarpVehicleInPosition(ACVehicle vehicle, AbstractVehicleSlot slot, float tolerance = PositionTolerance)
+        public static void WarpVehicleInPosition(ACVehicle vehicle, IVehicleSlot slot, float tolerance = PositionTolerance)
         {
             var vehicleInstance = vehicle.Instance;
             var vehiclePosition = vehicleInstance.Position;

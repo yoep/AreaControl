@@ -4,7 +4,7 @@ using Rage;
 
 namespace AreaControl.Actions.Model
 {
-    public abstract class AbstractVehicleSlot : IPreviewSupport
+    public abstract class AbstractVehicleSlot : IVehicleSlot, IPreviewSupport
     {
         private Entity _previewObject;
 
@@ -16,14 +16,10 @@ namespace AreaControl.Actions.Model
 
         #region Properties
 
-        /// <summary>
-        /// Get the position of the vehicle.
-        /// </summary>
+        /// <inheritdoc />
         public Vector3 Position { get; }
 
-        /// <summary>
-        /// Get the heading of the vehicle.
-        /// </summary>
+        /// <inheritdoc />
         public float Heading { get; }
 
         #endregion

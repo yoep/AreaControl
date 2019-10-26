@@ -65,7 +65,7 @@ namespace AreaControl.Duties
         /// <inheritdoc />
         public void Execute()
         {
-            if (State != DutyState.Ready || State != DutyState.Interrupted)
+            if (State != DutyState.Ready && State != DutyState.Interrupted)
                 throw new InvalidDutyStateException("Duty cannot be executed because it's in an invalid state", State);
 
             State = DutyState.Active;
